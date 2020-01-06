@@ -1,0 +1,10 @@
+name: database
+description: A database API (work in progress).
+version: 0.4.0
+homepage: https://github.com/dint-dev/database
+
+environment:
+  sdk: '>=2.19.4 <3.0.0'
+
+dev_dependencies:
+  lints: ^2.0.0
