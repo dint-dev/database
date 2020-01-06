@@ -33,7 +33,14 @@ class Document {
 
   /// Constructs a document. Usually you should call the method
   /// `collection.document("id")` instead of this constructor.
-  Document(this.parent, this.documentId);
+  Document(this.parent, this.documentId)
+      : assert(parent != null),
+        assert(documentId != null) {
+    ArgumentError.checkNotNull(datastore, 'datastore');
+    if (documentId == null || documentId.isEmpty) {
+      throw ArgumentError.value(documentId, 'documentId');
+    }
+  }
 
   /// Returns datastore where the document is.
   Datastore get datastore => parent.datastore;

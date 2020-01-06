@@ -22,6 +22,7 @@ import 'package:datastore/query_parsing.dart';
 class Collection {
   /// Returns datastore where the document is.
   final Datastore datastore;
+  final Document parentDocument;
 
   /// A non-blank identifier.
   ///
@@ -32,9 +33,22 @@ class Collection {
   /// It's also a good idea to use lowercase identifiers.
   final String collectionId;
 
-  /// Constructs a collection. Usually you should call the method
-  /// `datastore.collection("id")` instead of this constructor.
-  Collection(this.datastore, this.collectionId);
+  /// Constructs a collection.
+  ///
+  /// Usually it's better to call the method `datastore.collection("id")`
+  /// instead of this constructor.
+  ///
+  /// This constructor enables specifying [parentDocument], which is a concept
+  /// supported by some document database vendor. It typically affects
+  /// documents in the collection behave in transactions.
+  Collection(this.datastore, this.collectionId, {this.parentDocument})
+      : assert(datastore != null),
+        assert(collectionId != null) {
+    ArgumentError.checkNotNull(datastore, 'datastore');
+    if (collectionId == null || collectionId.isEmpty) {
+      throw ArgumentError.value(collectionId, 'collectionId');
+    }
+  }
 
   @override
   int get hashCode => datastore.hashCode ^ collectionId.hashCode;
