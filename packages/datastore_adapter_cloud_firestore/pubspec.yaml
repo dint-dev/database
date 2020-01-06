@@ -1,0 +1,26 @@
+name: datastore_adapter_cloud_firestore
+version: 0.1.0
+description:
+  An adapter for 'package:datastore' that adds support for Google Firestore in Flutter (iOS /
+  Android) using 'package:cloud_firestore'.
+homepage: https://github.com/terrier989/datastore
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+dependencies:
+  cloud_firestore: ^0.13.0+1
+  flutter:
+    sdk: flutter
+  datastore: ^0.1.0
+  meta: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  pedantic: ^1.8.0
+  test: ^1.8.0
+
+dependency_overrides:
+  datastore:
+    path: '../datastore'

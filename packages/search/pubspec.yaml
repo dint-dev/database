@@ -1,0 +1,22 @@
+name: search
+version: 0.2.0
+description:
+  A text simple datastore that works in all platforms (Flutter, browser, and server-side). This
+  adapter uses 'package:datastore' as the underlying storage layer.
+homepage: https://github.com/terrier989/datastore
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+dependencies:
+  charcode: ^1.1.0
+  datastore: ^0.1.0
+  meta: ^1.1.0
+
+dev_dependencies:
+  pedantic: ^1.9.0
+  test: ^1.8.0
+
+dependency_overrides:
+  datastore:
+    path: '../datastore'
