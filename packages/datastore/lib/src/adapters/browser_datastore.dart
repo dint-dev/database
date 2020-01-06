@@ -17,6 +17,7 @@ import 'dart:convert';
 import 'package:datastore/adapters_framework.dart';
 import 'package:datastore/datastore.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:fixnum/fixnum.dart';
 
 String _jsonPointerEscape(String s) {
   return s.replaceAll('~', '~0').replaceAll('/', '~1');
@@ -72,7 +73,8 @@ class BrowserLocalStorageDatastore extends DatastoreAdapter
         exists: false,
       ));
     }
-    final deserialized = _decode(serialized) as Map<String, Object>;
+    final deserialized =
+        _decode(request.document.datastore, serialized) as Map<String, Object>;
     return Stream<Snapshot>.value(Snapshot(
       document: document,
       data: deserialized,
@@ -97,7 +99,8 @@ class BrowserLocalStorageDatastore extends DatastoreAdapter
       if (serialized == null) {
         return null;
       }
-      final decoded = _decode(serialized) as Map<String, Object>;
+      final decoded = _decode(request.collection.datastore, serialized)
+          as Map<String, Object>;
       return Snapshot(
         document: document,
         data: decoded,
@@ -185,36 +188,45 @@ class BrowserLocalStorageDatastore extends DatastoreAdapter
     return jsonEncode(_toJson(value));
   }
 
-  static Object _decode(String s) {
-    return _fromJson(jsonDecode(s));
+  static Object _decode(Datastore datastore, String s) {
+    return _fromJson(datastore, jsonDecode(s));
   }
 
-  static Object _fromJson(Object value) {
+  static Object _fromJson(Datastore datastore, Object value) {
     if (value == null || value is bool || value is int || value is String) {
       return value;
     }
     if (value is Map) {
       final result = <String, Object>{};
       for (var entry in value.entries) {
-        result[entry.key] = _fromJson(entry.value);
+        result[entry.key] = _fromJson(datastore, entry.value);
       }
       return result;
     }
     if (value is List) {
       final type = value[0] as String;
       switch (type) {
+        case 'int':
+          return Int64.parseInt(value[1] as String);
         case 'nan':
           return double.nan;
         case '-inf':
           return double.negativeInfinity;
         case 'inf':
           return double.infinity;
-        case 'double':
-          return value[1] as double;
         case 'datetime':
           return DateTime.fromMillisecondsSinceEpoch((value[1] as num).toInt());
+        case 'geopoint':
+          return GeoPoint(value[1] as double, value[2] as double);
+        case 'document':
+          return datastore
+              .collection(value[1] as String)
+              .document(value[2] as String);
         case 'list':
-          return value.skip(1).map(_fromJson).toList();
+          return value
+              .skip(1)
+              .map((item) => _fromJson(datastore, item))
+              .toList();
         default:
           throw ArgumentError('Unsupported type annotation "$type"');
       }
@@ -222,9 +234,14 @@ class BrowserLocalStorageDatastore extends DatastoreAdapter
     throw ArgumentError.value(value);
   }
 
+  // This is an ad-hoc codec.
+  // TODO: A better specification? GRPC + base64?
   static Object _toJson(Object value) {
-    if (value == null || value is bool || value is int || value is String) {
+    if (value == null || value is bool || value is String) {
       return value;
+    }
+    if (value is Int64) {
+      return ['int', value.toString()];
     }
     if (value is double) {
       if (value.isNaN) {
@@ -236,10 +253,16 @@ class BrowserLocalStorageDatastore extends DatastoreAdapter
         }
         return const ['inf'];
       }
-      return ['double', value];
+      return value;
     }
     if (value is DateTime) {
       return ['datetime', value.millisecondsSinceEpoch];
+    }
+    if (value is GeoPoint) {
+      return ['geopoint', value.latitude, value.longitude];
+    }
+    if (value is Document) {
+      return ['document', value.parent.collectionId, value.documentId];
     }
     if (value is List) {
       return ['list', ...value.map(_toJson)];

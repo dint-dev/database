@@ -170,6 +170,73 @@ class DatastoreTestSuite {
             throwsA(isA<DatastoreException>()),
           );
         });
+
+        group('different values:', () {
+          setUp(() async {
+            // Delete possible existing document
+            await document.deleteIfExists();
+            expect((await document.get()).exists, isFalse);
+          });
+
+          test('DateTime', () async {
+            // Insert
+            await document.insert(data: {
+              'value': DateTime.fromMillisecondsSinceEpoch(0),
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {
+              'value': DateTime.fromMillisecondsSinceEpoch(0),
+            });
+          });
+
+          test('GeoPoint', () async {
+            // Insert
+            await document.insert(data: {
+              'value': GeoPoint(1.0, 2.0),
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {'value': GeoPoint(1.0, 2.0)});
+          });
+
+          test('String', () async {
+            // Insert
+            await document.insert(data: {'value': ''});
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {'value': ''});
+          });
+
+          test('List', () async {
+            // Insert
+            await document.insert(data: {
+              'value': ['a', 'b', 'c']
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {
+              'value': ['a', 'b', 'c']
+            });
+          });
+
+          test('Map', () async {
+            // Insert
+            await document.insert(data: {
+              'value': {'k0': 'v0', 'k1': 'v1'},
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {
+              'value': {'k0': 'v0', 'k1': 'v1'},
+            });
+          });
+        });
       });
 
       group('upsert():', () {
