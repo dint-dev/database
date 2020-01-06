@@ -54,6 +54,7 @@ class DatastoreServerClient extends $grpc.Client {
 }
 
 abstract class DatastoreServerServiceBase extends $grpc.Service {
+  @$core.override
   $core.String get $name => 'DatastoreServer';
 
   DatastoreServerServiceBase() {

@@ -26,11 +26,15 @@ class SearchInput extends $pb.GeneratedMessage {
   factory SearchInput() => create();
   factory SearchInput.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory SearchInput.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   SearchInput clone() => SearchInput()..mergeFromMessage(this);
+  @$core.override
   SearchInput copyWith(void Function(SearchInput) updates) => super.copyWith((message) => updates(message as SearchInput));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static SearchInput create() => SearchInput._();
+  @$core.override
   SearchInput createEmptyInstance() => create();
   static $pb.PbList<SearchInput> createRepeated() => $pb.PbList<SearchInput>();
   @$core.pragma('dart2js:noInline')
@@ -81,11 +85,15 @@ class SearchOutput extends $pb.GeneratedMessage {
   factory SearchOutput() => create();
   factory SearchOutput.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory SearchOutput.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   SearchOutput clone() => SearchOutput()..mergeFromMessage(this);
+  @$core.override
   SearchOutput copyWith(void Function(SearchOutput) updates) => super.copyWith((message) => updates(message as SearchOutput));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static SearchOutput create() => SearchOutput._();
+  @$core.override
   SearchOutput createEmptyInstance() => create();
   static $pb.PbList<SearchOutput> createRepeated() => $pb.PbList<SearchOutput>();
   @$core.pragma('dart2js:noInline')
@@ -128,11 +136,15 @@ class SearchResultItem extends $pb.GeneratedMessage {
   factory SearchResultItem() => create();
   factory SearchResultItem.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory SearchResultItem.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   SearchResultItem clone() => SearchResultItem()..mergeFromMessage(this);
+  @$core.override
   SearchResultItem copyWith(void Function(SearchResultItem) updates) => super.copyWith((message) => updates(message as SearchResultItem));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static SearchResultItem create() => SearchResultItem._();
+  @$core.override
   SearchResultItem createEmptyInstance() => create();
   static $pb.PbList<SearchResultItem> createRepeated() => $pb.PbList<SearchResultItem>();
   @$core.pragma('dart2js:noInline')
@@ -181,11 +193,15 @@ class ReadInput extends $pb.GeneratedMessage {
   factory ReadInput() => create();
   factory ReadInput.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory ReadInput.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   ReadInput clone() => ReadInput()..mergeFromMessage(this);
+  @$core.override
   ReadInput copyWith(void Function(ReadInput) updates) => super.copyWith((message) => updates(message as ReadInput));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static ReadInput create() => ReadInput._();
+  @$core.override
   ReadInput createEmptyInstance() => create();
   static $pb.PbList<ReadInput> createRepeated() => $pb.PbList<ReadInput>();
   @$core.pragma('dart2js:noInline')
@@ -217,11 +233,15 @@ class ReadOutput extends $pb.GeneratedMessage {
   factory ReadOutput() => create();
   factory ReadOutput.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory ReadOutput.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   ReadOutput clone() => ReadOutput()..mergeFromMessage(this);
+  @$core.override
   ReadOutput copyWith(void Function(ReadOutput) updates) => super.copyWith((message) => updates(message as ReadOutput));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static ReadOutput create() => ReadOutput._();
+  @$core.override
   ReadOutput createEmptyInstance() => create();
   static $pb.PbList<ReadOutput> createRepeated() => $pb.PbList<ReadOutput>();
   @$core.pragma('dart2js:noInline')
@@ -283,11 +303,15 @@ class WriteInput extends $pb.GeneratedMessage {
   factory WriteInput() => create();
   factory WriteInput.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory WriteInput.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   WriteInput clone() => WriteInput()..mergeFromMessage(this);
+  @$core.override
   WriteInput copyWith(void Function(WriteInput) updates) => super.copyWith((message) => updates(message as WriteInput));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static WriteInput create() => WriteInput._();
+  @$core.override
   WriteInput createEmptyInstance() => create();
   static $pb.PbList<WriteInput> createRepeated() => $pb.PbList<WriteInput>();
   @$core.pragma('dart2js:noInline')
@@ -336,11 +360,15 @@ class WriteOutput extends $pb.GeneratedMessage {
   factory WriteOutput() => create();
   factory WriteOutput.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory WriteOutput.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   WriteOutput clone() => WriteOutput()..mergeFromMessage(this);
+  @$core.override
   WriteOutput copyWith(void Function(WriteOutput) updates) => super.copyWith((message) => updates(message as WriteOutput));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static WriteOutput create() => WriteOutput._();
+  @$core.override
   WriteOutput createEmptyInstance() => create();
   static $pb.PbList<WriteOutput> createRepeated() => $pb.PbList<WriteOutput>();
   @$core.pragma('dart2js:noInline')
@@ -374,11 +402,15 @@ class Error extends $pb.GeneratedMessage {
   factory Error() => create();
   factory Error.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Error.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   Error clone() => Error()..mergeFromMessage(this);
+  @$core.override
   Error copyWith(void Function(Error) updates) => super.copyWith((message) => updates(message as Error));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Error create() => Error._();
+  @$core.override
   Error createEmptyInstance() => create();
   static $pb.PbList<Error> createRepeated() => $pb.PbList<Error>();
   @$core.pragma('dart2js:noInline')
@@ -459,11 +491,15 @@ class Query extends $pb.GeneratedMessage {
   factory Query() => create();
   factory Query.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Query.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   Query clone() => Query()..mergeFromMessage(this);
+  @$core.override
   Query copyWith(void Function(Query) updates) => super.copyWith((message) => updates(message as Query));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Query create() => Query._();
+  @$core.override
   Query createEmptyInstance() => create();
   static $pb.PbList<Query> createRepeated() => $pb.PbList<Query>();
   @$core.pragma('dart2js:noInline')
@@ -532,11 +568,15 @@ class Filter extends $pb.GeneratedMessage {
   factory Filter() => create();
   factory Filter.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Filter.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   Filter clone() => Filter()..mergeFromMessage(this);
+  @$core.override
   Filter copyWith(void Function(Filter) updates) => super.copyWith((message) => updates(message as Filter));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Filter create() => Filter._();
+  @$core.override
   Filter createEmptyInstance() => create();
   static $pb.PbList<Filter> createRepeated() => $pb.PbList<Filter>();
   @$core.pragma('dart2js:noInline')
@@ -553,11 +593,15 @@ class Schema extends $pb.GeneratedMessage {
   factory Schema() => create();
   factory Schema.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Schema.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   Schema clone() => Schema()..mergeFromMessage(this);
+  @$core.override
   Schema copyWith(void Function(Schema) updates) => super.copyWith((message) => updates(message as Schema));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Schema create() => Schema._();
+  @$core.override
   Schema createEmptyInstance() => create();
   static $pb.PbList<Schema> createRepeated() => $pb.PbList<Schema>();
   @$core.pragma('dart2js:noInline')
@@ -576,11 +620,15 @@ class Collection extends $pb.GeneratedMessage {
   factory Collection() => create();
   factory Collection.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Collection.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   Collection clone() => Collection()..mergeFromMessage(this);
+  @$core.override
   Collection copyWith(void Function(Collection) updates) => super.copyWith((message) => updates(message as Collection));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Collection create() => Collection._();
+  @$core.override
   Collection createEmptyInstance() => create();
   static $pb.PbList<Collection> createRepeated() => $pb.PbList<Collection>();
   @$core.pragma('dart2js:noInline')
@@ -618,11 +666,15 @@ class Document extends $pb.GeneratedMessage {
   factory Document() => create();
   factory Document.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Document.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   Document clone() => Document()..mergeFromMessage(this);
+  @$core.override
   Document copyWith(void Function(Document) updates) => super.copyWith((message) => updates(message as Document));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Document create() => Document._();
+  @$core.override
   Document createEmptyInstance() => create();
   static $pb.PbList<Document> createRepeated() => $pb.PbList<Document>();
   @$core.pragma('dart2js:noInline')
@@ -677,11 +729,15 @@ class Value extends $pb.GeneratedMessage {
   factory Value() => create();
   factory Value.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Value.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   Value clone() => Value()..mergeFromMessage(this);
+  @$core.override
   Value copyWith(void Function(Value) updates) => super.copyWith((message) => updates(message as Value));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Value create() => Value._();
+  @$core.override
   Value createEmptyInstance() => create();
   static $pb.PbList<Value> createRepeated() => $pb.PbList<Value>();
   @$core.pragma('dart2js:noInline')
@@ -791,11 +847,15 @@ class Timestamp extends $pb.GeneratedMessage {
   factory Timestamp() => create();
   factory Timestamp.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Timestamp.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   Timestamp clone() => Timestamp()..mergeFromMessage(this);
+  @$core.override
   Timestamp copyWith(void Function(Timestamp) updates) => super.copyWith((message) => updates(message as Timestamp));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Timestamp create() => Timestamp._();
+  @$core.override
   Timestamp createEmptyInstance() => create();
   static $pb.PbList<Timestamp> createRepeated() => $pb.PbList<Timestamp>();
   @$core.pragma('dart2js:noInline')
@@ -832,11 +892,15 @@ class GeoPoint extends $pb.GeneratedMessage {
   factory GeoPoint() => create();
   factory GeoPoint.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory GeoPoint.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.override
   GeoPoint clone() => GeoPoint()..mergeFromMessage(this);
+  @$core.override
   GeoPoint copyWith(void Function(GeoPoint) updates) => super.copyWith((message) => updates(message as GeoPoint));
+  @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static GeoPoint create() => GeoPoint._();
+  @$core.override
   GeoPoint createEmptyInstance() => create();
   static $pb.PbList<GeoPoint> createRepeated() => $pb.PbList<GeoPoint>();
   @$core.pragma('dart2js:noInline')
