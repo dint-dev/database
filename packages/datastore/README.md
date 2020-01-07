@@ -16,40 +16,44 @@ Repeat contributors may be given Github permissions to push directly into the re
 have been granted such permission, code review is not necessary for you (but it's still a good
 habit).
 
-## General-purpose adapters
-  * __BrowserDatastore__ ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/browser_datastore.dart))
+## API reference
+  * [pub.dev/documentation/datastore/latest/](https://pub.dev/documentation/datastore/latest/)
+
+## Available adapters
+### General-purpose
+  * __BrowserDatastore__ ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/BrowserDatastore-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/browser_datastore.dart))
     * Uses browser APIs such as _window.localStorage_.
-  * __CachingDatastore__ ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/caching_datastore.dart))
+  * __CachingDatastore__ ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/CachingDatastore-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/caching_datastore.dart))
     * Caches data in some other datastore.
-  * __GrpcDatastore__ ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/grpc_datastore.dart))
+  * __GrpcDatastore__ ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/GrpcDatastore-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/grpc_datastore.dart))
     * A [GRPC](https://grpc.io) client. You can also find a server implementation.
-  * __MemoryDatastore__ ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/memory_datastore.dart))
+  * __MemoryDatastore__ ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/MemoryDatastore-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/memory_datastore.dart))
     * Stores data in memory.
-  * __SchemaUsingDatastore__ ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/schema_using_datastore.dart))
+  * __SchemaUsingDatastore__ ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/SchemaUsingDatastore-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/schema_using_datastore.dart))
     * Enforces schemas on reads/writes.
   * __SearchableDatastore__
     * A search engine for Flutter / web applications. Found in the package [search](https://pub.dev/packages/search).
 
-## Adapters for various products
+### For using various products
   * __Algolia__ ([website](https://www.algolia.com))
-    * Use adapter `Algolia` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/algolia.dart))
-    * The adapter is not ready and needs help.
+    * Use adapter `Algolia` ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/Algolia-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/algolia.dart))
+    * The adapter does not pass all tests. You can help!
   * __Azure Cosmos DB__ ([website](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction))
-    * Use adapter `AzureCosmosDB` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/azure_cosmos_db.dart))
-    * The adapter is not ready and needs help.
+    * Use adapter `AzureCosmosDB` ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/AzureCosmosDB-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/azure_cosmos_db.dart))
+    * The adapter does not pass all tests. You can help!
   * __Azure Cognitive Search__ ([website](https://azure.microsoft.com/en-us/services/search))
-    * Use adapter `AzureCognitiveSearch` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/azure_cognitive_search.dart))
-    * The adapter is not ready and needs help.
+    * Use adapter `AzureCognitiveSearch` ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/AzureCognitiveSearch-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/azure_cognitive_search.dart))
+    * The adapter does not pass all tests. You can help!
   * __ElasticSearch__ ([website](https://www.elastic.co))
-    * Use adapter `ElasticSearch` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/elastic_search.dart))
-    * The adapter is not ready and needs help.
+    * Use adapter `ElasticSearch` ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/ElasticSearch-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/elastic_search.dart))
+    * The adapter does not pass all tests. You can help!
   * __Google Cloud Datastore__ ([website](https://cloud.google.com/datastore))
-    * Use adapter `GoogleCloudDatastore` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/google_cloud_datastore.dart))
-    * The adapter is not ready and needs help.
+    * Use adapter `GoogleCloudDatastore` ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/GoogleCloudDatastore-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/google_cloud_datastore.dart))
+    * The adapter does not pass all tests. You can help!
   * __Google Cloud Firestore__ ([website](https://firebase.google.com/docs/firestore))
-    * In browser, use adapter `Firestore` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/google_cloud_firestore_impl_browser.dart))
+    * In browser, use adapter `Firestore` ([API](https://pub.dev/documentation/datastore/latest/datastore.adapters/Firestore-class.html), [source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/google_cloud_firestore_impl_browser.dart))
     * In Flutter, use adapter `FirestoreFlutter` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore_adapter_cloud_firestore/lib/adapter.dart)) in "package:firestore_adapter_cloud_firestore/adapter.dart".
-    * The adapter is not ready and needs help.
+    * The adapter does not pass all tests. You can help!
 
 
 # Getting started
