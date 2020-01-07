@@ -1,14 +1,33 @@
 [![Github Actions CI](https://github.com/terrier989/datastore/workflows/Dart%20CI/badge.svg)](https://github.com/terrier989/datastore/actions?query=workflow%3A%22Dart+CI%22)
 
 # Overview
-This package helps information retrieval in Dart applications.
-
-_SearchableDatastore_ wraps any other _Datastore_ ([package:datastore](https://pub.dev/packages/datastore)).
-Current implementation simply calculates score for every document in the document collection, which
-is usually an acceptable strategy in mobile and web applications. This package is not meant to be
-used when collections are too large to fit the memory, which is often the case in the server-side.
+This is an information retrieval engine written in Dart.
 
 Licensed under the [Apache License 2.0](LICENSE).
+
+__Warning:__ expect many breaking changes before the project freezes the APIs.
+
+## How it works
+
+`SearchableDatastore` wraps any other `Datastore` and intercepts search requests that contain
+one or more `KeywordFilter` instances.
+
+The current implementation then simply visits every document in the collection and calculates score
+for each document. This is very inefficient strategy for large collections / many concurrent
+requests. However, for typical mobile and web applications, this is fine!
+
+In the preprocessing step, we simplify both keyword and:
+  * Replace whitespace characters with a single space.
+    * "hello,\n  world" --> " hello world "
+  * Lowercase characters and replace some extended Latin characters with ASCII characters.
+    * "Élysée" --> " elysee "
+  * Remove some suffices
+    * "Joe's coffee" --> " joe coffee "
+
+The document scoring algorithm is a quick hack at the moment. It attempts to raise score for:
+  * Higher count of substring search matches.
+  * Substring search matches near each other.
+  * Presence of exact (non-processed) substring matches.
 
 ## Contributing
   * [github.com/terrier989/datastore](https://github.com/terrier989/datastore)
@@ -27,19 +46,13 @@ import 'package:datastore/datastore.dart';
 import 'package:search/search.dart';
 
 void main() {
-  Datastore.freezeDefaultInstance(
-    SearchableDatastore(
-      datastore: MemoryDatastore(), // The underlying datastore can be anything.
-    ),
+  final datastore = SearchableDatastore(
+    datastore: MemoryDatastore(),
   );
-
-  // ...
-
-  final datastore = Datastore.defaultInstance;
   final collection = datastore.collection('employee');
-  final collectionSnapshot = await collection.search(
+  final result = await collection.search(
     query: Query.parse(
-      '"software developer" (dart OR javascript)',
+      '(Hello OR Hi) world!',
       skip: 0,
       take: 10,
     ),
