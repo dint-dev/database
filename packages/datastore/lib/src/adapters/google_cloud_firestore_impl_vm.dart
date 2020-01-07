@@ -22,6 +22,6 @@ abstract class FirestoreImpl extends DatastoreAdapter implements Firestore {
     @required String apiKey,
     @required String appId,
   }) {
-    throw UnimplementedError();
+    throw UnsupportedError('This adapter is only supported in the browser');
   }
 }

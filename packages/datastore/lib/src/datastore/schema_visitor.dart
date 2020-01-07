@@ -24,6 +24,7 @@ abstract class SchemaVisitor<T, C> {
   T visitDocumentSchema(DocumentSchema schema, C context);
   T visitDoubleSchema(DoubleSchema schema, C context);
   T visitGeoPointSchema(GeoPointSchema schema, C context);
+  T visitInt64Schema(Int64Schema schema, C context);
   T visitIntSchema(IntSchema schema, C context);
   T visitListSchema(ListSchema schema, C context);
   T visitMapSchema(MapSchema schema, C context);

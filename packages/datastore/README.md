@@ -24,6 +24,8 @@ granted such permission, code review is not necessary for you.
     * A [GRPC](https://grpc.io) client. You can also find a server implementation.
   * __MemoryDatastore__ ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/memory_datastore.dart))
     * Stores data in memory.
+  * __SchemaUsingDatastore__ ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/schema_using_datastore.dart))
+    * Enforces schemas on reads/writes.
   * __SearchableDatastore__
     * A search engine for Flutter / web applications. Found in the package [search](https://pub.dev/packages/search)).
 
@@ -44,7 +46,7 @@ granted such permission, code review is not necessary for you.
     * Use adapter `GoogleCloudDatastore` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/google_cloud_datastore.dart))
     * The adapter is not ready and needs help.
   * __Google Cloud Firestore__ ([website](https://firebase.google.com/docs/firestore))
-    * In browser, use adapter `Firestore` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/google_cloud_firestore.dart))
+    * In browser, use adapter `Firestore` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/google_cloud_firestore_impl_browser.dart))
     * In Flutter, use adapter `FirestoreFlutter` ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore_adapter_cloud_firestore/lib/adapter.dart)) in "package:firestore_adapter_cloud_firestore/adapter.dart".
     * The adapter is not ready and needs help.
 

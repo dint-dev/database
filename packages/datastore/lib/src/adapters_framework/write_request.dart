@@ -19,9 +19,10 @@ import 'package:meta/meta.dart';
 /// A request to perform a write in the storage.
 @sealed
 class WriteRequest {
-  final Document document;
-  final WriteType type;
-  final Map<String, Object> data;
+  Document document;
+  WriteType type;
+  Map<String, Object> data;
+  Schema schema;
 
   WriteRequest({
     @required this.document,

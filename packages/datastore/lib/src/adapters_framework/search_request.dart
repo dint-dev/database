@@ -35,23 +35,25 @@ class ChunkedStreamSettings {
 @sealed
 class SearchRequest {
   /// Collection where the search is done.
-  final Collection collection;
+  Collection collection;
 
   /// Optional query.
-  final Query query;
+  Query query;
 
   /// Whether the response stream should be an incrementally improving list of
   /// all snapshots.
   ///
   /// It's an invalid state if both [chunkedStreamSettings] and [watchSettings] are non-null.
-  final ChunkedStreamSettings chunkedStreamSettings;
+  ChunkedStreamSettings chunkedStreamSettings;
 
   /// If non-null, the stream is infinite. New items are generated are updated
   /// using polling or some more efficient method.
   ///
   /// For performance reasons, an item should not be added to the stream if it's
   /// the equal to the previous added item.
-  final WatchSettings watchSettings;
+  WatchSettings watchSettings;
+
+  Schema schema;
 
   SearchRequest({
     @required this.collection,

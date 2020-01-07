@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'package:datastore/datastore.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
@@ -178,16 +179,85 @@ class DatastoreTestSuite {
             expect((await document.get()).exists, isFalse);
           });
 
-          test('DateTime', () async {
+          test('null', () async {
             // Insert
             await document.insert(data: {
-              'value': DateTime.fromMillisecondsSinceEpoch(0),
+              'value': null,
             });
 
             // Get
             final snapshot = await document.get();
             expect(snapshot.data, {
-              'value': DateTime.fromMillisecondsSinceEpoch(0),
+              'value': null,
+            });
+          });
+
+          test('bool', () async {
+            // Insert
+            await document.insert(data: {
+              'value0': false,
+              'value1': true,
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {
+              'value0': false,
+              'value1': true,
+            });
+          });
+
+          test('Int64', () async {
+            // Insert
+            await document.insert(data: {
+              'value0': Int64(-2),
+              'value1': Int64(2),
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {
+              'value0': Int64(-2),
+              'value1': Int64(2),
+            });
+          });
+
+          test('int', () async {
+            // Insert
+            await document.insert(data: {
+              'value': 3,
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {
+              'value': 3,
+            });
+          });
+
+          test('double', () async {
+            // Insert
+            await document.insert(data: {
+              'value': 3.14,
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {
+              'value': 3.14,
+            });
+          });
+
+          test('DateTime', () async {
+            // Insert
+            await document.insert(data: {
+              'value': DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {
+              'value': DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
             });
           });
 
@@ -204,11 +274,17 @@ class DatastoreTestSuite {
 
           test('String', () async {
             // Insert
-            await document.insert(data: {'value': ''});
+            await document.insert(data: {
+              'value0': '',
+              'value1': 'abc',
+            });
 
             // Get
             final snapshot = await document.get();
-            expect(snapshot.data, {'value': ''});
+            expect(snapshot.data, {
+              'value0': '',
+              'value1': 'abc',
+            });
           });
 
           test('List', () async {
@@ -234,6 +310,19 @@ class DatastoreTestSuite {
             final snapshot = await document.get();
             expect(snapshot.data, {
               'value': {'k0': 'v0', 'k1': 'v1'},
+            });
+          });
+
+          test('Document', () async {
+            // Insert
+            await document.insert(data: {
+              'value': document,
+            });
+
+            // Get
+            final snapshot = await document.get();
+            expect(snapshot.data, {
+              'value': document,
             });
           });
         });

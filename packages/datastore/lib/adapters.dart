@@ -26,3 +26,4 @@ export 'src/adapters/google_cloud_firestore.dart';
 export 'src/adapters/grpc_datastore.dart';
 export 'src/adapters/grpc_datastore_server.dart';
 export 'src/adapters/memory_datastore.dart';
+export 'src/adapters/schema_using_datastore.dart';

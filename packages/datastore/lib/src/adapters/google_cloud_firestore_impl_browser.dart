@@ -38,24 +38,115 @@ class FirestoreImpl extends DatastoreAdapter implements Firestore {
     return FirestoreImpl._(impl);
   }
 
+  Map<String, Object> _dataFromDart(Schema schema, Map<String, Object> data) {
+    // A special case
+    if (data == null) {
+      return null;
+    }
+    var attachSchema = false;
+    if (schema == null) {
+      schema = Schema.fromValue(data);
+      attachSchema = true;
+    }
+
+    // Dart tree --> Firestore tree
+    final newData = schema.encodeLessTyped(
+      data,
+      context: LessTypedEncodingContext(
+          supportsDateTime: true,
+          supportsDocument: true,
+          mapDocument: (value) {
+            return _impl
+                .collection(value.parent.collectionId)
+                .doc(value.documentId);
+          },
+          supportsGeoPoint: true,
+          mapGeoPoint: (value) {
+            return firestore.GeoPoint(
+              value.latitude,
+              value.longitude,
+            );
+          }),
+    ) as Map<String, Object>;
+
+    if (!attachSchema) {
+      return newData;
+    }
+
+    // We attach schema to the data
+    final dataWithSchema = Map<String, Object>.from(newData);
+    dataWithSchema['@schema'] = schema.toJson();
+    return Map<String, Object>.unmodifiable(dataWithSchema);
+  }
+
+  Map<String, Object> _dataToDart(
+      Datastore datastore, Schema schema, Map<String, Object> data) {
+    // A special case
+    if (data == null) {
+      return null;
+    }
+
+    if (schema == null) {
+      // See whether the data has schema attached
+      final schemaJson = data['@schema'];
+      if (schemaJson != null) {
+        schema = Schema.fromJson(schemaJson);
+      }
+
+      // Use arbitrary schema otherwise
+      schema ??= ArbitraryTreeSchema();
+    }
+
+    // Firestore tree --> Dart tree
+    return schema.decodeLessTyped(
+      data,
+      context: LessTypedDecodingContext(
+        datastore: datastore,
+        onUnsupported: (context, value) {
+          if (value is firestore.GeoPoint) {
+            return GeoPoint(
+              value.latitude,
+              value.longitude,
+            );
+          }
+          if (value is firestore.DocumentReference) {
+            return context.datastore
+                .collection(value.parent.id)
+                .document(value.id);
+          }
+          throw ArgumentError.value(value);
+        },
+      ),
+    ) as Map<String, Object>;
+  }
+
   FirestoreImpl._(this._impl);
 
   @override
   Stream<Snapshot> performRead(ReadRequest request) async* {
     final document = request.document;
     final collection = document.parent;
+    final datastore = collection.datastore;
+    final schema = request.schema;
     final implCollection = _impl.collection(collection.collectionId);
     final implDocument = implCollection.doc(document.documentId);
-    final fsSnapshot = await implDocument.get();
+    final implSnapshot = await implDocument.get();
     yield (Snapshot(
       document: document,
-      data: fsSnapshot.data(),
+      exists: implSnapshot.exists,
+      data: _dataToDart(
+        datastore,
+        schema,
+        implSnapshot.data(),
+      ),
     ));
   }
 
   @override
   Stream<QueryResult> performSearch(SearchRequest request) async* {
     final collection = request.collection;
+    final datastore = collection.datastore;
+    final schema = request.schema;
     final query = request.query;
     firestore.Query fsQuery = _impl.collection(collection.collectionId);
     final result = fsQuery.onSnapshot.map((implSnapshot) {
@@ -64,7 +155,12 @@ class FirestoreImpl extends DatastoreAdapter implements Firestore {
           document: collection.document(
             implSnapshot.id,
           ),
-          data: implSnapshot.data(),
+          exists: implSnapshot.exists,
+          data: _dataToDart(
+            datastore,
+            schema,
+            implSnapshot.data(),
+          ),
         );
       });
       return QueryResult(
@@ -82,7 +178,7 @@ class FirestoreImpl extends DatastoreAdapter implements Firestore {
     final collection = document.parent;
     final implCollection = _impl.collection(collection.collectionId);
     final implDocument = implCollection.doc(document.documentId);
-    final implData = request.data;
+    final implData = _dataFromDart(request.schema, request.data);
 
     switch (request.type) {
       case WriteType.delete:

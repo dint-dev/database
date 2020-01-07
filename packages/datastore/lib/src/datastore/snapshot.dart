@@ -66,6 +66,10 @@ class Snapshot {
   })  : assert(document != null),
         assert(exists != null);
 
+  Snapshot.notFound(this.document)
+      : exists = false,
+        data = null;
+
   @override
   int get hashCode =>
       document.hashCode ^ exists.hashCode ^ _dataEquality.hash(data);

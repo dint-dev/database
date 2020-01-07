@@ -17,7 +17,6 @@ import 'dart:convert';
 import 'package:datastore/adapters_framework.dart';
 import 'package:datastore/datastore.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:fixnum/fixnum.dart';
 
 String _jsonPointerEscape(String s) {
   return s.replaceAll('~', '~0').replaceAll('/', '~1');
@@ -67,14 +66,12 @@ class BrowserLocalStorageDatastore extends DatastoreAdapter
     final key = _documentKey(document);
     final serialized = impl[key];
     if (serialized == null) {
-      return Stream<Snapshot>.value(Snapshot(
-        document: document,
-        data: null,
-        exists: false,
-      ));
+      return Stream<Snapshot>.value(Snapshot.notFound(document));
     }
-    final deserialized =
-        _decode(request.document.datastore, serialized) as Map<String, Object>;
+    final deserialized = _decode(
+      request.document.datastore,
+      serialized,
+    ) as Map<String, Object>;
     return Stream<Snapshot>.value(Snapshot(
       document: document,
       data: deserialized,
@@ -185,95 +182,20 @@ class BrowserLocalStorageDatastore extends DatastoreAdapter
   }
 
   static String encode(Object value) {
-    return jsonEncode(_toJson(value));
+    final schema = Schema.fromValue(value);
+    return jsonEncode({
+      'schema': schema.toJson(),
+      'value': schema.encodeLessTyped(value),
+    });
   }
 
   static Object _decode(Datastore datastore, String s) {
-    return _fromJson(datastore, jsonDecode(s));
-  }
-
-  static Object _fromJson(Datastore datastore, Object value) {
-    if (value == null || value is bool || value is int || value is String) {
-      return value;
-    }
-    if (value is Map) {
-      final result = <String, Object>{};
-      for (var entry in value.entries) {
-        result[entry.key] = _fromJson(datastore, entry.value);
-      }
-      return result;
-    }
-    if (value is List) {
-      final type = value[0] as String;
-      switch (type) {
-        case 'int':
-          return Int64.parseInt(value[1] as String);
-        case 'nan':
-          return double.nan;
-        case '-inf':
-          return double.negativeInfinity;
-        case 'inf':
-          return double.infinity;
-        case 'datetime':
-          return DateTime.fromMillisecondsSinceEpoch((value[1] as num).toInt());
-        case 'geopoint':
-          return GeoPoint(value[1] as double, value[2] as double);
-        case 'document':
-          return datastore
-              .collection(value[1] as String)
-              .document(value[2] as String);
-        case 'list':
-          return value
-              .skip(1)
-              .map((item) => _fromJson(datastore, item))
-              .toList();
-        default:
-          throw ArgumentError('Unsupported type annotation "$type"');
-      }
-    }
-    throw ArgumentError.value(value);
-  }
-
-  // This is an ad-hoc codec.
-  // TODO: A better specification? GRPC + base64?
-  static Object _toJson(Object value) {
-    if (value == null || value is bool || value is String) {
-      return value;
-    }
-    if (value is Int64) {
-      return ['int', value.toString()];
-    }
-    if (value is double) {
-      if (value.isNaN) {
-        return const ['nan'];
-      }
-      if (value.isInfinite) {
-        if (value.isNegative) {
-          return const ['-inf'];
-        }
-        return const ['inf'];
-      }
-      return value;
-    }
-    if (value is DateTime) {
-      return ['datetime', value.millisecondsSinceEpoch];
-    }
-    if (value is GeoPoint) {
-      return ['geopoint', value.latitude, value.longitude];
-    }
-    if (value is Document) {
-      return ['document', value.parent.collectionId, value.documentId];
-    }
-    if (value is List) {
-      return ['list', ...value.map(_toJson)];
-    }
-    if (value is Map) {
-      final result = <String, Object>{};
-      for (var entry in value.entries) {
-        result[entry.key] = _toJson(entry.value);
-      }
-      return result;
-    }
-    throw ArgumentError.value(value);
+    // TODO: Use protocol buffers?
+    final json = jsonDecode(s) as Map<String, Object>;
+    final schema = Schema.fromJson(json['schema']) ?? ArbitraryTreeSchema();
+    return schema.decodeLessTyped(
+      json['value'],
+      context: LessTypedDecodingContext(datastore: datastore),
+    );
   }
 }

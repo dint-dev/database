@@ -20,16 +20,16 @@ import 'package:meta/meta.dart';
 @sealed
 class ReadRequest {
   /// Document that is read.
-  final Document document;
+  Document document;
 
   /// If non-null, the stream is infinite. New items are generated are updated
   /// using polling or some more efficient method.
   ///
   /// For performance reasons, an item should not be added to the stream if it's
   /// the equal to the previous added item.
-  final WatchSettings watchSettings;
+  WatchSettings watchSettings;
 
-  final Schema schema;
+  Schema schema;
 
   ReadRequest({
     @required this.document,

@@ -79,6 +79,8 @@ class ElasticSearch extends DatastoreAdapter {
   Stream<Snapshot> performRead(ReadRequest request) async* {
     final document = request.document;
     final collection = document.parent;
+    final datastore = collection.datastore;
+    final schema = request.schema ?? const ArbitraryTreeSchema();
 
     //
     // Validate IDs
@@ -112,7 +114,7 @@ class ElasticSearch extends DatastoreAdapter {
     //
     final found = response.body['found'] as bool;
     if (!found) {
-      yield (null);
+      yield (Snapshot.notFound(request.document));
       return;
     }
     final data = response.body['_source'];
@@ -122,13 +124,18 @@ class ElasticSearch extends DatastoreAdapter {
     //
     yield (Snapshot(
       document: request.document,
-      data: data,
+      data: schema.decodeLessTyped(data,
+          context: LessTypedDecodingContext(
+            datastore: datastore,
+          )),
     ));
   }
 
   @override
   Stream<QueryResult> performSearch(SearchRequest request) async* {
     final collection = request.collection;
+    final datastore = collection.datastore;
+    final schema = request.schema ?? const ArbitraryTreeSchema();
 
     //
     // Validate collection ID
@@ -211,7 +218,10 @@ class ElasticSearch extends DatastoreAdapter {
         return QueryResultItem(
           snapshot: Snapshot(
             document: collection.document(documentId),
-            data: data,
+            data: schema.decodeLessTyped(
+              data,
+              context: LessTypedDecodingContext(datastore: datastore),
+            ),
           ),
           score: score,
         );
@@ -232,6 +242,7 @@ class ElasticSearch extends DatastoreAdapter {
   }) async {
     final document = request.document;
     final collection = document.parent;
+    final schema = request.schema ?? const ArbitraryTreeSchema();
 
     //
     // Validate IDs
@@ -255,17 +266,17 @@ class ElasticSearch extends DatastoreAdapter {
 
       case WriteType.insert:
         method = 'PUT';
-        json = request.data;
+        json = schema.encodeLessTyped(request.data);
         break;
 
       case WriteType.update:
         method = 'PUT';
-        json = request.data;
+        json = schema.encodeLessTyped(request.data);
         break;
 
       case WriteType.upsert:
         method = 'PUT';
-        json = request.data;
+        json = schema.encodeLessTyped(request.data);
         break;
 
       default:

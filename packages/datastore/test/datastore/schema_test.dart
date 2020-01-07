@@ -14,7 +14,9 @@
 
 import 'dart:typed_data';
 
+import 'package:datastore/adapters.dart';
 import 'package:datastore/datastore.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -96,20 +98,212 @@ void main() {
       expect(schema.isValidTree(DateTime(2020, 1, 1)), isTrue);
     });
 
-    test('decodeJson', () {
+    test('decodeLessTyped', () {
       final schema = DateTimeSchema();
       expect(
-        schema.decodeJson('1970-01-01T00:00:00.000Z'),
+        schema.decodeLessTyped('1970-01-01T00:00:00.000Z'),
         DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
       );
     });
 
-    test('encodeJson', () {
+    test('encodeLessTyped', () {
       final schema = DateTimeSchema();
       expect(
-        schema.encodeJson(DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)),
+        schema.encodeLessTyped(
+            DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)),
         '1970-01-01T00:00:00.000Z',
       );
+    });
+  });
+
+  group('Schema:', () {
+    group('fromJson:', () {
+      test('null', () {
+        expect(
+          Schema.fromJson(null),
+          isNull,
+        );
+      });
+      test('bool', () {
+        expect(
+          Schema.fromJson(BoolSchema.nameForJson),
+          const BoolSchema(),
+        );
+      });
+      test('int', () {
+        expect(
+          Schema.fromJson(IntSchema.nameForJson),
+          const IntSchema(),
+        );
+      });
+      test('Int64', () {
+        expect(
+          Schema.fromJson(Int64Schema.nameForJson),
+          const Int64Schema(),
+        );
+      });
+      test('double', () {
+        expect(
+          Schema.fromJson(DoubleSchema.nameForJson),
+          const DoubleSchema(),
+        );
+      });
+      test('Datetime', () {
+        expect(
+          Schema.fromJson(DateTimeSchema.nameForJson),
+          const DateTimeSchema(),
+        );
+      });
+      test('GeoPoint', () {
+        expect(
+          Schema.fromJson(GeoPointSchema.nameForJson),
+          const GeoPointSchema(),
+        );
+      });
+      test('Document', () {
+        expect(
+          Schema.fromJson(DocumentSchema.nameForJson),
+          const DocumentSchema(),
+        );
+      });
+
+      test('List: []', () {
+        expect(
+          Schema.fromJson([]),
+          const ListSchema(itemsByIndex: []),
+        );
+      });
+
+      test('List: ["string"]', () {
+        expect(
+          Schema.fromJson(['string']),
+          const ListSchema(itemsByIndex: [
+            StringSchema(),
+          ]),
+        );
+      });
+
+      test('List: [null, "double", "string"]', () {
+        expect(
+          Schema.fromJson([null, 'double', 'string']),
+          const ListSchema(itemsByIndex: [
+            null,
+            DoubleSchema(),
+            StringSchema(),
+          ]),
+        );
+      });
+
+      test('List: {"@type": "list", ...}', () {
+        expect(
+          Schema.fromJson({'@type': 'list', '@items': 'string'}),
+          const ListSchema(
+            items: StringSchema(),
+          ),
+        );
+      });
+      test('Map', () {
+        expect(
+          Schema.fromJson({}),
+          const MapSchema({}),
+        );
+        expect(
+          Schema.fromJson({
+            'k0': 'double',
+            'k1': 'string',
+          }),
+          const MapSchema({
+            'k0': DoubleSchema(),
+            'k1': StringSchema(),
+          }),
+        );
+      });
+    });
+    group('fromValue:', () {
+      test('null', () {
+        expect(
+          Schema.fromValue(null),
+          isNull,
+        );
+      });
+      test('bool', () {
+        expect(
+          Schema.fromValue(false),
+          const BoolSchema(),
+        );
+        expect(
+          Schema.fromValue(true),
+          const BoolSchema(),
+        );
+      });
+      test('int (VM)', () {
+        expect(
+          Schema.fromValue(3),
+          const IntSchema(),
+        );
+      }, testOn: 'vm');
+      test('int (not VM)', () {
+        expect(
+          Schema.fromValue(3),
+          const DoubleSchema(),
+        );
+      }, testOn: '!vm');
+      test('double', () {
+        expect(
+          Schema.fromValue(3.14),
+          const DoubleSchema(),
+        );
+      });
+      test('Int64', () {
+        expect(
+          Schema.fromValue(Int64(3)),
+          const Int64Schema(),
+        );
+      });
+      test('DateTime', () {
+        expect(
+          Schema.fromValue(DateTime.fromMillisecondsSinceEpoch(0)),
+          const DateTimeSchema(),
+        );
+      });
+      test('GeoPoint', () {
+        expect(
+          Schema.fromValue(GeoPoint.zero),
+          const GeoPointSchema(),
+        );
+      });
+      test('String', () {
+        expect(
+          Schema.fromValue('abc'),
+          const StringSchema(),
+        );
+      });
+      test('Document', () {
+        expect(
+          Schema.fromValue(MemoryDatastore().collection('a').document('b')),
+          const DocumentSchema(),
+        );
+      });
+      test('List', () {
+        expect(
+          Schema.fromValue([null, 'a', 3.14]),
+          const ListSchema(
+            itemsByIndex: [null, StringSchema(), DoubleSchema()],
+          ),
+        );
+      });
+      test('Map', () {
+        expect(
+          Schema.fromValue({
+            'string': 'value',
+            'pi': 3.14,
+          }),
+          const MapSchema({
+            'string': StringSchema(),
+            'pi': DoubleSchema(),
+          }),
+        );
+      });
     });
   });
 
@@ -150,18 +344,18 @@ void main() {
       expect(schema.isValidTree(Uint8List(0)), isTrue);
     });
 
-    test('encodeJson', () {
+    test('encodeLessTyped', () {
       final schema = BytesSchema();
-      expect(schema.encodeJson(null), isNull);
-      expect(schema.encodeJson(Uint8List(0)), '');
-      expect(schema.encodeJson(Uint8List.fromList([1, 2, 3])), 'AQID');
+      expect(schema.encodeLessTyped(null), isNull);
+      expect(schema.encodeLessTyped(Uint8List(0)), '');
+      expect(schema.encodeLessTyped(Uint8List.fromList([1, 2, 3])), 'AQID');
     });
 
-    test('decodeJson', () {
+    test('decodeLessTyped', () {
       final schema = BytesSchema();
-      expect(schema.decodeJson(null), isNull);
-      expect(schema.decodeJson(''), Uint8List(0));
-      expect(schema.decodeJson('AQID'), Uint8List.fromList([1, 2, 3]));
+      expect(schema.decodeLessTyped(null), isNull);
+      expect(schema.decodeLessTyped(''), Uint8List(0));
+      expect(schema.decodeLessTyped('AQID'), Uint8List.fromList([1, 2, 3]));
     });
   });
 
@@ -185,11 +379,9 @@ void main() {
 
     test('isValid (cyclic)', () {
       final schema = ListSchema(
-        items: MapSchema(
-          properties: {
-            'k': ListSchema(),
-          },
-        ),
+        items: MapSchema({
+          'k': ListSchema(),
+        }),
       );
 
       // Non-cyclic input
@@ -208,11 +400,9 @@ void main() {
 
     test('select: "items" has a schema', () {
       final schema = ListSchema(
-        items: MapSchema(
-          properties: {
-            'k0': StringSchema(),
-          },
-        ),
+        items: MapSchema({
+          'k0': StringSchema(),
+        }),
       );
       expect(
         schema.selectTree(null),
@@ -246,24 +436,24 @@ void main() {
       expect(() => result.add(1), throwsUnsupportedError);
     });
 
-    test('encodeJson: "items" is null', () {
+    test('encodeLessTyped: "items" is null', () {
       final schema = ListSchema();
 
       // OK
       expect(
-        schema.encodeJson(null),
+        schema.encodeLessTyped(null),
         isNull,
       );
 
       // OK
       expect(
-        schema.encodeJson([]),
+        schema.encodeLessTyped([]),
         [],
       );
 
       // OK
       expect(
-        schema.encodeJson(
+        schema.encodeLessTyped(
           [
             Uint8List.fromList([1, 2, 3])
           ],
@@ -274,28 +464,28 @@ void main() {
       );
 
       // Test that the returned value is immutable
-      final value = schema.encodeJson([[]]);
+      final value = schema.encodeLessTyped([[]]);
       expect(() => value.add(1), throwsUnsupportedError);
     });
 
-    test('encodeJson: "items" has a schema', () {
+    test('encodeLessTyped: "items" has a schema', () {
       final schema = ListSchema(items: BytesSchema());
 
       // OK
       expect(
-        schema.encodeJson(null),
+        schema.encodeLessTyped(null),
         isNull,
       );
 
       // OK
       expect(
-        schema.encodeJson([]),
+        schema.encodeLessTyped([]),
         [],
       );
 
       // OK
       expect(
-        schema.encodeJson(
+        schema.encodeLessTyped(
           [
             Uint8List.fromList([1, 2, 3])
           ],
@@ -305,12 +495,12 @@ void main() {
 
       // Throws: invalid value
       expect(
-        () => schema.encodeJson([DateTime(2020, 1, 1)]),
+        () => schema.encodeLessTyped([DateTime(2020, 1, 1)]),
         throwsArgumentError,
       );
 
       // Test that the returned value is immutable
-      final value = schema.encodeJson([null]);
+      final value = schema.encodeLessTyped([null]);
       expect(() => value.add(1), throwsUnsupportedError);
     });
 
@@ -319,21 +509,21 @@ void main() {
 
       // OK
       expect(
-        schema.decodeJson(null),
+        schema.decodeLessTyped(null),
         isNull,
       );
 
       // OK
       expect(
-        schema.decodeJson([]),
+        schema.decodeLessTyped([]),
         [],
       );
 
       // OK
-      expect(schema.decodeJson([1, 2, 3]), [1, 2, 3]);
+      expect(schema.decodeLessTyped([1, 2, 3]), [1, 2, 3]);
 
       // Test that the returned value is immutable
-      final value = schema.decodeJson([null]);
+      final value = schema.decodeLessTyped([null]);
       expect(() => value.add(1), throwsUnsupportedError);
     });
 
@@ -342,52 +532,46 @@ void main() {
 
       // OK
       expect(
-        schema.decodeJson(null),
+        schema.decodeLessTyped(null),
         isNull,
       );
 
       // OK
       expect(
-        schema.decodeJson([]),
+        schema.decodeLessTyped([]),
         [],
       );
 
       // OK
       expect(
-        schema.decodeJson(['AQID']),
+        schema.decodeLessTyped(['AQID']),
         [
           Uint8List.fromList([1, 2, 3])
         ],
       );
 
       // Test that the value is immutable
-      final value = schema.decodeJson(['']);
+      final value = schema.decodeLessTyped(['']);
       expect(() => value.add(1), throwsUnsupportedError);
     });
   });
 
   group('MapSchema:', () {
     test('"==" / "hashCode"', () {
-      final schema = MapSchema(
-        properties: {'k': StringSchema()},
-      );
-      final clone = MapSchema(
-        properties: {'k': StringSchema()},
-      );
-      final other0 = MapSchema(
-        properties: {},
-      );
-      final other1 = MapSchema(
-        properties: {
-          'k': BoolSchema(),
-        },
-      );
-      final other2 = MapSchema(
-        properties: {
-          'k': StringSchema(),
-          'other': StringSchema(),
-        },
-      );
+      final schema = MapSchema({
+        'k': StringSchema(),
+      });
+      final clone = MapSchema({
+        'k': StringSchema(),
+      });
+      final other0 = MapSchema({});
+      final other1 = MapSchema({
+        'k': BoolSchema(),
+      });
+      final other2 = MapSchema({
+        'k': StringSchema(),
+        'other': StringSchema(),
+      });
       expect(schema.hashCode, clone.hashCode);
       expect(schema.hashCode, isNot(other0.hashCode));
       expect(schema.hashCode, isNot(other1.hashCode));
@@ -399,7 +583,7 @@ void main() {
     });
 
     test('isValid', () {
-      final schema = MapSchema();
+      const schema = MapSchema({});
       expect(schema.isValidTree('abc'), isFalse);
       expect(schema.isValidTree(null), isTrue);
       expect(schema.isValidTree({}), isTrue);
@@ -407,9 +591,9 @@ void main() {
     });
 
     test('isValid (cyclic)', () {
-      final schema = MapSchema(properties: {
+      const schema = MapSchema({
         'k': ListSchema(
-          items: MapSchema(),
+          items: MapSchema({}),
         ),
       });
 
@@ -428,15 +612,11 @@ void main() {
     });
 
     test('select: "properties" has a schema', () {
-      final schema = MapSchema(
-        properties: {
-          'k0': MapSchema(
-            properties: {
-              'k1': StringSchema(),
-            },
-          )
-        },
-      );
+      final schema = MapSchema({
+        'k0': MapSchema({
+          'k1': StringSchema(),
+        })
+      });
       expect(
         schema.selectTree(null),
         isNull,
@@ -478,23 +658,25 @@ void main() {
     });
 
     test('decodeJson: "properties" has a schema', () {
-      final schema = MapSchema(properties: {'k': BytesSchema()});
+      final schema = MapSchema({
+        'k': BytesSchema(),
+      });
 
       // OK
       expect(
-        schema.decodeJson(null),
+        schema.decodeLessTyped(null),
         isNull,
       );
 
       // OK
       expect(
-        schema.decodeJson({}),
+        schema.decodeLessTyped({}),
         {},
       );
 
       // OK
       expect(
-        schema.decodeJson(
+        schema.decodeLessTyped(
           {
             'k': 'AQID',
           },
@@ -506,33 +688,35 @@ void main() {
 
       // Throws: invalid value
       expect(
-        () => schema.decodeJson({'k': DateTime(2020, 1, 1)}),
+        () => schema.decodeLessTyped({'k': DateTime(2020, 1, 1)}),
         throwsArgumentError,
       );
 
       // The returned value should be immutable
-      final value = schema.encodeJson({'k': null});
+      final value = schema.encodeLessTyped({'k': null});
       expect(() => value['k'] = null, throwsUnsupportedError);
     });
 
-    test('encodeJson: "properties" has a schema', () {
-      final schema = MapSchema(properties: {'k': BytesSchema()});
+    test('encodeLessTyped: "properties" has a schema', () {
+      final schema = MapSchema({
+        'k': BytesSchema(),
+      });
 
       // OK
       expect(
-        schema.encodeJson(null),
+        schema.encodeLessTyped(null),
         isNull,
       );
 
       // OK
       expect(
-        schema.encodeJson({}),
+        schema.encodeLessTyped({}),
         {},
       );
 
       // OK
       expect(
-        schema.encodeJson(
+        schema.encodeLessTyped(
           {
             'k': Uint8List.fromList([1, 2, 3])
           },
@@ -542,12 +726,12 @@ void main() {
 
       // Throws: invalid value
       expect(
-        () => schema.encodeJson(DateTime(2020, 1, 1)),
+        () => schema.encodeLessTyped(DateTime(2020, 1, 1)),
         throwsArgumentError,
       );
 
       // The returned value should be immutable
-      final value = schema.encodeJson({'k': null});
+      final value = schema.encodeLessTyped({'k': null});
       expect(() => value['k'] = null, throwsUnsupportedError);
     });
   });
