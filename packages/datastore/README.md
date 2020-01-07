@@ -10,10 +10,11 @@ __Warning:__ breaking changes are likely before the project freezes the APIs.
 ## Contributing
 Anyone can help this open-source project!
 
-For the first contribution, create a pull request [at Github](https://github.com/terrier989/datastore).
+For the first contribution, create [a pull request at Github](https://github.com/terrier989/datastore).
 
-Repeat contributors may be given permission to push directly to the repository. If you have been
-granted such permission, code review is not necessary for you.
+Repeat contributors may be given Github permissions to push directly into the repository. If you
+have been granted such permission, code review is not necessary for you (but it's still a good
+habit).
 
 ## General-purpose adapters
   * __BrowserDatastore__ ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/browser_datastore.dart))
@@ -27,7 +28,7 @@ granted such permission, code review is not necessary for you.
   * __SchemaUsingDatastore__ ([source](https://github.com/terrier989/datastore/tree/master/packages/datastore/lib/src/adapters/schema_using_datastore.dart))
     * Enforces schemas on reads/writes.
   * __SearchableDatastore__
-    * A search engine for Flutter / web applications. Found in the package [search](https://pub.dev/packages/search)).
+    * A search engine for Flutter / web applications. Found in the package [search](https://pub.dev/packages/search).
 
 ## Adapters for various products
   * __Algolia__ ([website](https://www.algolia.com))
@@ -189,7 +190,8 @@ Examples of supported queries:
 
 ## Testing
 ```dart
-import 'package:datastore_test/datastore_test.dart';
+import 'package:datastore/adapters.dart';
+import 'package:datastore/datastore.dart';
 
 void main() {
   setUp(() {

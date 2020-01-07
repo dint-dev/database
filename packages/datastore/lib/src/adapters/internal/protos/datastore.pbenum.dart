@@ -10,14 +10,15 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class WriteType extends $pb.ProtobufEnum {
-  static const WriteType unspecifiedWriteType = WriteType._(0, 'unspecifiedWriteType');
+  static const WriteType unspecifiedWriteType =
+      WriteType._(0, 'unspecifiedWriteType');
   static const WriteType delete = WriteType._(1, 'delete');
   static const WriteType deleteIfExists = WriteType._(2, 'deleteIfExists');
   static const WriteType insert = WriteType._(3, 'insert');
   static const WriteType update = WriteType._(4, 'update');
   static const WriteType upsert = WriteType._(5, 'upsert');
 
-  static const $core.List<WriteType> values = <WriteType> [
+  static const $core.List<WriteType> values = <WriteType>[
     unspecifiedWriteType,
     delete,
     deleteIfExists,
@@ -26,7 +27,8 @@ class WriteType extends $pb.ProtobufEnum {
     upsert,
   ];
 
-  static final $core.Map<$core.int, WriteType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, WriteType> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static WriteType valueOf($core.int value) => _byValue[value];
 
   const WriteType._($core.int v, $core.String n) : super(v, n);
@@ -37,15 +39,15 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode exists = ErrorCode._(1, 'exists');
   static const ErrorCode doesNotExist = ErrorCode._(2, 'doesNotExist');
 
-  static const $core.List<ErrorCode> values = <ErrorCode> [
+  static const $core.List<ErrorCode> values = <ErrorCode>[
     unspecifiedError,
     exists,
     doesNotExist,
   ];
 
-  static final $core.Map<$core.int, ErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static final $core.Map<$core.int, ErrorCode> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
   static ErrorCode valueOf($core.int value) => _byValue[value];
 
   const ErrorCode._($core.int v, $core.String n) : super(v, n);
 }
-

@@ -1,9 +1,8 @@
 name: datastore
-version: 0.1.1
+version: 0.1.2
 description:
   Enables developers to use document databases and information retrieval systems. Various adapters
-  are available in this and other packages. The package works in all platforms (Flutter, browser,
-  server).
+  are available in this and other packages.
 homepage: https://github.com/terrier989/datastore
 
 environment:

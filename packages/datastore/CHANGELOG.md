@@ -1,3 +1,7 @@
+## [0.1.2] - January 7, 2020
+
+* Small documentation and formatting changes.
+
 ## [0.1.1] - January 7, 2020
 
 * Improved schemas, decoding, and encoding.
