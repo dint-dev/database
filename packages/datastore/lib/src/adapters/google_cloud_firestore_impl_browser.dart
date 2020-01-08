@@ -38,88 +38,6 @@ class FirestoreImpl extends DatastoreAdapter implements Firestore {
     return FirestoreImpl._(impl);
   }
 
-  Map<String, Object> _dataFromDart(Schema schema, Map<String, Object> data) {
-    // A special case
-    if (data == null) {
-      return null;
-    }
-    var attachSchema = false;
-    if (schema == null) {
-      schema = Schema.fromValue(data);
-      attachSchema = true;
-    }
-
-    // Dart tree --> Firestore tree
-    final newData = schema.encodeLessTyped(
-      data,
-      context: LessTypedEncodingContext(
-          supportsDateTime: true,
-          supportsDocument: true,
-          mapDocument: (value) {
-            return _impl
-                .collection(value.parent.collectionId)
-                .doc(value.documentId);
-          },
-          supportsGeoPoint: true,
-          mapGeoPoint: (value) {
-            return firestore.GeoPoint(
-              value.latitude,
-              value.longitude,
-            );
-          }),
-    ) as Map<String, Object>;
-
-    if (!attachSchema) {
-      return newData;
-    }
-
-    // We attach schema to the data
-    final dataWithSchema = Map<String, Object>.from(newData);
-    dataWithSchema['@schema'] = schema.toJson();
-    return Map<String, Object>.unmodifiable(dataWithSchema);
-  }
-
-  Map<String, Object> _dataToDart(
-      Datastore datastore, Schema schema, Map<String, Object> data) {
-    // A special case
-    if (data == null) {
-      return null;
-    }
-
-    if (schema == null) {
-      // See whether the data has schema attached
-      final schemaJson = data['@schema'];
-      if (schemaJson != null) {
-        schema = Schema.fromJson(schemaJson);
-      }
-
-      // Use arbitrary schema otherwise
-      schema ??= ArbitraryTreeSchema();
-    }
-
-    // Firestore tree --> Dart tree
-    return schema.decodeLessTyped(
-      data,
-      context: LessTypedDecodingContext(
-        datastore: datastore,
-        onUnsupported: (context, value) {
-          if (value is firestore.GeoPoint) {
-            return GeoPoint(
-              value.latitude,
-              value.longitude,
-            );
-          }
-          if (value is firestore.DocumentReference) {
-            return context.datastore
-                .collection(value.parent.id)
-                .document(value.id);
-          }
-          throw ArgumentError.value(value);
-        },
-      ),
-    ) as Map<String, Object>;
-  }
-
   FirestoreImpl._(this._impl);
 
   @override
@@ -204,5 +122,87 @@ class FirestoreImpl extends DatastoreAdapter implements Firestore {
       default:
         throw UnimplementedError();
     }
+  }
+
+  Map<String, Object> _dataFromDart(Schema schema, Map<String, Object> data) {
+    // A special case
+    if (data == null) {
+      return null;
+    }
+    var attachSchema = false;
+    if (schema == null) {
+      schema = Schema.fromValue(data);
+      attachSchema = true;
+    }
+
+    // Dart tree --> Firestore tree
+    final newData = schema.encodeLessTyped(
+      data,
+      context: LessTypedEncodingContext(
+          supportsDateTime: true,
+          supportsDocument: true,
+          mapDocument: (value) {
+            return _impl
+                .collection(value.parent.collectionId)
+                .doc(value.documentId);
+          },
+          supportsGeoPoint: true,
+          mapGeoPoint: (value) {
+            return firestore.GeoPoint(
+              value.latitude,
+              value.longitude,
+            );
+          }),
+    ) as Map<String, Object>;
+
+    if (!attachSchema) {
+      return newData;
+    }
+
+    // We attach schema to the data
+    final dataWithSchema = Map<String, Object>.from(newData);
+    dataWithSchema['@schema'] = schema.toJson();
+    return Map<String, Object>.unmodifiable(dataWithSchema);
+  }
+
+  Map<String, Object> _dataToDart(
+      Datastore datastore, Schema schema, Map<String, Object> data) {
+    // A special case
+    if (data == null) {
+      return null;
+    }
+
+    if (schema == null) {
+      // See whether the data has schema attached
+      final schemaJson = data['@schema'];
+      if (schemaJson != null) {
+        schema = Schema.fromJson(schemaJson);
+      }
+
+      // Use arbitrary schema otherwise
+      schema ??= ArbitraryTreeSchema();
+    }
+
+    // Firestore tree --> Dart tree
+    return schema.decodeLessTyped(
+      data,
+      context: LessTypedDecodingContext(
+        datastore: datastore,
+        onUnsupported: (context, value) {
+          if (value is firestore.GeoPoint) {
+            return GeoPoint(
+              value.latitude,
+              value.longitude,
+            );
+          }
+          if (value is firestore.DocumentReference) {
+            return context.datastore
+                .collection(value.parent.id)
+                .document(value.id);
+          }
+          throw ArgumentError.value(value);
+        },
+      ),
+    ) as Map<String, Object>;
   }
 }

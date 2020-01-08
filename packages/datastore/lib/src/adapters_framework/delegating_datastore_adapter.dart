@@ -22,11 +22,6 @@ class DelegatingDatastoreAdapter extends Datastore implements DatastoreAdapter {
       : assert(_datastore != null);
 
   @override
-  Future<Transaction> beginTransaction({Duration timeout}) {
-    return _datastore.beginTransaction(timeout: timeout);
-  }
-
-  @override
   Future<void> checkHealth({Duration timeout}) {
     return _datastore.checkHealth(timeout: timeout);
   }
@@ -50,5 +45,16 @@ class DelegatingDatastoreAdapter extends Datastore implements DatastoreAdapter {
   @override
   Future<void> performWrite(WriteRequest request) {
     return request.delegateTo(_datastore);
+  }
+
+  @override
+  Future<void> runInTransaction({
+    Duration timeout,
+    Future<void> Function(Transaction transaction) callback,
+  }) {
+    return _datastore.runInTransaction(
+      timeout: timeout,
+      callback: callback,
+    );
   }
 }

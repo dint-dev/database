@@ -1,8 +1,14 @@
 #!/bin/bash
-ARGS=$@
 set -e
 cd `dirname $0`/..
-cd packages
+ARGS=${@:1}
+
+if [ -f SECRETS.env ]; then
+  echo "-------------------------------------------------"
+  echo "Loading environmental variables from 'SECRETS.env'"
+  echo "-------------------------------------------------"
+  source SECRETS.env
+fi
 
 visit() {
   NAME=$1
@@ -10,9 +16,9 @@ visit() {
   echo "Testing '$NAME'"
   echo "-------------------------------------------------"
   echo "Running: pub run test $ARGS"
-  cd $NAME
+  cd packages/$NAME
   pub run test $ARGS
-  cd ..
+  cd ../..
 }
 
 visit_flutter() {
@@ -24,9 +30,9 @@ visit_flutter() {
   echo "Testing '$NAME'"
   echo "-------------------------------------------------"
   echo "Running: pub run test $ARGS"
-  cd $NAME
+  cd packages/$NAME
   flutter test $ARGS
-  cd ..
+  cd ../..
 }
 
 visit datastore

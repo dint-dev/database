@@ -17,29 +17,30 @@ library _;
 
 import 'package:datastore/adapters.dart';
 import 'package:test/test.dart';
-import 'package:universal_io/io.dart';
+import 'package:test_io/test_io.dart';
 
 import '../datastore_test_suite.dart';
 
-void main() {
-  final serviceId = Platform.environment[serviceIdVar];
-  final apiKey = Platform.environment[apiKeyVar];
-  if (serviceId == null || apiKey == null) {
-    print(
-      'Skipping test: Environmental variables $serviceIdVar / $apiKeyVar are undefined.',
-    );
-    return;
-  }
-  DatastoreTestSuite(
-    AzureCosmosDB(
-      credentials: AzureCosmosDBCredentials(
-        serviceId: serviceId,
-        apiKey: apiKey,
+Future<void> main() async {
+  final newDatastore = () async {
+    final env = await getEnvironmentalVariables();
+    const idEnv = 'TEST_AZURE_COSMOS_DB_SEARCH_ID';
+    const secretEnv = 'TEST_AZURE_COSMOS_DB_SEARCH_SECRET';
+    final id = env[idEnv] ?? '';
+    final secret = env[secretEnv] ?? '';
+    if (id == '' || secret == '') {
+      print(
+        'SKIPPING: Azure Cosmos DB: environmental variables $idEnv / $secretEnv are undefined.',
+      );
+      return null;
+    }
+    return AzureCognitiveSearch(
+      credentials: AzureCognitiveSearchCredentials(
+        serviceId: id,
+        apiKey: secret,
       ),
-    ),
-  ).run();
+    );
+  };
+
+  DatastoreTestSuite(newDatastore).run();
 }
-
-const apiKeyVar = 'AZURE_COSMOS_DB_API_KEY';
-
-const serviceIdVar = 'AZURE_COSMOS_DB_SERVICE_ID';

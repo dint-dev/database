@@ -24,7 +24,7 @@ import '../datastore_test_suite.dart';
 void main() {
   group('Standard test suite', () {
     DatastoreTestSuite(
-      CachingDatastore(
+      () => CachingDatastore(
         master: MemoryDatastore(),
         cache: MemoryDatastore(),
       ),

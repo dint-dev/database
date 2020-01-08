@@ -1,3 +1,7 @@
+## [0.1.2] - January 8, 2020
+
+* Improved testing.
+
 ## [0.1.2] - January 7, 2020
 
 * Small documentation and formatting changes.

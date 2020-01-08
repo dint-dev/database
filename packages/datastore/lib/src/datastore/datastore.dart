@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'package:datastore/datastore.dart';
+import 'package:meta/meta.dart';
 
 /// A datastore contains any number of collections ([Collection]). A collection
 /// contains any number of documents ([Document]).
@@ -39,15 +40,6 @@ abstract class Datastore {
 
   const Datastore();
 
-  /// Begins a transaction.
-  ///
-  /// Note that many datastore implementations do not support transactions.
-  Future<Transaction> beginTransaction({
-    Duration timeout,
-  }) async {
-    throw UnsupportedError('Transactions are not supported by $this');
-  }
-
   /// Checks that the datastore can be used.
   ///
   /// The future will complete with an error if an error occurred.
@@ -61,6 +53,17 @@ abstract class Datastore {
   /// Return a new write batch.
   WriteBatch newWriteBatch() {
     return WriteBatch.simple();
+  }
+
+  // TODO: Transaction options (consistency, etc.)
+  /// Begins a transaction.
+  ///
+  /// Note that many datastore implementations do not support transactions.
+  Future<void> runInTransaction({
+    Duration timeout,
+    @required Future<void> Function(Transaction transaction) callback,
+  }) async {
+    throw UnsupportedError('Transactions are not supported by $this');
   }
 
   /// Sets the value returned by [Datastore.defaultInstance] and prevents

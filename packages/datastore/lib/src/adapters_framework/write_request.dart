@@ -16,6 +16,17 @@ import 'package:datastore/adapters_framework.dart';
 import 'package:datastore/datastore.dart';
 import 'package:meta/meta.dart';
 
+bool isDeleteWriteType(WriteType type) {
+  switch (type) {
+    case WriteType.delete:
+      return true;
+    case WriteType.deleteIfExists:
+      return true;
+    default:
+      return false;
+  }
+}
+
 /// A request to perform a write in the storage.
 @sealed
 class WriteRequest {
@@ -33,17 +44,6 @@ class WriteRequest {
   Future<void> delegateTo(Datastore datastore) {
     // ignore: invalid_use_of_protected_member
     return (datastore as DatastoreAdapter).performWrite(this);
-  }
-}
-
-bool isDeleteWriteType(WriteType type) {
-  switch (type) {
-    case WriteType.delete:
-      return true;
-    case WriteType.deleteIfExists:
-      return true;
-    default:
-      return false;
   }
 }
 

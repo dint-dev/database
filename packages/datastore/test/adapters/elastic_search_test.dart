@@ -21,18 +21,22 @@ import 'package:test/test.dart';
 import '../datastore_test_suite.dart';
 
 void main() async {
-  final datastore = ElasticSearch(
-    host: 'localhost',
-    port: 9200,
-  );
-  try {
-    await datastore.checkHealth(timeout: const Duration(milliseconds: 500));
-  } catch (error) {
-    print(
-      'ElasticSearch is not running at port 9200.\nTo run it with Docker, use script: ./tool/elastic_search/docker_run.sh',
+  final newDatastore = () async {
+    final datastore = ElasticSearch(
+      host: 'localhost',
+      port: 9200,
     );
-    return;
-  }
+    try {
+      await datastore.checkHealth(timeout: const Duration(milliseconds: 500));
+    } catch (error) {
+      print(
+        'ElasticSearch is not running at port 9200.\nTo run it with Docker, use script: ./tool/elastic_search/docker_run.sh',
+      );
+      return null;
+    }
+    ;
+    return datastore;
+  };
 
-  DatastoreTestSuite(datastore).run();
+  DatastoreTestSuite(newDatastore).run();
 }

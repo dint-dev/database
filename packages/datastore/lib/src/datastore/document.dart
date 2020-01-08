@@ -86,19 +86,6 @@ class Document {
     ).delegateTo(parentDatastore);
   }
 
-  /// Returns am infinite stream of snapshots.
-  Stream<Snapshot> watch({Schema schema, Duration interval}) async* {
-    while (true) {
-      final stream = ReadRequest(
-        document: this,
-        schema: schema,
-        watchSettings: WatchSettings(interval: interval),
-      ).delegateTo(parentDatastore);
-      yield* (stream);
-      await Future.delayed(interval ?? const Duration(seconds: 1));
-    }
-  }
-
   /// Inserts the document.
   ///
   /// If it doesn't matter whether the document exists, use method
@@ -139,5 +126,18 @@ class Document {
       type: WriteType.upsert,
       data: data,
     ).delegateTo(parentDatastore);
+  }
+
+  /// Returns am infinite stream of snapshots.
+  Stream<Snapshot> watch({Schema schema, Duration interval}) async* {
+    while (true) {
+      final stream = ReadRequest(
+        document: this,
+        schema: schema,
+        watchSettings: WatchSettings(interval: interval),
+      ).delegateTo(parentDatastore);
+      yield* (stream);
+      await Future.delayed(interval ?? const Duration(seconds: 1));
+    }
   }
 }

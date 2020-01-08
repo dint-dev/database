@@ -19,8 +19,6 @@ import '../datastore_test_suite.dart';
 
 void main() {
   group('MemoryDatastore:', () {
-    DatastoreTestSuite(
-      MemoryDatastore(),
-    ).run();
+    DatastoreTestSuite(() => MemoryDatastore()).run();
   });
 }

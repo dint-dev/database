@@ -1,13 +1,25 @@
 ///
-//  Generated code. Do not modify.
-//  source: datastore.proto
-//
-// @dart = 2.3
-// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
-
-// ignore_for_file: UNDEFINED_SHOWN_NAME,UNUSED_SHOWN_NAME
 import 'dart:core' as $core;
+
 import 'package:protobuf/protobuf.dart' as $pb;
+
+class ErrorCode extends $pb.ProtobufEnum {
+  static const ErrorCode unspecifiedError = ErrorCode._(0, 'unspecifiedError');
+  static const ErrorCode exists = ErrorCode._(1, 'exists');
+  static const ErrorCode doesNotExist = ErrorCode._(2, 'doesNotExist');
+
+  static const $core.List<ErrorCode> values = <ErrorCode>[
+    unspecifiedError,
+    exists,
+    doesNotExist,
+  ];
+
+  static final $core.Map<$core.int, ErrorCode> _byValue =
+      $pb.ProtobufEnum.initByValue(values);
+  const ErrorCode._($core.int v, $core.String n) : super(v, n);
+
+  static ErrorCode valueOf($core.int value) => _byValue[value];
+}
 
 class WriteType extends $pb.ProtobufEnum {
   static const WriteType unspecifiedWriteType =
@@ -29,25 +41,7 @@ class WriteType extends $pb.ProtobufEnum {
 
   static final $core.Map<$core.int, WriteType> _byValue =
       $pb.ProtobufEnum.initByValue(values);
-  static WriteType valueOf($core.int value) => _byValue[value];
-
   const WriteType._($core.int v, $core.String n) : super(v, n);
-}
 
-class ErrorCode extends $pb.ProtobufEnum {
-  static const ErrorCode unspecifiedError = ErrorCode._(0, 'unspecifiedError');
-  static const ErrorCode exists = ErrorCode._(1, 'exists');
-  static const ErrorCode doesNotExist = ErrorCode._(2, 'doesNotExist');
-
-  static const $core.List<ErrorCode> values = <ErrorCode>[
-    unspecifiedError,
-    exists,
-    doesNotExist,
-  ];
-
-  static final $core.Map<$core.int, ErrorCode> _byValue =
-      $pb.ProtobufEnum.initByValue(values);
-  static ErrorCode valueOf($core.int value) => _byValue[value];
-
-  const ErrorCode._($core.int v, $core.String n) : super(v, n);
+  static WriteType valueOf($core.int value) => _byValue[value];
 }

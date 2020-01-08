@@ -26,13 +26,13 @@ void main() {
     tearDown(() {
       html.window.localStorage.clear();
     });
-    DatastoreTestSuite(BrowserDatastore()).run();
+    DatastoreTestSuite(() => BrowserDatastore()).run();
   });
 
   group('BrowserLocalStorage:', () {
     tearDown(() {
       html.window.localStorage.clear();
     });
-    DatastoreTestSuite(BrowserLocalStorageDatastore()).run();
+    DatastoreTestSuite(() => BrowserLocalStorageDatastore()).run();
   });
 }

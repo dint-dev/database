@@ -18,19 +18,21 @@ import 'package:datastore/datastore.dart';
 /// Mixin for read-only datastores.
 mixin ReadOnlyDatastoreAdapter implements DatastoreAdapter {
   @override
-  Future<Transaction> beginTransaction({Duration timeout}) {
-    return Future<Transaction>.error(
-      UnsupportedError('Datastore is read-only'),
-    );
-  }
-
-  @override
   WriteBatch newWriteBatch() {
     throw UnsupportedError('Datastore is read-only');
   }
 
   @override
   Future<void> performWrite(WriteRequest request) {
+    return Future<Transaction>.error(
+      UnsupportedError('Datastore is read-only'),
+    );
+  }
+
+  @override
+  Future<void> runInTransaction(
+      {Duration timeout,
+      Future<void> Function(Transaction transaction) callback}) {
     return Future<Transaction>.error(
       UnsupportedError('Datastore is read-only'),
     );

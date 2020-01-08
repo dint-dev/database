@@ -1,8 +1,7 @@
 #!/bin/bash
-ARGS=$@
 set -e
 cd `dirname $0`/..
-cd packages
+ARGS=${@:1}
 
 visit() {
   NAME=$1
@@ -10,9 +9,9 @@ visit() {
   echo "Getting dependencies for '$NAME'"
   echo "-------------------------------------------------"
   echo "Running: pub get $ARGS"
-  cd $NAME
+  cd packages/$NAME
   pub get $ARGS
-  cd ..
+  cd ../..
 }
 
 visit_flutter() {
@@ -24,9 +23,9 @@ visit_flutter() {
   echo "Getting dependencies for '$NAME'"
   echo "-------------------------------------------------"
   echo "Running: pub get $ARGS"
-  cd $NAME
+  cd packages/$NAME
   flutter pub get $ARGS
-  cd ..
+  cd ../..
 }
 
 visit datastore

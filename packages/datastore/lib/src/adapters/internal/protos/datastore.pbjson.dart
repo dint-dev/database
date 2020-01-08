@@ -1,19 +1,43 @@
-///
-//  Generated code. Do not modify.
-//  source: datastore.proto
-//
-// @dart = 2.3
-// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
-
-const WriteType$json = {
-  '1': 'WriteType',
+const Collection$json = {
+  '1': 'Collection',
   '2': [
-    {'1': 'unspecifiedWriteType', '2': 0},
-    {'1': 'delete', '2': 1},
-    {'1': 'deleteIfExists', '2': 2},
-    {'1': 'insert', '2': 3},
-    {'1': 'update', '2': 4},
-    {'1': 'upsert', '2': 5},
+    {'1': 'datastoreId', '3': 1, '4': 1, '5': 9, '10': 'datastoreId'},
+    {'1': 'collectionId', '3': 2, '4': 1, '5': 9, '10': 'collectionId'},
+  ],
+};
+
+const Document$json = {
+  '1': 'Document',
+  '2': [
+    {'1': 'datastoreId', '3': 1, '4': 1, '5': 9, '10': 'datastoreId'},
+    {'1': 'collectionId', '3': 2, '4': 1, '5': 9, '10': 'collectionId'},
+    {'1': 'documentId', '3': 3, '4': 1, '5': 9, '10': 'documentId'},
+  ],
+};
+
+const Error$json = {
+  '1': 'Error',
+  '2': [
+    {'1': 'code', '3': 1, '4': 1, '5': 14, '6': '.ErrorCode', '10': 'code'},
+    {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    {'1': 'message', '3': 3, '4': 1, '5': 9, '10': 'message'},
+    {'1': 'stackTrace', '3': 4, '4': 1, '5': 9, '10': 'stackTrace'},
+    {
+      '1': 'collection',
+      '3': 5,
+      '4': 1,
+      '5': 11,
+      '6': '.Collection',
+      '10': 'collection'
+    },
+    {
+      '1': 'document',
+      '3': 6,
+      '4': 1,
+      '5': 11,
+      '6': '.Document',
+      '10': 'document'
+    },
   ],
 };
 
@@ -24,6 +48,65 @@ const ErrorCode$json = {
     {'1': 'exists', '2': 1},
     {'1': 'doesNotExist', '2': 2},
   ],
+};
+
+const Filter$json = {
+  '1': 'Filter',
+};
+
+const GeoPoint$json = {
+  '1': 'GeoPoint',
+  '2': [
+    {'1': 'latitude', '3': 1, '4': 1, '5': 1, '10': 'latitude'},
+    {'1': 'longitude', '3': 2, '4': 1, '5': 1, '10': 'longitude'},
+  ],
+};
+
+const Query$json = {
+  '1': 'Query',
+  '2': [
+    {'1': 'filterString', '3': 1, '4': 1, '5': 9, '10': 'filterString'},
+    {'1': 'filter', '3': 2, '4': 1, '5': 11, '6': '.Filter', '10': 'filter'},
+    {'1': 'sorters', '3': 3, '4': 3, '5': 9, '10': 'sorters'},
+    {'1': 'schema', '3': 4, '4': 1, '5': 11, '6': '.Schema', '10': 'schema'},
+    {'1': 'skip', '3': 5, '4': 1, '5': 3, '10': 'skip'},
+    {'1': 'take', '3': 6, '4': 1, '5': 3, '10': 'take'},
+  ],
+};
+
+const ReadInput$json = {
+  '1': 'ReadInput',
+  '2': [
+    {
+      '1': 'document',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.Document',
+      '10': 'document'
+    },
+  ],
+};
+
+const ReadOutput$json = {
+  '1': 'ReadOutput',
+  '2': [
+    {'1': 'error', '3': 1, '4': 1, '5': 11, '6': '.Error', '10': 'error'},
+    {
+      '1': 'document',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.Document',
+      '10': 'document'
+    },
+    {'1': 'exists', '3': 3, '4': 1, '5': 8, '10': 'exists'},
+    {'1': 'data', '3': 4, '4': 1, '5': 11, '6': '.Value', '10': 'data'},
+  ],
+};
+
+const Schema$json = {
+  '1': 'Schema',
 };
 
 const SearchInput$json = {
@@ -74,120 +157,11 @@ const SearchResultItem$json = {
   ],
 };
 
-const ReadInput$json = {
-  '1': 'ReadInput',
+const Timestamp$json = {
+  '1': 'Timestamp',
   '2': [
-    {
-      '1': 'document',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.Document',
-      '10': 'document'
-    },
-  ],
-};
-
-const ReadOutput$json = {
-  '1': 'ReadOutput',
-  '2': [
-    {'1': 'error', '3': 1, '4': 1, '5': 11, '6': '.Error', '10': 'error'},
-    {
-      '1': 'document',
-      '3': 2,
-      '4': 1,
-      '5': 11,
-      '6': '.Document',
-      '10': 'document'
-    },
-    {'1': 'exists', '3': 3, '4': 1, '5': 8, '10': 'exists'},
-    {'1': 'data', '3': 4, '4': 1, '5': 11, '6': '.Value', '10': 'data'},
-  ],
-};
-
-const WriteInput$json = {
-  '1': 'WriteInput',
-  '2': [
-    {
-      '1': 'document',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.Document',
-      '10': 'document'
-    },
-    {'1': 'type', '3': 2, '4': 1, '5': 14, '6': '.WriteType', '10': 'type'},
-    {'1': 'value', '3': 3, '4': 1, '5': 11, '6': '.Value', '10': 'value'},
-  ],
-};
-
-const WriteOutput$json = {
-  '1': 'WriteOutput',
-  '2': [
-    {'1': 'error', '3': 1, '4': 1, '5': 11, '6': '.Error', '10': 'error'},
-  ],
-};
-
-const Error$json = {
-  '1': 'Error',
-  '2': [
-    {'1': 'code', '3': 1, '4': 1, '5': 14, '6': '.ErrorCode', '10': 'code'},
-    {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
-    {'1': 'message', '3': 3, '4': 1, '5': 9, '10': 'message'},
-    {'1': 'stackTrace', '3': 4, '4': 1, '5': 9, '10': 'stackTrace'},
-    {
-      '1': 'collection',
-      '3': 5,
-      '4': 1,
-      '5': 11,
-      '6': '.Collection',
-      '10': 'collection'
-    },
-    {
-      '1': 'document',
-      '3': 6,
-      '4': 1,
-      '5': 11,
-      '6': '.Document',
-      '10': 'document'
-    },
-  ],
-};
-
-const Query$json = {
-  '1': 'Query',
-  '2': [
-    {'1': 'filterString', '3': 1, '4': 1, '5': 9, '10': 'filterString'},
-    {'1': 'filter', '3': 2, '4': 1, '5': 11, '6': '.Filter', '10': 'filter'},
-    {'1': 'sorters', '3': 3, '4': 3, '5': 9, '10': 'sorters'},
-    {'1': 'schema', '3': 4, '4': 1, '5': 11, '6': '.Schema', '10': 'schema'},
-    {'1': 'skip', '3': 5, '4': 1, '5': 3, '10': 'skip'},
-    {'1': 'take', '3': 6, '4': 1, '5': 3, '10': 'take'},
-  ],
-};
-
-const Filter$json = {
-  '1': 'Filter',
-};
-
-const Schema$json = {
-  '1': 'Schema',
-};
-
-const Collection$json = {
-  '1': 'Collection',
-  '2': [
-    {'1': 'datastoreId', '3': 1, '4': 1, '5': 9, '10': 'datastoreId'},
-    {'1': 'collectionId', '3': 2, '4': 1, '5': 9, '10': 'collectionId'},
-  ],
-};
-
-const Document$json = {
-  '1': 'Document',
-  '2': [
-    {'1': 'datastoreId', '3': 1, '4': 1, '5': 9, '10': 'datastoreId'},
-    {'1': 'collectionId', '3': 2, '4': 1, '5': 9, '10': 'collectionId'},
-    {'1': 'documentId', '3': 3, '4': 1, '5': 9, '10': 'documentId'},
+    {'1': 'seconds', '3': 1, '4': 1, '5': 3, '10': 'seconds'},
+    {'1': 'nanos', '3': 2, '4': 1, '5': 5, '10': 'nanos'},
   ],
 };
 
@@ -246,18 +220,44 @@ const Value_MapValueEntry$json = {
   '7': {'7': true},
 };
 
-const Timestamp$json = {
-  '1': 'Timestamp',
+const WriteInput$json = {
+  '1': 'WriteInput',
   '2': [
-    {'1': 'seconds', '3': 1, '4': 1, '5': 3, '10': 'seconds'},
-    {'1': 'nanos', '3': 2, '4': 1, '5': 5, '10': 'nanos'},
+    {
+      '1': 'document',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.Document',
+      '10': 'document'
+    },
+    {'1': 'type', '3': 2, '4': 1, '5': 14, '6': '.WriteType', '10': 'type'},
+    {'1': 'value', '3': 3, '4': 1, '5': 11, '6': '.Value', '10': 'value'},
   ],
 };
 
-const GeoPoint$json = {
-  '1': 'GeoPoint',
+const WriteOutput$json = {
+  '1': 'WriteOutput',
   '2': [
-    {'1': 'latitude', '3': 1, '4': 1, '5': 1, '10': 'latitude'},
-    {'1': 'longitude', '3': 2, '4': 1, '5': 1, '10': 'longitude'},
+    {'1': 'error', '3': 1, '4': 1, '5': 11, '6': '.Error', '10': 'error'},
+  ],
+};
+
+///
+//  Generated code. Do not modify.
+//  source: datastore.proto
+//
+// @dart = 2.3
+// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
+
+const WriteType$json = {
+  '1': 'WriteType',
+  '2': [
+    {'1': 'unspecifiedWriteType', '2': 0},
+    {'1': 'delete', '2': 1},
+    {'1': 'deleteIfExists', '2': 2},
+    {'1': 'insert', '2': 3},
+    {'1': 'update', '2': 4},
+    {'1': 'upsert', '2': 5},
   ],
 };

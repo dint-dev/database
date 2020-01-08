@@ -28,43 +28,39 @@ import 'package:test/test.dart';
 import '../datastore_test_suite.dart';
 
 Future<void> main() async {
-  group('Standard test suite: ', () async {
-    final testSuite = DatastoreTestSuite(null);
-
-    setUpAll(() async {
-      //
-      // Define server
-      //
-      final serverService = GrpcSearchServerService(
-        datastore: MemoryDatastore(),
-        onError: (call, request, error, stackTrace) {
-          print('Error: $error');
-        },
-      );
-      final server = grpc.Server(<grpc.Service>[serverService]);
-      await server.serve(
-        address: 'localhost',
-        port: 0,
-        http2ServerSettings: http2.ServerSettings(),
-      );
-      addTearDown(() {
-        server.shutdown();
-      });
-
-      //
-      // Define client
-      //
-      testSuite.datastore = GrpcDatastore(
-        host: 'localhost',
-        port: server.port,
-        channelOptions: grpc.ChannelOptions(
-          credentials: grpc.ChannelCredentials.insecure(),
-        ),
-      );
+  final newDatastore = () async {
+    //
+    // Define server
+    //
+    final serverService = GrpcSearchServerService(
+      datastore: MemoryDatastore(),
+      onError: (call, request, error, stackTrace) {
+        print('Error: $error');
+      },
+    );
+    final server = grpc.Server(<grpc.Service>[serverService]);
+    await server.serve(
+      address: 'localhost',
+      port: 0,
+      http2ServerSettings: http2.ServerSettings(),
+    );
+    addTearDown(() {
+      server.shutdown();
     });
 
-    testSuite.run();
-  });
+    //
+    // Define client
+    //
+    return GrpcDatastore(
+      host: 'localhost',
+      port: server.port,
+      channelOptions: grpc.ChannelOptions(
+        credentials: grpc.ChannelCredentials.insecure(),
+      ),
+    );
+  };
+
+  DatastoreTestSuite(newDatastore).run();
 
   group('encoding/decoding data:', () {
     test('null', () {

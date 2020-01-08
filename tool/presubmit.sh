@@ -2,8 +2,11 @@
 ARGS=$@
 set -e
 cd `dirname $0`/..
-cd packages
 
+# Clear secrets
+./tool/secrets.sh
+
+# Format
 echo "-------------------------------------------------"
 echo "Running dartfmt --fix -w ."
 echo "-------------------------------------------------"

@@ -15,11 +15,11 @@
 /// A framework for implementing document database adapters.
 library datastore.adapters_framework;
 
-export 'src/adapters_framework/search_request.dart';
 export 'src/adapters_framework/datastore_adapter.dart';
-export 'src/adapters_framework/extension_request.dart';
 export 'src/adapters_framework/delegating_datastore_adapter.dart';
-export 'src/adapters_framework/write_request.dart';
-export 'src/adapters_framework/read_request.dart';
-export 'src/adapters_framework/read_only_datastore_adapter.dart';
 export 'src/adapters_framework/document_scoring.dart';
+export 'src/adapters_framework/extension_request.dart';
+export 'src/adapters_framework/read_only_datastore_adapter.dart';
+export 'src/adapters_framework/read_request.dart';
+export 'src/adapters_framework/search_request.dart';
+export 'src/adapters_framework/write_request.dart';

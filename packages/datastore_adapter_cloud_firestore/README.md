@@ -1,11 +1,10 @@
 # Introduction
-This adapters enables [package:datastore](https://github.com/terrier989/datastore) to use
-[package:cloud_firestore](https://pub.dev/packages/cloud_firestore).
+This adapters enables the package [datastore](https://github.com/terrier989/datastore) to use
+the package [cloud_firestore](https://pub.dev/packages/cloud_firestore).
 
 Licensed under the [Apache License 2.0](LICENSE).
 
-## Contributing
-  * [github.com/terrier989/datastore](https://github.com/terrier989/datastore)
+__Warning:__ this adapter does not pass all tests yet.
 
 # Getting started
 ## 1.Add dependency

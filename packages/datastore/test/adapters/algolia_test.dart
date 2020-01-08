@@ -18,23 +18,26 @@ library _;
 import 'package:datastore/adapters.dart';
 import 'package:datastore/datastore.dart';
 import 'package:test/test.dart';
-import 'package:universal_io/io.dart';
+import 'package:test_io/test_io.dart';
 
 void main() {
+  setUpAll(() {});
   test('basic usage', () async {
-    final serviceId = Platform.environment[serviceIdVar];
-    final apiKey = Platform.environment[apiKeyVar];
-    if (serviceId == null || apiKey == null) {
+    final env = await getEnvironmentalVariables();
+    const idEnv = 'TEST_ALGOLIA_ID';
+    const secretEnv = 'TEST_ALGOLIA_SECRET';
+    final id = env[idEnv] ?? '';
+    final secret = env[secretEnv] ?? '';
+    if (id == '' || secret == '') {
       print(
-        'Skipping test: Environmental variables $serviceIdVar / $apiKeyVar are undefined.',
+        'SKIPPING: Algolia: environmental variables $idEnv / $secretEnv are undefined.',
       );
       return;
     }
-
     Datastore.defaultInstance = Algolia(
       credentials: AlgoliaCredentials(
-        appId: serviceId,
-        apiKey: apiKey,
+        appId: id,
+        apiKey: secret,
       ),
     );
 
@@ -83,7 +86,3 @@ void main() {
     }
   });
 }
-
-const apiKeyVar = 'ALGOLIA_API_KEY';
-
-const serviceIdVar = 'ALGOLIA_SERVICE_ID';

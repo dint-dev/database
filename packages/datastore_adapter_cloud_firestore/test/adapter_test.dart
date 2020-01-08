@@ -19,22 +19,21 @@ import 'package:datastore_adapter_cloud_firestore/adapter.dart';
 import 'copy_of_datastore_test_suite.dart';
 
 void main() {
-  final serviceId = Platform.environment[serviceIdVar];
-  final apiKey = Platform.environment[apiKeyVar];
-  if (serviceId == null || apiKey == null) {
-    print(
-      'Skipping test: Environmental variables $serviceIdVar / $apiKeyVar are undefined.',
+  final newDatastore = () async {
+    const idEnv = 'TEST_GOOGLE_FIRESTORE_ID';
+    const secretEnv = 'TEST_GOOGLE_FIRESTORE_SECRET';
+    final id = Platform.environment[idEnv] ?? '';
+    final secret = Platform.environment[secretEnv] ?? '';
+    if (id == '' || secret == '') {
+      print(
+        'SKIPPING: Google Cloud Firestore: environmental variables $idEnv / $secretEnv are undefined.',
+      );
+      return null;
+    }
+    return FirestoreFlutter(
+      appId: id,
+      apiKey: secret,
     );
-    return;
-  }
-  DatastoreTestSuite(
-    FirestoreFlutter(
-      appId: serviceId,
-      apiKey: apiKey,
-    ),
-  ).run();
+  };
+  return DatastoreTestSuite(newDatastore).run();
 }
-
-const apiKeyVar = 'GOOGLE_CLOUD_FIRESTORE_API_KEY';
-
-const serviceIdVar = 'GOOGLE_CLOUD_FIRESTORE_SERVICE_ID';
