@@ -1,4 +1,4 @@
-## [0.1.2] - January 8, 2020
+## [0.1.3] - January 8, 2020
 
 * Improved testing.
 
