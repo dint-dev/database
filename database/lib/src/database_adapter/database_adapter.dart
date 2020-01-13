@@ -46,4 +46,11 @@ abstract class DatabaseAdapter extends Database {
   Future<void> performWrite(
     WriteRequest request,
   );
+
+  /// Called by document. Databases that can issue their own IDs should override this
+  /// method.
+  Future<Document> collectionInsert(Collection collection,
+      {Map<String, Object> data}) {
+    return collection.newDocument().insert(data: data);
+  }
 }

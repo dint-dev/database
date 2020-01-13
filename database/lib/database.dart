@@ -12,7 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A document database API.
+/// An unified database API for relational (SQL) databases, document
+/// databases, and search engines.
+///
+/// Example:
+/// ```
+/// import 'package:database/database.dart';
+///
+/// void main() {
+///   final memoryDatabase = MemoryDatabase();
+///   memoryDatabase.collection('employee').insert(Employee(
+///
+///   )
+/// }
+///
+/// ```
 library database;
 
 export 'src/database/built_in_adapters/caching_database.dart';

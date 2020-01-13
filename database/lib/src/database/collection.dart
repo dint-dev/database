@@ -83,6 +83,7 @@ class Collection {
   /// ```dart
   /// database.collection('example').newDocument().insert({'key':'value'});
   /// ```
+  // TODO: Use a more descriptive method name like documentWithRandomId()?
   Document newDocument() {
     final random = Random.secure();
     final sb = StringBuffer();
@@ -91,6 +92,8 @@ class Collection {
     }
     return document(sb.toString());
   }
+
+  Future<Document> insert({Map<String, Object> data}) {}
 
   /// Searches documents.
   ///

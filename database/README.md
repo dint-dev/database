@@ -1,60 +1,60 @@
 [![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
 
 # Introduction
-This enables Dart developers to use document databases and information retrieval systems.
-The package works in all platforms (Flutter, browser, server).
-Licensed under the [Apache License 2.0](LICENSE).
+This package aims to help Dart developers use database and information retrieval products.
 
-__Warning:__ breaking changes are likely before the project freezes the APIs.
+We would like to support the following types of products in an unified API:
+  * __SQL databases__
+  * __Document databases__
+  * __Search engines__
 
-## Contributing
-Anyone can help this open-source project!
+Supporting several different database paradigms in one API is somewhat unconventional. It carries a risk of confusing developers. There are also advantages. We try the current approach in the early versions, and if it doesn't seem right, split the unified API into multiple traditional APIs.
 
-For the first contribution, create [a pull request at Github](https://github.com/dint-dev/database).
+Any feedback on the design is appreciated.
 
-Repeat contributors may be given Github permissions to push directly into the repository. If you
-have been granted such permission, code review is not necessary for you (but it's still a good
-habit).
+The project is licensed under the [Apache License 2.0](LICENSE).
 
 ## API reference
   * [pub.dev/documentation/database/latest/](https://pub.dev/documentation/database/latest/)
+  * __Warning:__ you should expect many breaking changes before the project freezes the APIs.
 
 ## Available adapters
-### General-purpose
-  * __BrowserDatabase__ ([API](https://pub.dev/documentation/database/latest/database.adapters/BrowserDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/adapters/browser_database.dart))
-    * Uses browser APIs such as _window.localStorage_.
+### Built-in adapters
   * __CachingDatabase__ ([API](https://pub.dev/documentation/database/latest/database.adapters/CachingDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/adapters/caching_database.dart))
     * Caches data in some other database.
-  * __GrpcDatabase__ ([API](https://pub.dev/documentation/database/latest/database.adapters/GrpcDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/adapters/grpc_database.dart))
-    * A [GRPC](https://grpc.io) client. You can also find a server implementation.
-  * __MemoryDatabase__ ([API](https://pub.dev/documentation/database/latest/database.adapters/MemoryDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/adapters/memory_database.dart))
+  * __MemoryDatabase__ ([API](https://pub.dev/documentation/database/latest/database.adapters/MemoryDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/memory_database.dart))
     * Stores data in memory.
   * __SchemaUsingDatabase__ ([API](https://pub.dev/documentation/database/latest/database.adapters/SchemaUsingDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/adapters/schema_using_database.dart))
     * Enforces schemas on reads/writes.
-  * __SearchableDatabase__
-    * A search engine for Flutter / web applications. Found in the package [search](https://pub.dev/packages/search).
 
-### For using various products
-  * __Algolia__ ([website](https://www.algolia.com))
-    * Use adapter `Algolia` ([API](https://pub.dev/documentation/database_adapters/latest/database_adapters.algolia/Algolia-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database_adapters/lib/algolia.dart))
-    * The adapter does not pass all tests. You can help!
-  * __Azure Cosmos DB__ ([website](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction))
-    * Use adapter `AzureCosmosDB` ([API](https://pub.dev/documentation/database_adapters/latest/database_adapters.azure_cosmos_db/AzureCosmosDB-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database_adapters/lib/azure_cosmos_db.dart))
-    * The adapter does not pass all tests. You can help!
-  * __Azure Cognitive Search__ ([website](https://azure.microsoft.com/en-us/services/search))
-    * Use adapter `AzureCognitiveSearch` ([API](https://pub.dev/documentation/database_adapters/latest/database_adapters.azure_cognitive_search/AzureCognitiveSearch-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database_adapters/lib/azure_cognitive_search.dart))
-    * The adapter does not pass all tests. You can help!
-  * __ElasticSearch__ ([website](https://www.elastic.co))
-    * Use adapter `ElasticSearch` ([API](https://pub.dev/documentation/ddatabase_adapters/latest/database_adapters.elastic_search/ElasticSearch-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database_adapters/lib/elastic_search.dart))
-    * The adapter does not pass all tests. You can help!
-  * __Google Cloud Database__ ([website](https://cloud.google.com/database))
-    * Use adapter `GoogleCloudDatastore` ([API](https://pub.dev/documentation/database_adapters/latest/database_adapters.google_cloud_database/GoogleCloudDatastore-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database_adapters/lib/google_cloud_database.dart))
-    * The adapter does not pass all tests. You can help!
-  * __Google Cloud Firestore__ ([website](https://firebase.google.com/docs/firestore))
-    * In browser, use adapter `Firestore` ([API](https://pub.dev/documentation/database_adapters/latest/database_adapters.firestore/Firestore-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/adapters/google_cloud_firestore_impl_browser.dart))
-    * In Flutter, use adapter `FirestoreFlutter` ([source](https://github.com/dint-dev/database/tree/master/packages/database_adapter_cloud_firestore/lib/adapter.dart)) in "package:firestore_adapter_cloud_firestore/adapter.dart".
-    * The adapter does not pass all tests. You can help!
+### Adapters in other package
+  * __database_adapter_browser__
+    * Use adapter `BrowserDatabase` ([API](https://pub.dev/documentation/database_adapter_browser/latest/database_adapter_browser/BrowserDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/adapters/browser/lib/))
+    * By default, uses [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
+      (`window.localStorage`).
+  * __database_adapter_elastic_search__
+    * Implements support for ElasticSearch__ ([website](https://www.elastic.co))
+      * Use adapter `ElasticSearch` ([API](https://pub.dev/documentation/database_adapter_elastic_search/latest/database_adapter_elastic_search/ElasticSearch-class.html), [source](https://github.com/dint-dev/database/tree/master/adapters/elastic_search/lib/))
+  * __search__ ([Pub](https://pub.dev/packages/search))
+    * A very simple keyword search engine for Flutter / web applications. Only suitable for small
+      text collections.
 
+_Do you have a package? Add it in the list above here by creating an issue!_
+
+## Contributing
+This is an open-source community project. Anyone, even beginners, can contribute.
+
+This is how you contribute:
+  1. Fork [github.com/dint-dev/dint](https://github.com/dint-dev/database) by pressing fork button.
+  2. Clone your fork to your computer: `git clone github.com/your_username/database`
+  3. Run `./tool/pub_get.sh` to get dependencies for all packages.
+  4. Do your changes.
+  5. When you are done, commit changes with `git add -A` and `git commit`.
+  6. Push changes to your personal repository: `git push origin`
+  7. Go to [github.com/dint-dev/dint](https://github.com/dint-dev/dint) and create a pull request.
+
+Contributors may be added to the Github organization team so they can save time by pushing
+directly to the repository.
 
 # Getting started
 ## Add dependency
@@ -71,16 +71,14 @@ import 'package:database/database.dart';
 
 Future<void> main() async {
   //
-  // Set default database
+  // Use in-memory database
   //
-  Database.freezeDefaultInstance(
-    MemoryDatabase(), // <-- Choose the right database for you
-  );
+  final database = MemoryDatabase();
+  database.addMapper();
 
   //
-  // Insert documents
+  // Insert document
   //
-  final database = Database.defaultInstance;
   database.collection('employee').newDocument().insert({
     'name': 'Jane',
     'title': 'software developer',
@@ -214,3 +212,26 @@ void main() {
   });
 }
 ```
+
+# Adapters in the incubator
+These are, for most part, not ready for use:
+  * __database_adapter_algolia__
+    * Implements support for Algolia ([website](https://www.algolia.com))
+      * Use adapter `Algolia` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/gcloud/lib/))
+  * __database_adapter_azure__
+    * Implements support for Azure Cosmos DB ([website](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction))
+      * `AzureCosmosDB` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/azure/lib/))
+    * Implements support for Azure Cognitive Search ([website](https://azure.microsoft.com/en-us/services/search))
+      * Use adapter `AzureCognitiveSearch` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/azure/lib/))
+  * __database_adapter_gcloud__
+    * Implements support for Google Cloud Database ([website](https://cloud.google.com/database))
+      * Use adapter `GoogleCloudDatastore` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/gcloud/lib/))
+  * __database_adapter_firestore__
+    * Implements browser-onyl support for Google Cloud Firestore ([website](https://firebase.google.com/docs/firestore))
+    * Use adapter `Firestore` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore/lib/))
+  * __database_adapter_firestore_flutter__
+    * Implements Flutter-only support for Google Cloud Firestore ([website](https://firebase.google.com/docs/firestore))
+    * In Flutter, use adapter `FirestoreFlutter` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore_flutter/lib/))
+
+
+

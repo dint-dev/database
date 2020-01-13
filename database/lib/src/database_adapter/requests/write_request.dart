@@ -16,6 +16,8 @@ import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
 import 'package:meta/meta.dart';
 
+/// Returns true if the argument is [WriteType.delete] or
+/// [WriteType.deleteIfExists].
 bool isDeleteWriteType(WriteType type) {
   switch (type) {
     case WriteType.delete:
@@ -30,9 +32,19 @@ bool isDeleteWriteType(WriteType type) {
 /// A request to perform a write in the storage.
 @sealed
 class WriteRequest {
+  /// A collection where the data is written. Ignored [document] is non-null.
+  Collection collectionWhereInserted;
+
+  /// Document where the data is written. If null, [collectionWhereInserted]
+  /// must be non=null.
   Document document;
+
+  /// Type of the write.
   WriteType type;
+
+  /// Written data.
   Map<String, Object> data;
+
   Schema schema;
 
   WriteRequest({
@@ -41,6 +53,7 @@ class WriteRequest {
     this.data,
   });
 
+  /// Delegates this request to another database.
   Future<void> delegateTo(Database database) {
     // ignore: invalid_use_of_protected_member
     return (database as DatabaseAdapter).performWrite(this);
@@ -48,9 +61,18 @@ class WriteRequest {
 }
 
 enum WriteType {
+  /// Deletes a document. If the document doesn't exist, throws an error.
   delete,
+
+  /// Deletes a document. IF the document doesn't exist, ignores the operation.
   deleteIfExists,
+
+  /// Insert a document.
   insert,
+
+  /// Updates a document.
   update,
+
+  /// Inserts or updates the document.
   upsert,
 }

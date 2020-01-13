@@ -5,7 +5,22 @@ This projects aims to help Dart developers use database and information retrieva
 
 __Warning:__ breaking changes are likely before the project freezes the APIs.
 
-## Contributing
+## Directory structure
+  * [database](database)
+    * The main package.
+    * [Pub package](https://pub.dev/packages/database)
+    * [API reference](https://pub.dev/documentation/database/latest/)
+  * [search](search)
+    * A search engine for applications that want search to work offline.
+    * [Pub package](https://pub.dev/packages/search)
+    * [API reference](https://pub.dev/documentation/search/latest/)
+  * [adapters](adapters) contains various adapters.
+  * [adapters_incubators](adapters_incubator) contains various stubs for adapters.
+
+# Getting started
+Go to the [documentation](database).
+
+# Contributing
 This is an open-source community project. Anyone, even beginners, can contribute.
 
 This is how you contribute:
@@ -19,18 +34,3 @@ This is how you contribute:
 
 Contributors may be added to the Github organization team so they can save time by pushing
 directly to the repository.
-
-## Directory structure
-  * [database](database)
-    * The main package.
-    * [Pub package](https://pub.dev/packages/database)
-    * [API reference](https://pub.dev/documentation/database/latest/)
-  * search](search)
-    * A search engine for applications that want search to work offline.
-    * [Pub package](https://pub.dev/packages/search)
-    * [API reference](https://pub.dev/documentation/search/latest/)
-  * [adapters](adapters) contains various adapters.
-  * [adapters_incubators](adapters_incubator) contains various stubs for adapters.
-
-# Getting started
-Go to [documentation](packages/database).
