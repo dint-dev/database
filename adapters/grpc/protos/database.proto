@@ -1,0 +1,143 @@
+// Copyright 2019 terrier989@gmail.com.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// Just an early stub.
+//
+// Breaking changes are welcome!
+//
+
+syntax = "proto3";
+
+service DatabaseServer {
+  rpc search(SearchInput) returns (stream SearchOutput) {}
+  rpc read(ReadInput) returns (stream  ReadOutput) {}
+  rpc write(WriteInput) returns (stream  WriteOutput) {}
+}
+
+message SearchInput {
+  Collection collection = 1;
+  Query query = 2;
+  bool isIncremental = 5;
+}
+
+message SearchOutput {
+  Error error = 1;
+  uint64 count = 2;
+  repeated SearchResultItem items = 3;
+}
+
+message SearchResultItem {
+  Document document  = 1;
+  Value data = 2;
+  double score = 3;
+}
+
+message ReadInput {
+  Document document  = 1;
+}
+
+message ReadOutput {
+  Error error = 1;
+  Document document  = 2;
+  bool exists = 3;
+  Value data = 4;
+}
+
+message WriteInput {
+  Document document  = 1;
+  WriteType type = 2;
+  Value value = 3;
+}
+
+message WriteOutput {
+  Error error = 1;
+}
+
+enum WriteType {
+  unspecifiedWriteType = 0;
+  delete = 1;
+  deleteIfExists = 2;
+  insert = 3;
+  update = 4;
+  upsert = 5;
+}
+
+message Error {
+  ErrorCode code = 1;
+  string name = 2;
+  string message = 3;
+  string stackTrace = 4;
+  Collection collection = 5;
+  Document document = 6;
+}
+
+enum ErrorCode {
+  unspecifiedError = 0;
+  exists = 1;
+  doesNotExist = 2;
+}
+
+message Query {
+  string filterString = 1;
+  Filter filter = 2;
+  repeated string sorters = 3;
+  Schema schema = 4;
+  int64 skip = 5;
+  int64 take = 6;
+}
+
+message Filter {}
+
+message Schema {}
+
+
+message Collection{
+  string databaseId = 1;
+  string collectionId = 2;
+}
+
+message Document {
+  string databaseId = 1;
+  string collectionId = 2;
+  string documentId = 3;
+}
+
+// Encodes any supported value
+message Value {
+  bool isNull = 1;
+  bool boolValue = 2;
+  sint64 intValue = 3;
+  double floatValue = 4;
+  Timestamp dateTimeValue = 5;
+  GeoPoint geoPoint = 6;
+  string stringValue = 7;
+  bytes bytesValue = 8;
+  bool emptyList = 9;
+  repeated Value listValue = 11;
+  map<string, Value> mapValue = 12;
+}
+
+message Timestamp {
+  // UTC time since Unix epoch.
+  int64 seconds = 1;
+
+  // Non-negative nanoseconds.
+  int32 nanos = 2;
+}
+
+message GeoPoint {
+  double latitude = 1;
+  double longitude = 2;
+}

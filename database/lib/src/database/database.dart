@@ -1,0 +1,82 @@
+// Copyright 2019 terrier989@gmail.com.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import 'package:database/database.dart';
+import 'package:meta/meta.dart';
+
+/// A database contains any number of collections ([Collection]). A collection
+/// contains any number of documents ([Document]).
+abstract class Database {
+  /// Value returned by [defaultInstance].
+  static Database _defaultInstance;
+
+  /// Whether value of static field [_defaultInstance] is frozen.
+  static bool _defaultInstanceFrozen = false;
+
+  /// Returns global default instance of [Database].
+  static Database get defaultInstance => _defaultInstance;
+
+  /// Sets the value returned by [Database.defaultInstance].
+  ///
+  /// Throws [StateError] if the value has already been frozen by
+  /// [freezeDefaultInstance].
+  static set defaultInstance(Database database) {
+    if (_defaultInstanceFrozen) {
+      throw StateError('Database.defaultInstance is already frozen');
+    }
+    _defaultInstance = database;
+  }
+
+  const Database();
+
+  /// Checks that the database can be used.
+  ///
+  /// The future will complete with an error if the database can't be used.
+  Future<void> checkHealth();
+
+  /// Returns a collection with the name.
+  Collection collection(String collectionId) {
+    return Collection(this, collectionId);
+  }
+
+  /// Return a new write batch.
+  WriteBatch newWriteBatch() {
+    return WriteBatch.simple();
+  }
+
+  // TODO: Transaction options (consistency, etc.)
+  /// Begins a transaction.
+  ///
+  /// Note that many database implementations do not support transactions.
+  Future<void> runInTransaction({
+    @required Future<void> Function(Transaction transaction) callback,
+    Duration timeout,
+  }) async {
+    throw UnsupportedError(
+      'Transactions are not supported by $runtimeType',
+    );
+  }
+
+  /// Sets the value returned by [Database.defaultInstance] and prevents
+  /// future mutations.
+  ///
+  /// Throws [StateError] if the value has already been frozen.
+  static void freezeDefaultInstance(Database database) {
+    if (_defaultInstanceFrozen) {
+      throw StateError('Database.defaultInstance is already frozen');
+    }
+    _defaultInstanceFrozen = true;
+    _defaultInstance = database;
+  }
+}

@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 cd `dirname $0`/..
+ROOT=`pwd`
 ARGS=${@:1}
 
 visit() {
@@ -9,9 +10,13 @@ visit() {
   echo "Getting dependencies for '$NAME'"
   echo "-------------------------------------------------"
   echo "Running: pub get $ARGS"
-  cd packages/$NAME
-  pub get $ARGS
-  cd ../..
+  cd $NAME
+  if hash pub; then
+    pub get $ARGS
+  else
+    flutter pub get $ARGS
+  fi
+  cd $ROOT
 }
 
 visit_flutter() {
@@ -22,12 +27,25 @@ visit_flutter() {
   echo "-------------------------------------------------"
   echo "Getting dependencies for '$NAME'"
   echo "-------------------------------------------------"
-  echo "Running: pub get $ARGS"
-  cd packages/$NAME
+  echo "Running: flutter pub get $ARGS"
+  cd $NAME
   flutter pub get $ARGS
-  cd ../..
+  cd $ROOT
 }
 
-visit datastore
-visit_flutter datastore_adapter_cloud_firestore
+visit database
 visit search
+visit sql_database
+
+visit adapters/browser
+visit adapters/elastic_search
+visit adapters/grpc
+
+visit adapters_incubator/algolia
+visit adapters_incubator/azure
+visit adapters_incubator/firestore
+visit_flutter adapters_incubator/firestore_flutter
+visit adapters_incubator/gcloud
+visit adapters_incubator/mysql
+visit adapters_incubator/postgre
+visit_flutter adapters_incubator/sqlite

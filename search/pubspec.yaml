@@ -1,0 +1,21 @@
+name: search
+version: 0.2.0
+description:
+  A simple search engine that enables natural language searches in Flutter / web applications.
+homepage: https://github.com/dint-dev/database
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+dependencies:
+  charcode: ^1.1.0
+  database: ^0.1.0
+  meta: ^1.1.0
+
+dev_dependencies:
+  pedantic: ^1.9.0
+  test: ^1.8.0
+
+dependency_overrides:
+  database:
+    path: '../database'

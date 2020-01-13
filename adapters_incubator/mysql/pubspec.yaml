@@ -1,0 +1,20 @@
+name: database_adapter_mysql
+version: 0.0.1
+description: An adapter for using 'package:database' with MySQL / MariaDB.
+homepage: https://github.com/dint-dev/database
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+dependencies:
+  database: ^0.0.1
+  fixnum: ^0.10.0
+  mysql1: any
+
+dev_dependencies:
+  pedantic: ^1.9.0
+  test: ^1.8.0
+
+dependency_overrides:
+  database:
+    path: '../../database'

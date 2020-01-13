@@ -1,0 +1,26 @@
+name: database_adapter_firestore_flutter
+version: 0.1.0
+description:
+  An adapter for 'package:database' that adds support for Google Firestore in Flutter (iOS /
+  Android) using 'package:cloud_firestore'.
+homepage: https://github.com/dint-dev/database
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+dependencies:
+  cloud_firestore: ^0.13.0+1
+  flutter:
+    sdk: flutter
+  database: ^0.1.0
+  meta: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  pedantic: ^1.8.0
+  test: ^1.8.0
+
+dependency_overrides:
+  database:
+    path: '../../database'

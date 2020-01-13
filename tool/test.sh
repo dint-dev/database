@@ -1,11 +1,13 @@
 #!/bin/bash
 set -e
 cd `dirname $0`/..
+ROOT=`pwd`
 ARGS=${@:1}
 
 if [ -f SECRETS.env ]; then
   echo "-------------------------------------------------"
   echo "Loading environmental variables from 'SECRETS.env'"
+  echo "(An optional file for local testing)"
   echo "-------------------------------------------------"
   source SECRETS.env
 fi
@@ -16,9 +18,13 @@ visit() {
   echo "Testing '$NAME'"
   echo "-------------------------------------------------"
   echo "Running: pub run test $ARGS"
-  cd packages/$NAME
-  pub run test $ARGS
-  cd ../..
+  cd $NAME
+  if hash pub; then
+    pub run test $ARGS
+  else
+    flutter pub run test $ARGS
+  fi
+  cd $ROOT
 }
 
 visit_flutter() {
@@ -30,11 +36,15 @@ visit_flutter() {
   echo "Testing '$NAME'"
   echo "-------------------------------------------------"
   echo "Running: pub run test $ARGS"
-  cd packages/$NAME
+  cd $NAME
   flutter test $ARGS
-  cd ../..
+  cd $ROOT
 }
 
-visit datastore
-visit_flutter datastore_adapter_cloud_firestore
+visit database
 visit search
+visit sql_database
+
+visit adapters/browser
+visit adapters/elastic_search
+visit adapters/grpc

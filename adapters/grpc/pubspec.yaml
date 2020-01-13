@@ -1,0 +1,23 @@
+name: database_adapter_grpc
+version: 0.1.0
+description: Adapters for various database products that have REST APIs.
+homepage: https://github.com/dint-dev/database
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+dependencies:
+  database: 0.1.0
+  fixnum: ^0.10.0
+  grpc: ^2.0.0
+  meta: ^1.1.0
+  protobuf: '>=0.13.0 <2.0.0'
+
+dev_dependencies:
+  http2: ^1.0.0
+  pedantic: ^1.9.0
+  test: ^1.8.0
+
+dependency_overrides:
+  database:
+    path: '../../database'
