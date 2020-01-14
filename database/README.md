@@ -148,6 +148,10 @@ for (var snapshot in result.snapshots) {
     * `ValueFilter(3.14)`
     * `RangeFilter(min:3, max:4)`
     * `RangeFilter(min:3, max:4, isExclusiveMin:true, isExclusiveMax:true)`
+    * `RangeFilter(min:3, max:4, isExclusiveMin:true, isExclusiveMax:true)`
+    * `GeoPointFilter(near:GeoPoint(1.23, 3.45)`
+  * SQL filters
+    * `SqlFilter('SELECT * FROM table WHERE x ', 3.14)`
   * Natural language filters
     * `KeywordFilter('example')`
       * Keyword queries (`KeyFilter`) are very expensive unless you have configured a search engine such
