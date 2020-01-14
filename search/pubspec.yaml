@@ -10,7 +10,7 @@ environment:
 
 dependencies:
   charcode: ^1.1.0
-  database: ^0.2.2
+  database: ^0.2.3
   meta: ^1.1.0
 
 dev_dependencies:

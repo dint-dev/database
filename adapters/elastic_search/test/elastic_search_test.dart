@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:database_adapter_elastic_search/elastic_search.dart';
+import 'package:database_adapter_elastic_search/database_adapter_elastic_search.dart';
 
 import 'copy_of_database_test_suite.dart';
 
