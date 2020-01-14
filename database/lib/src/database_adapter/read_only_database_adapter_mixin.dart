@@ -15,8 +15,8 @@
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
 
-/// Mixin for read-only databases.
-mixin ReadOnlyDatabaseAdapter implements DatabaseAdapter {
+/// Mixin for read-only database adapters.
+mixin ReadOnlyDatabaseAdapterMixin implements DatabaseAdapter {
   @override
   WriteBatch newWriteBatch() {
     throw UnsupportedError('Database is read-only');

@@ -13,36 +13,21 @@
 // limitations under the License.
 
 import 'package:database/database.dart';
+import 'package:database/database_adapter.dart';
 import 'package:meta/meta.dart';
 
 /// A database contains any number of collections ([Collection]). A collection
 /// contains any number of documents ([Document]).
 abstract class Database {
-  /// Value returned by [defaultInstance].
-  static Database _defaultInstance;
-
-  /// Whether value of static field [_defaultInstance] is frozen.
-  static bool _defaultInstanceFrozen = false;
-
-  /// Returns global default instance of [Database].
-  static Database get defaultInstance => _defaultInstance;
-
-  /// Sets the value returned by [Database.defaultInstance].
-  ///
-  /// Throws [StateError] if the value has already been frozen by
-  /// [freezeDefaultInstance].
-  static set defaultInstance(Database database) {
-    if (_defaultInstanceFrozen) {
-      throw StateError('Database.defaultInstance is already frozen');
-    }
-    _defaultInstance = database;
-  }
-
   const Database();
+
+  /// Actual low-level implementation of the database methods.
+  DatabaseAdapter get adapter;
 
   /// Checks that the database can be used.
   ///
-  /// The future will complete with an error if the database can't be used.
+  /// The future will complete with a descriptive error if the database can't be
+  /// used.
   Future<void> checkHealth();
 
   /// Returns a collection with the name.
@@ -50,7 +35,7 @@ abstract class Database {
     return Collection(this, collectionId);
   }
 
-  /// Return a new write batch.
+  /// Return a new write batch. This should always succeed.
   WriteBatch newWriteBatch() {
     return WriteBatch.simple();
   }
@@ -59,6 +44,8 @@ abstract class Database {
   /// Begins a transaction.
   ///
   /// Note that many database implementations do not support transactions.
+  /// Adapter should throw [DatabaseException.transactionUnsupported] if it
+  /// doesn't support transactions.
   Future<void> runInTransaction({
     @required Future<void> Function(Transaction transaction) callback,
     Duration timeout,
@@ -66,17 +53,5 @@ abstract class Database {
     throw UnsupportedError(
       'Transactions are not supported by $runtimeType',
     );
-  }
-
-  /// Sets the value returned by [Database.defaultInstance] and prevents
-  /// future mutations.
-  ///
-  /// Throws [StateError] if the value has already been frozen.
-  static void freezeDefaultInstance(Database database) {
-    if (_defaultInstanceFrozen) {
-      throw StateError('Database.defaultInstance is already frozen');
-    }
-    _defaultInstanceFrozen = true;
-    _defaultInstance = database;
   }
 }

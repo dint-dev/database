@@ -37,15 +37,14 @@ visit database
 visit search
 visit sql_database
 
-visit adapters/browser
 visit adapters/elastic_search
-visit adapters/grpc
 
 visit adapters_incubator/algolia
 visit adapters_incubator/azure
 visit adapters_incubator/firestore
 visit_flutter adapters_incubator/firestore_flutter
 visit adapters_incubator/gcloud
+visit adapters_incubator/grpc
 visit adapters_incubator/mysql
 visit adapters_incubator/postgre
 visit_flutter adapters_incubator/sqlite

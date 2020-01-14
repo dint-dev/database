@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@TestOn('vm')
-library _;
-
 import 'package:database_adapter_azure/cosmos_db.dart';
-import 'package:test/test.dart';
 import 'package:test_io/test_io.dart';
 
 import 'copy_of_database_test_suite.dart';

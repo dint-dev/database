@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:database/database.dart';
 import 'package:database_adapter_algolia/database_adapter_algolia.dart';
 import 'package:test/test.dart';
 import 'package:test_io/test_io.dart';
 
 void main() {
-  setUpAll(() {});
   test('basic usage', () async {
     final env = await getEnvironmentalVariables();
     const idEnv = 'TEST_ALGOLIA_ID';
@@ -31,14 +29,14 @@ void main() {
       );
       return;
     }
-    Database.defaultInstance = Algolia(
+    final database = Algolia(
       credentials: AlgoliaCredentials(
         appId: id,
         apiKey: secret,
       ),
     );
 
-    final collection = Database.defaultInstance.collection(
+    final collection = database.collection(
       'exampleCollection',
     );
     addTearDown(() async {

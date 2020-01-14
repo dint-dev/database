@@ -14,38 +14,25 @@
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/mapper.dart';
 import 'package:meta/meta.dart';
 
+/// Superclass for database adapters.
+///
+/// If your adapter delegates calls to another adopter, you should extend
+/// [DelegatingDatabaseAdapter].
+///
+/// If your adapter is read-only, you should use mixin
+/// [ReadOnlyDatabaseAdapterMixin].
 abstract class DatabaseAdapter extends Database {
+  @override
+  DatabaseAdapter get adapter => this;
+
+  /// Performs health check.
   @override
   Future<void> checkHealth({Duration timeout}) {
     return Future<void>.value();
   }
-
-  @protected
-  Stream<DatabaseExtensionResponse> performExtension(
-    DatabaseExtensionRequest request,
-  ) {
-    return request.unsupported(this);
-  }
-
-  /// The internal implementation of document reading.
-  @protected
-  Stream<Snapshot> performRead(
-    ReadRequest request,
-  );
-
-  /// The internal implementation of document searching.
-  @protected
-  Stream<QueryResult> performSearch(
-    SearchRequest request,
-  );
-
-  /// The internal implementation of document writing.
-  @protected
-  Future<void> performWrite(
-    WriteRequest request,
-  );
 
   /// Called by document. Databases that can issue their own IDs should override this
   /// method.
@@ -53,4 +40,35 @@ abstract class DatabaseAdapter extends Database {
       {Map<String, Object> data}) {
     return collection.newDocument().insert(data: data);
   }
+
+  /// Returns schema of the [collectionId] or [fullType].
+  Schema getSchema({String collectionId, FullType fullType}) {
+    return null;
+  }
+
+  /// Performs vendor extension.
+  @protected
+  Stream<DatabaseExtensionResponse> performExtension(
+    DatabaseExtensionRequest request,
+  ) {
+    return request.unsupported(this);
+  }
+
+  /// Performs document reading.
+  @protected
+  Stream<Snapshot> performRead(
+    ReadRequest request,
+  );
+
+  /// Performs document searching.
+  @protected
+  Stream<QueryResult> performSearch(
+    SearchRequest request,
+  );
+
+  /// Performs document writing.
+  @protected
+  Future<void> performWrite(
+    WriteRequest request,
+  );
 }

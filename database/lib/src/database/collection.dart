@@ -77,6 +77,10 @@ class Collection {
     return Document(this, documentId);
   }
 
+  Future<Document> insert({Map<String, Object> data}) {
+    return database.adapter.collectionInsert(this, data: data);
+  }
+
   /// Returns a new document with a random 128-bit lowercase hexadecimal ID.
   ///
   /// Example:
@@ -92,8 +96,6 @@ class Collection {
     }
     return document(sb.toString());
   }
-
-  Future<Document> insert({Map<String, Object> data}) {}
 
   /// Searches documents.
   ///
@@ -111,7 +113,7 @@ class Collection {
   ///
   /// Optional argument [queryString] defines a query string. The syntax is
   /// based on Lucene query syntax. For a description of the syntax, see
-  /// [FilterParser].
+  /// [SearchQueryParser].
   ///
   /// Optional argument [filter] defines a filter.
   ///
@@ -137,7 +139,7 @@ class Collection {
   ///
   /// Optional argument [queryString] defines a query string. The syntax is
   /// based on Lucene query syntax. For a description of the syntax, see
-  /// [FilterParser].
+  /// [SearchQueryParser].
   ///
   /// Optional argument [filter] defines a filter.
   ///
@@ -176,7 +178,7 @@ class Collection {
   ///
   /// Optional argument [queryString] defines a query string. The syntax is
   /// based on Lucene query syntax. For a description of the syntax, see
-  /// [FilterParser].
+  /// [SearchQueryParser].
   ///
   /// Optional argument [filter] defines a filter.
   ///

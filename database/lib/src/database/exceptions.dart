@@ -38,6 +38,12 @@ class DatabaseException implements Exception {
           name: 'not_found',
         );
 
+  const DatabaseException.transactionUnsupported()
+      : this.custom(
+          code: DatabaseExceptionCodes.transactionUnsupported,
+          name: 'transaction_unsupported',
+        );
+
   const DatabaseException.unavailable()
       : this.custom(
           code: DatabaseExceptionCodes.unavailable,
@@ -57,4 +63,5 @@ class DatabaseExceptionCodes {
   static const unavailable = 1;
   static const found = 2;
   static const notFound = 3;
+  static const transactionUnsupported = 4;
 }

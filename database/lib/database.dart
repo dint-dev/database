@@ -12,26 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// An unified database API for relational (SQL) databases, document
-/// databases, and search engines.
+/// An unified database API.
 ///
-/// Example:
+/// The API aims to be usable with:
+///   * Relational (SQL) databases
+///   * Document databases
+///   * Search engines.
+///
+/// An example:
 /// ```
 /// import 'package:database/database.dart';
 ///
 /// void main() {
 ///   final memoryDatabase = MemoryDatabase();
-///   memoryDatabase.collection('employee').insert(Employee(
-///
-///   )
+///   memoryDatabase.collection('employee').insert({
+///     'name': 'John Doe',
+///   });
 /// }
 ///
 /// ```
 library database;
 
-export 'src/database/built_in_adapters/caching_database.dart';
-export 'src/database/built_in_adapters/memory_database.dart';
-export 'src/database/built_in_adapters/schema_using_database.dart';
+export 'src/database/adapters/caching_database.dart';
+export 'src/database/adapters/memory_database.dart';
+export 'src/database/adapters/schema_using_database.dart';
 export 'src/database/collection.dart';
 export 'src/database/database.dart';
 export 'src/database/document.dart';

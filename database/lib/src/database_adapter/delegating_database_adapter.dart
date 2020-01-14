@@ -14,15 +14,31 @@
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/mapper.dart';
 
+/// Superclass for delegating database adapters.
 class DelegatingDatabaseAdapter extends Database implements DatabaseAdapter {
   final DatabaseAdapter _database;
 
   const DelegatingDatabaseAdapter(this._database) : assert(_database != null);
 
   @override
+  DatabaseAdapter get adapter => this;
+
+  @override
   Future<void> checkHealth({Duration timeout}) {
     return _database.checkHealth(timeout: timeout);
+  }
+
+  @override
+  Future<Document> collectionInsert(Collection collection,
+      {Map<String, Object> data}) {
+    return _database.collectionInsert(collection, data: data);
+  }
+
+  @override
+  Schema getSchema({String collectionId, FullType fullType}) {
+    return adapter.getSchema(collectionId: collectionId, fullType: fullType);
   }
 
   @override

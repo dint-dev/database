@@ -2,6 +2,14 @@
 
 This is an adapter between [database](https://pub.dev/packages/database) and [ElasticSearch](https://www.elastic.co).
 
+## Status
+  * [X] Write
+  * [X] Read
+  * [X] Search
+    * [ ] Filters
+    * [ ] Sorting
+  * [ ] Other APIs
+
 ## Details
   * [API](https://pub.dev/documentation/database_adapter_elastic_search/latest/database_adapter_elastic_search/ElasticSearch-class.html)
   * [source](https://github.com/dint-dev/database/tree/master/adapters/elastic_search/lib/database_adapter_elastic_search.dart)

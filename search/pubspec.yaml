@@ -1,7 +1,6 @@
 name: search
 version: 0.2.0
-description:
-  A simple search engine that enables natural language searches in Flutter / web applications.
+description: A 'package:database' middleware that provides a tiny search engine that'
 homepage: https://github.com/dint-dev/database
 
 environment:
@@ -9,7 +8,7 @@ environment:
 
 dependencies:
   charcode: ^1.1.0
-  database: ^0.1.0
+  database: ^0.2.2
   meta: ^1.1.0
 
 dev_dependencies:

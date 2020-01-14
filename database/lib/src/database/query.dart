@@ -274,7 +274,7 @@ class Query {
   }
 
   static Query parse(String source, {Sorter sorter, int skip = 0, int take}) {
-    final filter = FilterParser().parseFilterFromString(source);
+    final filter = SearchQueryParser().parseFilterFromString(source);
     return Query(
       filter: filter,
       sorter: sorter,

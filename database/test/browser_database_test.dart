@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:database_adapters/database_adapter_browser.dart';
+import 'package:database/browser.dart';
 import 'package:test/test.dart';
 import 'package:universal_html/html.dart' as html;
 
-import 'copy_of_database_test_suite.dart';
+import 'database_test_suite.dart';
 
 void main() {
   group('BrowserDatabase:', () {

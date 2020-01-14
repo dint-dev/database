@@ -14,6 +14,7 @@
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/mapper.dart';
 import 'package:meta/meta.dart';
 
 /// Enforces schemas on documents.
@@ -30,7 +31,8 @@ class SchemaUsingDatabase extends DelegatingDatabaseAdapter {
   })  : assert(database != null),
         super(database);
 
-  Schema getSchema(String collectionId) {
+  @override
+  Schema getSchema({String collectionId, FullType fullType}) {
     if (schemaByCollection == null) {
       return otherCollections;
     }
@@ -39,13 +41,17 @@ class SchemaUsingDatabase extends DelegatingDatabaseAdapter {
 
   @override
   Stream<Snapshot> performRead(ReadRequest request) {
-    request.schema ??= getSchema(request.document.parent.collectionId);
+    request.schema ??= getSchema(
+      collectionId: request.document.parent.collectionId,
+    );
     return super.performRead(request);
   }
 
   @override
   Stream<QueryResult> performSearch(SearchRequest request) {
-    request.schema ??= getSchema(request.collection.collectionId);
+    request.schema ??= getSchema(
+      collectionId: request.collection.collectionId,
+    );
     return super.performSearch(request);
   }
 
@@ -53,7 +59,9 @@ class SchemaUsingDatabase extends DelegatingDatabaseAdapter {
   Future<void> performWrite(WriteRequest request) async {
     final document = request.document;
     final collectionId = document.parent.collectionId;
-    final schema = getSchema(collectionId);
+    final schema = getSchema(
+      collectionId: collectionId,
+    );
     request.schema ??= schema;
 
     if (isDeleteWriteType(request.type)) {

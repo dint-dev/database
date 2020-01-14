@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-library database_adapter_browser;
+/// Contains various database adapters that use browser APIs.
+///
+/// Import:
+/// ```
+/// import 'package:database/browser.dart';
+/// ```
+library database.browser;
 
 import 'dart:convert';
 
@@ -28,11 +34,11 @@ String _jsonPointerUnescape(String s) {
   return s.replaceAll('~1', '/').replaceAll('~0', '~');
 }
 
-/// An adapter for using browser APIs.
+/// A database that stores data using some browser API.
 ///
 /// An example:
 /// ```dart
-/// import 'package:database/adapters.dart';
+/// import 'package:database/browser.dart';
 /// import 'package:database/database.dart';
 ///
 /// void main() {
@@ -43,13 +49,14 @@ String _jsonPointerUnescape(String s) {
 ///   // ...
 /// }
 /// ```
-abstract class BrowserDatabase extends Database {
+abstract class BrowserDatabase implements Database {
   factory BrowserDatabase() {
     return BrowserLocalStorageDatabase();
   }
 }
 
-/// A [Database] implemented with [window.localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
+/// A database that stores data using [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
+/// (`window.localStorage`).
 class BrowserLocalStorageDatabase extends DatabaseAdapter
     implements BrowserDatabase {
   final html.Storage impl;

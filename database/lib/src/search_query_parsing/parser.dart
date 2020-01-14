@@ -12,36 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:convert';
+
 import 'package:database/database.dart';
 import 'package:database/search_query_parsing.dart';
 
-//
-// TODO: Rewrite this quickly written abomination. Perhaps with petitparser?
-//
+/// Parser for the search query syntax supported by 'package:database'.
+class SearchQueryParser {
+  const SearchQueryParser();
 
-class FilterParser {
-  static final RegExp _dateRegExp =
-      RegExp(r'^([0-9]{4})-([0-1][0-9])-([0-3][0-9])$');
-
-  const FilterParser();
-
-  Filter parseFilter(FilterParserState state) {
+  /// Parses all remaining tokens in the state.
+  Filter parseFilter(SearchQueryParserState state) {
     return _parseFilter(state);
   }
 
+  /// Parses the string.
   Filter parseFilterFromString(String s) {
     final scannerState = ScannerState(Source(s));
-    const Scanner().tokenize(scannerState);
-    final filter = parseFilter(FilterParserState(scannerState.tokens));
+    const Scanner().scan(scannerState);
+    final filter = parseFilter(SearchQueryParserState(scannerState.tokens));
     return filter.simplify();
   }
 
-  Filter _parseFilter(FilterParserState state, {bool isRoot = true}) {
+  Filter _parseFilter(SearchQueryParserState state, {bool isRoot = true}) {
     final filters = <Filter>[];
     var previousIndex = state.index - 1;
     loop:
     while (true) {
-      // Check that we don't have infinite loop
+      // SAFETY CHECKUP:
+      // Check that we are not in an infinite loop
       if (state.index == previousIndex) {
         throw StateError('Infinite loop');
       }
@@ -49,11 +48,19 @@ class FilterParser {
 
       // Skip whitespace
       state.skipWhitespace();
+
+      // Get first token
       final token = state.get(0);
       if (token == null) {
         break loop;
       }
+
+      // Switch token type
       switch (token.type) {
+        //
+        // Operators
+        //
+
         case TokenType.operatorAnd:
           state.advance();
           final left = AndFilter(filters, isImplicit: true).simplify();
@@ -66,12 +73,18 @@ class FilterParser {
           final right = _parseFilter(state, isRoot: false);
           return OrFilter([left, right]).simplify();
 
+        //
+        // Terminating tokens
+        //
+
         case TokenType.rightParenthesis:
           if (isRoot) {
             // Error
             state.advance();
             continue loop;
           }
+
+          // End the filter
           break loop;
 
         case TokenType.rightSquareBracket:
@@ -80,6 +93,8 @@ class FilterParser {
             state.advance();
             continue loop;
           }
+
+          // End the filter
           break loop;
 
         case TokenType.rightCurlyBracket:
@@ -88,41 +103,58 @@ class FilterParser {
             state.advance();
             continue loop;
           }
+
+          // End the filter
           break loop;
 
+        //
+        // Otherwise
+        //
         default:
+
+          // Pare simple filter
           final filter = _parseSimpleFilter(state);
-          if (filter == null) {
-            break;
+          if (filter != null) {
+            filters.add(filter);
           }
-          filters.add(filter);
           break;
       }
     }
     return AndFilter(filters, isImplicit: true);
   }
 
-  Filter _parseRangeFilter(FilterParserState state) {
-    if (!state.isProperty) {
-      state.advance();
-      return KeywordFilter(state.get(0).value);
-    }
-    final start = state.index;
+  Filter _parseRangeFilter(SearchQueryParserState state) {
+    // '[' or '{'
+    final startIndex = state.index;
     final isExclusiveMin = state.get(0).type == TokenType.leftCurlyBracket;
     state.advance();
-    final min = _parseValue(state);
-
-    final to = state.get(0);
-    if (to.value != ' TO ') {
-      state.index = start;
-      state.advance();
-      return KeywordFilter('[');
-    }
-    state.advance();
-    final max = _parseSimpleFilter(state);
     state.skipWhitespace();
+
+    // Min value
+    final min = _parseValue(state, supportStar: true);
+    state.skipWhitespace();
+
+    // TO
+    final to = state.get(0);
+    state.advance();
+    state.skipWhitespace();
+    if (to.type != TokenType.string || to.value != 'TO') {
+      // Go back and handle initial '[' / '{' as keyword
+      state.index = startIndex;
+      final value = state.get(0).value;
+      state.advance();
+      return KeywordFilter(value);
+    }
+
+    // Max value
+    final max = _parseValue(state, supportStar: true);
+    state.skipWhitespace();
+
+    // ']' or '}'
     final isExclusiveMax = state.get(0).type == TokenType.rightCurlyBracket;
     state.advance();
+    state.skipWhitespace();
+
     return RangeFilter(
       min: min,
       max: max,
@@ -131,7 +163,9 @@ class FilterParser {
     );
   }
 
-  Filter _parseSimpleFilter(FilterParserState state) {
+  /// Parse a filter without attempting to handle operators like AND/OR after
+  /// the filter.
+  Filter _parseSimpleFilter(SearchQueryParserState state) {
     state.skipWhitespace();
     final token = state.get(0);
     if (token == null) {
@@ -164,6 +198,56 @@ class FilterParser {
       case TokenType.leftCurlyBracket:
         return _parseRangeFilter(state);
 
+      case TokenType.equal:
+        state.advance();
+        return ValueFilter(_parseValue(state));
+
+      case TokenType.greaterThan:
+        state.advance();
+        return RangeFilter(min: _parseValue(state), isExclusiveMin: true);
+
+      case TokenType.greaterThanEqual:
+        state.advance();
+        return RangeFilter(min: _parseValue(state));
+
+      case TokenType.lessThan:
+        state.advance();
+        return RangeFilter(max: _parseValue(state), isExclusiveMax: true);
+
+      case TokenType.lessThanEqual:
+        state.advance();
+        return RangeFilter(max: _parseValue(state));
+
+      case TokenType.quotedString:
+        state.advance();
+        return KeywordFilter(token.value);
+
+      case TokenType.string:
+        if (state.get(1)?.type == TokenType.colon) {
+          // This part of a MapFilter
+          //
+          // Examples:
+          //   'name:'
+          //   'name:value'
+          //
+          final name = token.value;
+          state.advance();
+          state.advance();
+          final oldIsProperty = state.isProperty;
+          state.isProperty = true;
+
+          // Parse value
+          final value = _parseSimpleFilter(state);
+          state.isProperty = oldIsProperty;
+          return MapFilter({name: value});
+        }
+
+        state.advance();
+        return KeywordFilter(token.value);
+
+      //
+      // Token that always result in null.
+      //
       case TokenType.rightParenthesis:
         return null;
 
@@ -173,35 +257,36 @@ class FilterParser {
       case TokenType.rightCurlyBracket:
         return null;
 
-      case TokenType.quotedString:
-        state.advance();
-        return KeywordFilter(token.value);
-
-      case TokenType.string:
-        if (state.get(1)?.type == TokenType.colon) {
-          final name = token.value;
-          state.advance();
-          state.advance();
-          final oldIsProperty = state.isProperty;
-          state.isProperty = true;
-          final value = _parseSimpleFilter(state);
-          state.isProperty = oldIsProperty;
-          return MapFilter({name: value});
-        }
-        state.advance();
-        return KeywordFilter(token.value);
-
       default:
         throw StateError('Unexpected token: $token');
     }
   }
 
-  Object _parseValue(FilterParserState state) {
+  /// Parses a value. We deviate from Lucene syntax features here.
+  ///
+  /// Examples:
+  ///   * example --> "example"
+  ///   * true --> true
+  ///   * "true" --> "true"
+  ///   * 3 --> 3
+  ///   * 3.14 --> 3.14
+  ///   * 2020-12-31 --> Date(2020, 12, 31)
+  Object _parseValue(SearchQueryParserState state, {bool supportStar = false}) {
+    // Skip whitespace before the token
     state.skipWhitespace();
+
+    // Get token
     final token = state.get(0);
+    state.advance();
+
+    // Skip whitespace after the token
     state.skipWhitespace();
+
+    // Interpret value
     final value = token.value;
+
     if (token.type == TokenType.string) {
+      // Special constant?
       switch (value) {
         case 'null':
           return null;
@@ -209,46 +294,71 @@ class FilterParser {
           return false;
         case 'true':
           return true;
+        case '*':
+          if (supportStar) {
+            return null;
+          }
+        // TODO: 'undefined'?
       }
+
+      // Int?
       {
         final x = int.tryParse(value);
         if (x != null) {
-          x;
+          return x;
         }
       }
+
+      // Double?
       {
         final x = double.tryParse(value);
         if (x != null) {
-          x;
+          return x;
         }
       }
+
+      // Date?
+      {
+        final x = Date.tryParse(value);
+        if (x != null) {
+          return x;
+        }
+      }
+
+      // DateTime?
       {
         final x = DateTime.tryParse(value);
         if (x != null) {
-          x;
+          return x;
         }
       }
-      {
-        final match = _dateRegExp.matchAsPrefix(value);
-        if (match != null) {
-          final year = int.parse(match.group(1));
-          final month = int.parse(match.group(2));
-          final day = int.parse(match.group(3));
-          return DateTime(year, month, day);
+
+      // Bytes
+      const prefix = 'base64:';
+      if (value.startsWith(prefix)) {
+        try {
+          return base64Decode(value.substring(prefix.length));
+        } on FormatException {
+          // Ignore
         }
       }
     }
+
+    // Not a special value.
+    // Return the token value.
     return value;
   }
 }
 
-class FilterParserState {
+/// State parameter used by [SearchQueryParser].
+class SearchQueryParserState {
   final List<Token> tokens;
   int index = 0;
   bool isProperty = false;
 
-  FilterParserState(this.tokens);
+  SearchQueryParserState(this.tokens);
 
+  /// Discards the current token and moves to the next one.
   Token advance() {
     final tokens = this.tokens;
     final index = this.index + 1;
@@ -260,6 +370,7 @@ class FilterParserState {
     return tokens[index];
   }
 
+  /// Returns the token the index. Calling `get(0)` gives the current.
   Token get(int i) {
     final tokens = this.tokens;
     final index = this.index + i;
@@ -269,6 +380,7 @@ class FilterParserState {
     return tokens[index];
   }
 
+  /// Skips possible whitespace at the current token.
   void skipWhitespace() {
     var token = get(0);
     while (token?.type == TokenType.whitespace) {

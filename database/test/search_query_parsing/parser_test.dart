@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:typed_data';
+
 import 'package:database/database.dart';
 import 'package:database/search_query_parsing.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('QueryParser', () {
-    final parser = FilterParser();
+    final parser = SearchQueryParser();
 
     test('`a`', () {
       const input = 'a';
@@ -209,6 +211,204 @@ void main() {
           MapFilter({'a': KeywordFilter('b')}),
           MapFilter({'c': KeywordFilter('d')}),
         ]),
+      );
+    });
+
+    test('a:=example', () {
+      const input = 'a:=example';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter('example')}),
+      );
+    });
+
+    test('a:=example:=<<=>>=', () {
+      const input = 'a:=example:=<<=>>=';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter('example:=<<=>>=')}),
+      );
+    });
+
+    test('a:="null"', () {
+      const input = 'a:="null"';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter('null')}),
+      );
+    });
+
+    test('a:=null', () {
+      const input = 'a:=null';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter(null)}),
+      );
+    });
+
+    test('a:=false', () {
+      const input = 'a:=false';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter(false)}),
+      );
+    });
+
+    test('a:=true', () {
+      const input = 'a:=true';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter(true)}),
+      );
+    });
+
+    test('a:=3', () {
+      const input = 'a:=3';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter(3)}),
+      );
+    });
+
+    test('a:=3.14', () {
+      const input = 'a:=3.14';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter(3.14)}),
+      );
+    });
+
+    test('a:=2020-', () {
+      const input = 'a:=2020-';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter('2020-')}),
+      );
+    });
+
+    test('a:=2020-12', () {
+      const input = 'a:=2020-12';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter('2020-12')}),
+      );
+    });
+
+    test('a:=2020-12-', () {
+      const input = 'a:=2020-12-';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter('2020-12-')}),
+      );
+    });
+
+    test('a:=2020-12-31', () {
+      const input = 'a:=2020-12-31';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter(Date(2020, 12, 31))}),
+      );
+    });
+
+    test('a:=2020-12-31T00:00:00.000Z', () {
+      const input = 'a:=2020-12-31T00:00:00.000Z';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter(DateTime.utc(2020, 12, 31, 0, 0, 0, 0))}),
+      );
+    });
+
+    test('a:=base64:', () {
+      const input = 'a:=base64:';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter(Uint8List(0))}),
+      );
+    });
+
+    test('a:=base64:^%#!not-base-64', () {
+      const input = 'a:=base64:^%#!not-base-64';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': ValueFilter('base64:^%#!not-base-64')}),
+      );
+    });
+
+    test('a:[3 TO 4]', () {
+      const input = 'a:[3 TO 4]';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': RangeFilter(min: 3, max: 4)}),
+      );
+    });
+
+    test('a:[* TO 4]', () {
+      const input = 'a:[3 TO *]';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': RangeFilter(min: 3)}),
+      );
+    });
+
+    test('a:[* TO 4]', () {
+      const input = 'a:[* TO 4]';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': RangeFilter(max: 4)}),
+      );
+    });
+
+    test('a:>=3', () {
+      const input = 'a:>=3';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': RangeFilter(min: 3)}),
+      );
+    });
+
+    test('a:<=4', () {
+      const input = 'a:<=4';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': RangeFilter(max: 4)}),
+      );
+    });
+
+    test('a:>3', () {
+      const input = 'a:>3';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': RangeFilter(min: 3, isExclusiveMin: true)}),
+      );
+    });
+
+    test('a:<4', () {
+      const input = 'a:<4';
+      final filter = parser.parseFilterFromString(input);
+      expect(
+        filter,
+        MapFilter({'a': RangeFilter(max: 4, isExclusiveMax: true)}),
       );
     });
   });

@@ -7,7 +7,7 @@ environment:
   sdk: '>=2.6.0 <3.0.0'
 
 dependencies:
-  database: ^0.1.0
+  database: ^0.2.2
   fixnum: ^0.10.0
   googleapis: ^0.54.0
   googleapis_auth: ^0.2.0

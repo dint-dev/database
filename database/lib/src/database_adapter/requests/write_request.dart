@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import 'package:database/database.dart';
-import 'package:database/database_adapter.dart';
 import 'package:meta/meta.dart';
 
 /// Returns true if the argument is [WriteType.delete] or
@@ -56,7 +55,7 @@ class WriteRequest {
   /// Delegates this request to another database.
   Future<void> delegateTo(Database database) {
     // ignore: invalid_use_of_protected_member
-    return (database as DatabaseAdapter).performWrite(this);
+    return database.adapter.performWrite(this);
   }
 }
 

@@ -1,9 +1,10 @@
+[![Pub Package](https://img.shields.io/pub/v/database.svg)](https://pub.dartlang.org/packages/database)
 [![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
 
 # Overview
-This projects aims to help Dart developers use database and information retrieval products.
+ __Warning:__ this package is not ready for general use yet.
 
-__Warning:__ breaking changes are likely before the project freezes the APIs.
+This projects aims to help Dart developers use database and information retrieval products.
 
 ## Directory structure
   * [database](database)

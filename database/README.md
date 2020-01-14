@@ -1,45 +1,68 @@
+[![Pub Package](https://img.shields.io/pub/v/database.svg)](https://pub.dartlang.org/packages/database)
 [![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
 
 # Introduction
-This package aims to help Dart developers use database and information retrieval products.
+ __Warning:__ this package is not ready for general use yet.
 
-We would like to support the following types of products in an unified API:
+The package aims to be usable with:
   * __SQL databases__
-  * __Document databases__
-  * __Search engines__
+  * __Document databases__ (like Google Cloud Firestore)
+  * __Search engines__ (like ElasticSearch/Lucene)
 
-Supporting several different database paradigms in one API is somewhat unconventional. It carries a risk of confusing developers. There are also advantages. We try the current approach in the early versions, and if it doesn't seem right, split the unified API into multiple traditional APIs.
+The current iteration of the API has a single API for all three database paradigms. This is somewhat
+unconventional and carries a risk of confusion when developers read documentation or make
+assumptions about behavior. We evaluate the current approach, and if it doesn't seem right, split
+the unified API into two or three libraries.
 
-Any feedback on the design is appreciated.
+Any feedback on the design is appreciated. The project is licensed under the
+[Apache License 2.0](LICENSE). If this project interests you, please consider becoming a
+developer/maintainer.
 
-The project is licensed under the [Apache License 2.0](LICENSE).
 
 ## API reference
   * [pub.dev/documentation/database/latest/](https://pub.dev/documentation/database/latest/)
-  * __Warning:__ you should expect many breaking changes before the project freezes the APIs.
+
 
 ## Available adapters
-### Built-in adapters
-  * __CachingDatabase__ ([API](https://pub.dev/documentation/database/latest/database.adapters/CachingDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/adapters/caching_database.dart))
-    * Caches data in some other database.
-  * __MemoryDatabase__ ([API](https://pub.dev/documentation/database/latest/database.adapters/MemoryDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/memory_database.dart))
+### In this package
+  * [BrowserDatabase](https://pub.dev/documentation/database/latest/database/BrowserDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/adapters/browser/lib/))
+    * Stores data using browser APIs.
+  * [MemoryDatabase](https://pub.dev/documentation/database/latest/database/MemoryDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/memory_database.dart))
     * Stores data in memory.
-  * __SchemaUsingDatabase__ ([API](https://pub.dev/documentation/database/latest/database.adapters/SchemaUsingDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/adapters/schema_using_database.dart))
+
+### In other packages
+  * [database_adapter_elastic_search](https://pub.dev/packages/database_adapter_elastic_search) ([Github](https://github.com/dint-dev/database/tree/master/adapters/elastic_search/lib/))
+    * For using [ElasticSearch](https://www.elastic.co).
+  * _Have a package? Add it here!_
+
+The following packages are currently far from passing our shared test suite:
+  * _database_adapter_algolia_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/algolia/lib/))
+    * For using [Algolia](https://www.algolia.com).
+  * _database_adapter_azure_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/azure/lib/))
+    * For using [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction).
+    * For using [Azure Cognitive Search](https://azure.microsoft.com/en-us/services/search).
+  * _database_adapter_gcloud_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/gcloud/lib/))
+    * For using [Google Cloud Database](https://cloud.google.com/database).
+  * _database_adapter_grpc_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/grpc/lib/))
+    * For communicating with a server using a [GRPC](https://grpc.io) channel.
+  * _database_adapter_firestore_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore/lib/))
+    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore).
+  * _database_adapter_firestore_flutter_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore_flutter/lib/))
+    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore).
+
+
+## Available middleware classes
+### In this package
+  * [CachingDatabase](https://pub.dev/documentation/database/latest/database/CachingDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/caching_database.dart))
+    * Caches data in another database (such as _MemoryDatabase_).
+  * [SchemaUsingDatabase](https://pub.dev/documentation/database/latest/database/SchemaUsingDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/schema_using_database.dart))
     * Enforces schemas on reads/writes.
 
-### Adapters in other package
-  * __database_adapter_browser__
-    * Use adapter `BrowserDatabase` ([API](https://pub.dev/documentation/database_adapter_browser/latest/database_adapter_browser/BrowserDatabase-class.html), [source](https://github.com/dint-dev/database/tree/master/adapters/browser/lib/))
-    * By default, uses [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
-      (`window.localStorage`).
-  * __database_adapter_elastic_search__
-    * Implements support for ElasticSearch__ ([website](https://www.elastic.co))
-      * Use adapter `ElasticSearch` ([API](https://pub.dev/documentation/database_adapter_elastic_search/latest/database_adapter_elastic_search/ElasticSearch-class.html), [source](https://github.com/dint-dev/database/tree/master/adapters/elastic_search/lib/))
-  * __search__ ([Pub](https://pub.dev/packages/search))
-    * A very simple keyword search engine for Flutter / web applications. Only suitable for small
-      text collections.
+### Other packages
+  * [search](https://pub.dev/packages/search) ([Github](https://github.com/dint-dev/database/tree/master/search/lib/))
+    * An minimalistic search engine for small collections.
+  * _Have a package? Add it here!_
 
-_Do you have a package? Add it in the list above here by creating an issue!_
 
 ## Contributing
 This is an open-source community project. Anyone, even beginners, can contribute.
@@ -64,9 +87,8 @@ dependencies:
   database: any
 ```
 
-## Simple usage
+## Construct instance
 ```dart
-import 'package:database/adapters.dart';
 import 'package:database/database.dart';
 
 Future<void> main() async {
@@ -74,62 +96,35 @@ Future<void> main() async {
   // Use in-memory database
   //
   final database = MemoryDatabase();
-  database.addMapper();
 
-  //
-  // Insert document
-  //
-  database.collection('employee').newDocument().insert({
-    'name': 'Jane',
-    'title': 'software developer',
-    'skills': ['dart'],
-  });
-  database.collection('employee').newDocument().insert({
-    'name': 'John',
-    'title': 'software developer',
-    'skills': ['javascript'],
-  });
-
-  //
-  // Search documents
-  //
-  final collection = database.collection('employee');
-  final response = await collection.search(
-    query: Query.parse(
-      '"software developer" (dart OR javascript)'
-      skip: 0,
-      take: 10,
-    ),
-  );
+  // ...
 }
 ```
 
-# Recipes
-## Insert, update, delete
+
+## Write and read documents
 ```dart
-// Generate a random 128-bit identifier for our document
-final document = database.collection('greetings').newDocument();
-
 // Insert
-await document.insert(data:{
-  'example': 'initial value',
-});
-
-// Upsert ("insert or update")
-await document.upsert(data:{
-  'example': 'upserted value',
+final document = await database.collection('employee').insert({
+  'name': 'Jane',
+  'title': 'software developer',
+  'skills': ['dart'],
 });
 
 // Update
-await document.update(data:{
-  'example': 'updated value',
-})
+await document.update({
+  // ...
+});
 
-// Delete
+// Read
+await snapshot = document.get();
+
+// DElete
 await document.delete();
 ```
 
-## Searching
+
+### Query documents
 ```dart
 final result = await database.collection('employee').search(
   query: Query.parse('name:(John OR Jane)')
@@ -141,7 +136,7 @@ for (var snapshot in result.snapshots) {
 ```
 
 
-### Possible filters
+### Introduction to filters
   * Logical
     * `AndFilter([ValueFilter('f0'), ValueFilter('f1')])`
     * `OrFilter([ValueFilter('f0'), ValueFilter('f1')])`
@@ -155,7 +150,11 @@ for (var snapshot in result.snapshots) {
     * `RangeFilter(min:3, max:4, isExclusiveMin:true, isExclusiveMax:true)`
   * Natural language filters
     * `KeywordFilter('example')`
-
+      * Keyword queries (`KeyFilter`) are very expensive unless you have configured a search engine such
+        as ElasticSearch/Lucene. The default implementation visits every document in the collection
+        and does a substring search.
+      * To prevent unintentional visit to every document, remote databases should throw
+        `UnsuportedError` unless they support keyword search.
 
 ### Parsing filters
 The package supports parsing query strings. The syntax is inspired by Lucene and Google Search.
@@ -190,48 +189,17 @@ Examples of supported queries:
     * An example of grouping filters.
 
 
-## Testing
-```dart
-import 'package:database/adapters.dart';
-import 'package:database/database.dart';
-
-void main() {
-  setUp(() {
-    Database.defaultInstance = MemoryDatabase();
-    addTeardown(() {
-      Database.defaultInstance = null;
-    });
-  });
-
-  test('example #1', () {
-    // ...
-  });
-
-  test('example #2', () {
-    // ...
-  });
-}
-```
-
-# Adapters in the incubator
-These are, for most part, not ready for use:
-  * __database_adapter_algolia__
-    * Implements support for Algolia ([website](https://www.algolia.com))
-      * Use adapter `Algolia` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/gcloud/lib/))
-  * __database_adapter_azure__
-    * Implements support for Azure Cosmos DB ([website](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction))
-      * `AzureCosmosDB` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/azure/lib/))
-    * Implements support for Azure Cognitive Search ([website](https://azure.microsoft.com/en-us/services/search))
-      * Use adapter `AzureCognitiveSearch` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/azure/lib/))
-  * __database_adapter_gcloud__
-    * Implements support for Google Cloud Database ([website](https://cloud.google.com/database))
-      * Use adapter `GoogleCloudDatastore` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/gcloud/lib/))
-  * __database_adapter_firestore__
-    * Implements browser-onyl support for Google Cloud Firestore ([website](https://firebase.google.com/docs/firestore))
-    * Use adapter `Firestore` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore/lib/))
-  * __database_adapter_firestore_flutter__
-    * Implements Flutter-only support for Google Cloud Firestore ([website](https://firebase.google.com/docs/firestore))
-    * In Flutter, use adapter `FirestoreFlutter` ([source](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore_flutter/lib/))
-
-
-
+## Supported primitives
+  * `null`
+  * `bool`
+  * `int`
+  * `Int64`
+  * `double`
+  * `Date`
+  * `DateTime`
+  * `Timestamp`
+  * `GeoPoint`
+  * `String`
+  * `Uint8List`
+  * `List`
+  * `Map<String,Object>`

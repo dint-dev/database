@@ -16,15 +16,24 @@ import 'package:database/search_query_parsing.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('QueryParser', () {
+  group('QueryScanner', () {
     final scanner = Scanner();
 
     test('`a`', () {
       const input = 'a';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.string, 'a'),
+        ],
+      );
+    });
+    test('`abc`', () {
+      const input = 'abc';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'abc'),
         ],
       );
     });
@@ -32,7 +41,7 @@ void main() {
     test('`a b`', () {
       const input = 'a b';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.string, 'a'),
           Token(TokenType.whitespace, ' '),
@@ -44,7 +53,7 @@ void main() {
     test('`"a" "b"`', () {
       const input = '"a" "b"';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.quotedString, 'a'),
           Token(TokenType.whitespace, ' '),
@@ -56,7 +65,7 @@ void main() {
     test('`a AND b`', () {
       const input = 'a AND b';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.string, 'a'),
           Token(TokenType.whitespace, ' '),
@@ -70,7 +79,7 @@ void main() {
     test('`a OR b`', () {
       const input = 'a OR b';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.string, 'a'),
           Token(TokenType.whitespace, ' '),
@@ -84,7 +93,7 @@ void main() {
     test('`(a)`', () {
       const input = '(a)';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.leftParenthesis, '('),
           Token(TokenType.string, 'a'),
@@ -96,7 +105,7 @@ void main() {
     test('`(a b)`', () {
       const input = '(a b)';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.leftParenthesis, '('),
           Token(TokenType.string, 'a'),
@@ -110,7 +119,7 @@ void main() {
     test('`[a b]`', () {
       const input = '[a b]';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.leftSquareBracket, '['),
           Token(TokenType.string, 'a'),
@@ -124,7 +133,7 @@ void main() {
     test('`{a b}`', () {
       const input = '{a b}';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.leftCurlyBracket, '{'),
           Token(TokenType.string, 'a'),
@@ -138,7 +147,7 @@ void main() {
     test('`-a`', () {
       const input = '-a';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.operatorNot, '-'),
           Token(TokenType.string, 'a'),
@@ -149,7 +158,7 @@ void main() {
     test('`a:b`', () {
       const input = 'a:b';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.string, 'a'),
           Token(TokenType.colon, ':'),
@@ -161,7 +170,7 @@ void main() {
     test('`a:b c:d`', () {
       const input = 'a:b c:d';
       expect(
-        scanner.tokenizeString(input),
+        scanner.scanString(input),
         [
           Token(TokenType.string, 'a'),
           Token(TokenType.colon, ':'),
@@ -170,6 +179,143 @@ void main() {
           Token(TokenType.string, 'c'),
           Token(TokenType.colon, ':'),
           Token(TokenType.string, 'd'),
+        ],
+      );
+    });
+
+    test('`a:=b`', () {
+      const input = 'a:=b';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a'),
+          Token(TokenType.colon, ':'),
+          Token(TokenType.equal, '='),
+          Token(TokenType.string, 'b'),
+        ],
+      );
+    });
+
+    test('`a:="b"`', () {
+      const input = 'a:="b"';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a'),
+          Token(TokenType.colon, ':'),
+          Token(TokenType.equal, '='),
+          Token(TokenType.quotedString, 'b'),
+        ],
+      );
+    });
+
+    test('`a:=2020-12-31T00:00:00.000Z`', () {
+      const input = 'a:=2020-12-31T00:00:00.000Z';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a'),
+          Token(TokenType.colon, ':'),
+          Token(TokenType.equal, '='),
+          Token(TokenType.string, '2020-12-31T00:00:00.000Z'),
+        ],
+      );
+    });
+
+    test('`a=b`', () {
+      const input = 'a=b';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a=b'),
+        ],
+      );
+    });
+
+    test('`a:[b TO c]', () {
+      const input = 'a:[b TO c]';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a'),
+          Token(TokenType.colon, ':'),
+          Token(TokenType.leftSquareBracket, '['),
+          Token(TokenType.string, 'b'),
+          Token(TokenType.whitespace, ' '),
+          Token(TokenType.string, 'TO'),
+          Token(TokenType.whitespace, ' '),
+          Token(TokenType.string, 'c'),
+          Token(TokenType.rightSquareBracket, ']'),
+        ],
+      );
+    });
+
+    test('`a:{b TO c}', () {
+      const input = 'a:{b TO c}';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a'),
+          Token(TokenType.colon, ':'),
+          Token(TokenType.leftCurlyBracket, '{'),
+          Token(TokenType.string, 'b'),
+          Token(TokenType.whitespace, ' '),
+          Token(TokenType.string, 'TO'),
+          Token(TokenType.whitespace, ' '),
+          Token(TokenType.string, 'c'),
+          Token(TokenType.rightCurlyBracket, '}'),
+        ],
+      );
+    });
+
+    test('`a:>b', () {
+      const input = 'a:>b';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a'),
+          Token(TokenType.colon, ':'),
+          Token(TokenType.greaterThan, '>'),
+          Token(TokenType.string, 'b'),
+        ],
+      );
+    });
+
+    test('`a:>=b', () {
+      const input = 'a:>=b';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a'),
+          Token(TokenType.colon, ':'),
+          Token(TokenType.greaterThanEqual, '>='),
+          Token(TokenType.string, 'b'),
+        ],
+      );
+    });
+
+    test('`a:<b', () {
+      const input = 'a:<b';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a'),
+          Token(TokenType.colon, ':'),
+          Token(TokenType.lessThan, '<'),
+          Token(TokenType.string, 'b'),
+        ],
+      );
+    });
+
+    test('`a:<=b', () {
+      const input = 'a:<=b';
+      expect(
+        scanner.scanString(input),
+        [
+          Token(TokenType.string, 'a'),
+          Token(TokenType.colon, ':'),
+          Token(TokenType.lessThanEqual, '<='),
+          Token(TokenType.string, 'b'),
         ],
       );
     });

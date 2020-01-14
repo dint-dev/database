@@ -14,67 +14,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:database/database.dart';
-
-int defaultComparator(Object left, Object right) {
-  if (left == right) {
-    return 0;
-  }
-
-  // null
-  if (left == null) {
-    return -1;
-  }
-  if (right == null) {
-    return 1;
-  }
-
-  // bool
-  if (left is bool) {
-    if (right is bool) {
-      return left == false ? -1 : 1;
-    }
-    return -1;
-  }
-  if (right is bool) {
-    return 1;
-  }
-
-  // int
-  if (left is num) {
-    if (right is num) {
-      return left.compareTo(right);
-    }
-    return -1;
-  }
-  if (right is num) {
-    return 1;
-  }
-
-  // DateTime
-  if (left is DateTime) {
-    if (right is DateTime) {
-      return left.compareTo(right);
-    }
-    return -1;
-  }
-  if (right is DateTime) {
-    return 1;
-  }
-
-  // String
-  if (left is String) {
-    if (right is String) {
-      return left.compareTo(right);
-    }
-    return -1;
-  }
-  if (right is String) {
-    return 1;
-  }
-
-  // Default
-  return -1;
-}
+import 'package:database/database_adapter.dart';
 
 /// Assesses how well documents match a filter. The choice of algorithm only
 /// affects queries with non-exact filters such as natural language keywords.

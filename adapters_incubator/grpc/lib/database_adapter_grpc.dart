@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// Supports GRPC.
+///
+/// An example:
+/// ```dart
+/// import 'package:database/database.dart';
+/// import 'package:database_adapter_grpc.dart';
+///
+/// void main() {
+///   final database = ElasticSearch(
+///     host: 'localhost',
+///   );
+///
+///   // ...
+/// }
 library database_adapter_grpc;
 
 export 'src/grpc_database.dart';

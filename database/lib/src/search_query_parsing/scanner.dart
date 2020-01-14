@@ -16,10 +16,13 @@ import 'package:charcode/ascii.dart';
 
 const int _eof = -1;
 
+/// Scanner for the search query syntax supported by 'package:database'.
 class Scanner {
+  static final _propertyNameRegExp = RegExp(r'^[a-zA-Z_$@][a-zA-Z_$@-]*');
+
   const Scanner();
 
-  void tokenize(ScannerState state) {
+  void scan(ScannerState state) {
     var infiniteLoopCheckIndex = state.index - 1;
     loop:
     while (true) {
@@ -31,7 +34,7 @@ class Scanner {
 
       final c = state.current();
       if (_isWhitespace(c)) {
-        _tokenizeWhitespace(state);
+        _scanWhitespace(state);
         continue;
       }
       switch (c) {
@@ -68,7 +71,7 @@ class Scanner {
           }
           break;
         case $quote:
-          _tokenizeQuotedString(state);
+          _scanQuotedString(state);
           continue loop;
         case $dash:
           final c = state.preview(1);
@@ -78,17 +81,36 @@ class Scanner {
           }
           break;
       }
-      _tokenizeString(state);
+      _scanString(state);
     }
   }
 
-  List<Token> tokenizeString(String s) {
+  List<Token> scanString(String s) {
     final state = ScannerState(Source(s));
-    tokenize(state);
+    scan(state);
     return state.tokens;
   }
 
-  void _tokenizeQuotedString(ScannerState state) {
+  bool _isOperatorType(TokenType type) {
+    switch (type) {
+      case TokenType.colon:
+        return true;
+      case TokenType.equal:
+        return true;
+      case TokenType.lessThan:
+        return true;
+      case TokenType.lessThanEqual:
+        return true;
+      case TokenType.greaterThan:
+        return true;
+      case TokenType.greaterThanEqual:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  void _scanQuotedString(ScannerState state) {
     final sb = StringBuffer();
     var infiniteLoopCheckIndex = state.index - 1;
     loop:
@@ -123,7 +145,7 @@ class Scanner {
     state.tokens.add(Token(TokenType.quotedString, value));
   }
 
-  void _tokenizeString(ScannerState state) {
+  void _scanString(ScannerState state) {
     final valueStart = state.index;
     var infiniteLoopCheckIndex = state.index - 1;
     loop:
@@ -139,18 +161,31 @@ class Scanner {
         break loop;
       }
       switch (c) {
-        case _eof:
-          break loop;
-        case $close_parenthesis:
-          break loop;
-        case $close_brace:
-          break loop;
-        case $close_bracket:
-          break loop;
+        //
+        // Special characters
+        //
         case $colon:
+          final tokens = state.tokens;
+          if (tokens.isEmpty) {
+            // OK
+          } else if (tokens.isNotEmpty && _isOperatorType(tokens.last.type)) {
+            break;
+          }
+          final propertyName = state.sourceString.substring(
+            valueStart,
+            state.index,
+          );
+          if (!_propertyNameRegExp.hasMatch(propertyName)) {
+            break;
+          }
+          break loop;
+        case $equal:
           final c = state.preview(1);
           if (c != _eof && !_isWhitespace(c)) {
-            break loop;
+            final tokens = state.tokens;
+            if (tokens.isNotEmpty && tokens.last.type == TokenType.colon) {
+              break loop;
+            }
           }
           break;
         case $ampersand:
@@ -163,6 +198,18 @@ class Scanner {
             break loop;
           }
           break;
+
+        //
+        // Characters that end the string
+        //
+        case _eof:
+          break loop;
+        case $close_parenthesis:
+          break loop;
+        case $close_brace:
+          break loop;
+        case $close_bracket:
+          break loop;
       }
     }
     if (valueStart == state.index) {
@@ -185,12 +232,37 @@ class Scanner {
       return;
     }
     state.tokens.add(Token(TokenType.string, value));
+
+    // ':'?
     if (state.current() == $colon) {
       state.emitTokenAndAdvance(TokenType.colon, ':');
+
+      // '='
+      if (state.current() == $equal) {
+        state.emitTokenAndAdvance(TokenType.equal, '=');
+      }
+
+      // '>', '>='
+      if (state.current() == $greater_than) {
+        if (state.preview(1) == $equal) {
+          state.emitTokenAndAdvance(TokenType.greaterThanEqual, '>=');
+        } else {
+          state.emitTokenAndAdvance(TokenType.greaterThan, '>');
+        }
+      }
+
+      // '<', '<='
+      if (state.current() == $less_than) {
+        if (state.preview(1) == $equal) {
+          state.emitTokenAndAdvance(TokenType.lessThanEqual, '<=');
+        } else {
+          state.emitTokenAndAdvance(TokenType.lessThan, '<');
+        }
+      }
     }
   }
 
-  void _tokenizeWhitespace(ScannerState state) {
+  void _scanWhitespace(ScannerState state) {
     final start = state.index;
     while (true) {
       final c = state.advance();
@@ -211,6 +283,7 @@ class ScannerState {
   final String sourceString;
   int index = 0;
   final Source source;
+  bool isPossibleProperty = false;
 
   ScannerState(this.source) : sourceString = source.value;
 
@@ -246,6 +319,7 @@ class ScannerState {
   }
 }
 
+/// Source used by [Scanner].
 class Source {
   final Uri uri;
   final int line;
@@ -280,6 +354,7 @@ class Source {
   }
 }
 
+/// A token scanned by [Scanner].
 class Token {
   final TokenType type;
   final String value;
@@ -297,6 +372,7 @@ class Token {
   String toString() => '$type(`$value`)';
 }
 
+/// Type of a scanned [Token].
 enum TokenType {
   whitespace,
 
@@ -308,6 +384,21 @@ enum TokenType {
 
   /// ":"
   colon,
+
+  /// "="
+  equal,
+
+  /// "<"
+  lessThan,
+
+  /// "<="
+  lessThanEqual,
+
+  /// ">"
+  greaterThan,
+
+  /// ">="
+  greaterThanEqual,
 
   /// "-"
   operatorNot,

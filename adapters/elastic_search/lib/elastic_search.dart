@@ -32,10 +32,8 @@ import 'package:universal_io/io.dart';
 /// import 'package:database/database.dart';
 ///
 /// void main() {
-///   Database.freezeDefaultInstance(
-///     ElasticSearch(
-///       host: 'localhost',
-///     ),
+///   final database = ElasticSearch(
+///     host: 'localhost',
 ///   );
 ///
 ///   // ...
@@ -163,7 +161,10 @@ class ElasticSearch extends DatabaseAdapter {
     }
 
     // TODO: Sorting
-    jsonRequest['sort'] = ['_score'];
+    if (query.sorter != null) {
+      // jsonRequest['sort'] = ['_score'];
+      throw UnimplementedError('Sorting is not supported at the moment');
+    }
 
     // Skip
     {

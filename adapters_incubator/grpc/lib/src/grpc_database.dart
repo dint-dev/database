@@ -93,8 +93,9 @@ class GrpcDatabase extends DatabaseAdapter {
     // Responses
     //
     await for (var grpcResponse in grpcResponseStream) {
-      if (grpcResponse.hasError()) {
-        throw grpcErrorToDart(grpcResponse.error);
+      final grpcError = grpcResponse.error;
+      if (grpcError != null) {
+        throw grpcErrorToDart(grpcError);
       }
       yield (Snapshot(
         document: document,
@@ -123,8 +124,9 @@ class GrpcDatabase extends DatabaseAdapter {
     // Responses
     //
     await for (var grpcResponse in grpcResponseStream) {
-      if (grpcResponse.hasError()) {
-        throw grpcErrorToDart(grpcResponse.error);
+      final grpcError = grpcResponse.error;
+      if (grpcError != null) {
+        throw grpcErrorToDart(grpcError);
       }
       final items = List<QueryResultItem>.unmodifiable(
         grpcResponse.items.map((grpcItem) {
@@ -163,8 +165,9 @@ class GrpcDatabase extends DatabaseAdapter {
     // Dispatch
     //
     final grpcResponse = await client.write(grpcRequest).last;
-    if (grpcResponse.error != null) {
-      throw grpcErrorToDart(grpcResponse.error);
+    final grpcError = grpcResponse.error;
+    if (grpcError != null) {
+      throw grpcErrorToDart(grpcError);
     }
   }
 }

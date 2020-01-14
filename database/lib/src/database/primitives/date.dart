@@ -64,13 +64,40 @@ class Date {
     return Date.fromDateTime(now);
   }
 
-  /// Parses a string with format '2020-12-31'.
+  /// Parses a string with format '2020-12-31'. Throws [FormatException] if the
+  /// parsing fails.
   static Date parse(String s) {
+    final result = tryParse(s);
+    if (result == null) {
+      throw FormatException(
+        'Date does not match the format "2020-12-31": "$s"',
+      );
+    }
+    return result;
+  }
+
+  /// Parses a string with format '2020-12-31'. Returns null if parsing fails.
+  static Date tryParse(String s) {
     final i = s.indexOf('-');
+    if (i < 0) {
+      return null;
+    }
     final j = s.indexOf('-', i + 1);
-    final year = int.parse(s.substring(0, i));
-    final month = int.parse(s.substring(i + 1, j));
-    final day = int.parse(s.substring(j + 1));
+    if (j < 0) {
+      return null;
+    }
+    final year = int.tryParse(s.substring(0, i));
+    if (year == null) {
+      return null;
+    }
+    final month = int.tryParse(s.substring(i + 1, j));
+    if (month == null || month < 1 || month > 12) {
+      return null;
+    }
+    final day = int.tryParse(s.substring(j + 1));
+    if (day == null || day < 1 || day > 31) {
+      return null;
+    }
     return Date(year, month, day);
   }
 }

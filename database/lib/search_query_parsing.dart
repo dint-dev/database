@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Implements parsing of a Lucene-like query language.
-library database.query_parsing;
+/// Supports for a Lucene-like search query syntax.
+///
+/// Import:
+/// ```
+/// import 'package:database/search_query_parsing.dart';
+/// ```
+library database.search_query_parsing;
 
 export 'src/search_query_parsing/parser.dart';
 export 'src/search_query_parsing/printer.dart';

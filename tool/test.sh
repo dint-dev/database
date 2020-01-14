@@ -45,6 +45,4 @@ visit database
 visit search
 visit sql_database
 
-visit adapters/browser
 visit adapters/elastic_search
-visit adapters/grpc
