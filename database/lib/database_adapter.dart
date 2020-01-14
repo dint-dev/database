@@ -21,11 +21,12 @@
 library database.adapter;
 
 export 'src/database_adapter/database_adapter.dart';
-export 'src/database_adapter/default_comparator.dart';
 export 'src/database_adapter/delegating_database_adapter.dart';
-export 'src/database_adapter/document_scoring.dart';
 export 'src/database_adapter/read_only_database_adapter_mixin.dart';
 export 'src/database_adapter/requests/extension_request.dart';
 export 'src/database_adapter/requests/read_request.dart';
 export 'src/database_adapter/requests/search_request.dart';
 export 'src/database_adapter/requests/write_request.dart';
+export 'src/database_adapter/scoring/default_comparator.dart';
+export 'src/database_adapter/scoring/document_scoring.dart';
+export 'src/database_adapter/scoring/document_scoring_base.dart';

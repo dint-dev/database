@@ -24,6 +24,8 @@ import 'package:search/search.dart';
 ///   * Exact matches affect the score.
 ///   * Keyword sequence matches affect the score.
 ///   * The total number of matches affects the score.
+///
+/// The implementation uses [CanineTextSimplifier].
 class CanineDocumentScoring extends DocumentScoring {
   final CanineTextSimplifier textSimplifier;
 
@@ -41,13 +43,20 @@ class CanineDocumentScoring extends DocumentScoring {
 }
 
 /// State for [CanineDocumentScoring].
-class _CanineDocumentScoringState extends DocumentScoringAlgorithmBase {
+class _CanineDocumentScoringState extends DocumentScoringStateBase {
   final Map<String, String> _normalizedKeywordMap = <String, String>{};
 
+  /// Contains a normalized version of each string in the document.
+  ///
+  /// The map is cleared after document has been visited.
   final Map<String, String> _normalizedInputMap = <String, String>{};
 
+  /// Contains a lower-case version of each string in the document.
+  ///
+  /// The map is cleared after document has been visited.
   final Map<String, String> _lowerCasedInputMap = <String, String>{};
 
+  /// Scoring configuration.
   final CanineDocumentScoring scoring;
 
   _CanineDocumentScoringState(this.scoring, Filter filter)
@@ -75,6 +84,11 @@ class _CanineDocumentScoringState extends DocumentScoringAlgorithmBase {
 
   @override
   double visitAndFilter(AndFilter filter, Object context) {
+    //
+    // Goal:
+    // We return sum of scores.
+    //
+
     // Sum of all children
     var totalScore = 0.0;
 
@@ -177,6 +191,11 @@ class _CanineDocumentScoringState extends DocumentScoringAlgorithmBase {
 
   @override
   double visitOrFilter(OrFilter filter, Object context) {
+    //
+    // Goal:
+    // We return max score.
+    //
+
     var max = 0.0;
     for (var filter in filter.filters) {
       final score = filter.accept(this, context);
@@ -230,7 +249,7 @@ class _CanineDocumentScoringState extends DocumentScoringAlgorithmBase {
     }
 
     //
-    // Normalize context
+    // Normalize input
     //
     final context = _normalizedInputMap.putIfAbsent(
       lowerCaseInput,
@@ -241,42 +260,68 @@ class _CanineDocumentScoringState extends DocumentScoringAlgorithmBase {
     );
 
     //
-    // Count normalized matches
+    // Count normalized substrings
     //
     const maxMatches = 3;
-    final normalizedMatches = _countSubstrings(
+    final matches = _countSubstrings(
       context,
       keyword,
       max: maxMatches,
     );
-    if (normalizedMatches == 0) {
+
+    // No matches?
+    if (matches == 0) {
       return 0.0;
     }
-    final lowerCaseMatches = _countSubstrings(
-      lowerCaseInput,
-      lowerCaseKeyword,
-      max: maxMatches,
-    );
 
-    //
-    // Calculate score.
-    //
-    // The calculations here were chosen quickly without much thinking.
-    //
+    // Declare score
     var score = 0.0;
 
-    // More matches is better
-    score += 0.2 * ((normalizedMatches - 1) / (maxMatches - 1)).clamp(0.0, 1.0);
-    if (maybePaddedKeyword != lowerCaseKeyword) {
-      score += 0.2 * (lowerCaseMatches / maxMatches).clamp(0.0, 1.0);
+    //
+    // CRITERIA:
+    // More normalized matches is better.
+    // Max impact: +0.2
+    //
+    {
+      score += 0.2 * ((matches - 1) / (maxMatches - 1)).clamp(0.0, 1.0);
     }
 
-    // A longer keywords is better
-    final length = originalKeyword.trim().length;
-    score += 0.3 * (length / 8).clamp(0.0, 1.0);
-    score += 0.1 * ((length - 8) / 24).clamp(0.0, 1.0);
+    //
+    // CRITERIA:
+    // More lowercase (non-normalized) matches is better
+    // Max impact: +0.2
+    //
+    {
+      final n = _countSubstrings(
+        lowerCaseInput,
+        lowerCaseKeyword,
+        max: maxMatches,
+      );
+      if (maybePaddedKeyword != lowerCaseKeyword) {
+        score += 0.2 * (n / maxMatches).clamp(0.0, 1.0);
+      }
+    }
 
-    return 1.0 + score.clamp(0.0, 0.99);
+    //
+    // CRITERIA:
+    // Matches of longer keywords give higher score.
+    // Max impact: +0.4
+    //
+    // The first 8 code points raise score by max 0.3/8.
+    // Subsequent 24 code points raise score by max 24/8.
+    {
+      const upperBound0 = 8;
+
+      // For first 8 - 32 code points, each raises score only by 0.1/23.
+      const upperBound1 = 24;
+
+      final length = originalKeyword.trim().length;
+      score += 0.3 * (length / upperBound0).clamp(0.0, 1.0);
+      score += 0.1 * ((length - upperBound0) / upperBound1).clamp(0.0, 1.0);
+    }
+
+    // We add constant 1.0 for legacy reasons.
+    return 1.0 + score.clamp(0.0, 1.0);
   }
 
   static int _countSubstrings(String context, String substring,

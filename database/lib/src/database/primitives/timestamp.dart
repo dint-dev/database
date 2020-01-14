@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-class Timestamp {
+class Timestamp implements Comparable<Timestamp> {
   final DateTime utc;
   final String timezone;
 
   Timestamp.fromDateTime(DateTime utc, {this.timezone = 'Z'})
-      : utc = utc.toUtc();
+      : utc = utc?.toUtc() {
+    ArgumentError.checkNotNull(utc, 'utc');
+    ArgumentError.checkNotNull(timezone, 'timezone');
+  }
 
   @override
   int get hashCode => utc.hashCode ^ timezone.hashCode;
@@ -25,6 +28,15 @@ class Timestamp {
   @override
   bool operator ==(other) =>
       other is Timestamp && utc == other.utc && timezone == other.timezone;
+
+  @override
+  int compareTo(Timestamp other) {
+    final r = utc.compareTo(other.utc);
+    if (r != 0) {
+      return r;
+    }
+    return timezone.compareTo(other.timezone);
+  }
 
   @override
   String toString() {

@@ -25,7 +25,7 @@ developer/maintainer.
 
 ## Available adapters
 ### In this package
-  * [BrowserDatabase](https://pub.dev/documentation/database/latest/database/BrowserDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/adapters/browser/lib/))
+  * [BrowserDatabase](https://pub.dev/documentation/database/latest/database.browser/BrowserDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/browser.dart))
     * Stores data using browser APIs.
   * [MemoryDatabase](https://pub.dev/documentation/database/latest/database/MemoryDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/memory_database.dart))
     * Stores data in memory.
@@ -197,12 +197,12 @@ Examples of supported queries:
   * `null`
   * `bool`
   * `int`
-  * `Int64`
+  * [Int64](https://pub.dev/documentation/fixnum/latest/fixnum/Int64-class.html)
   * `double`
-  * `Date`
+  * [Date](https://pub.dev/documentation/database/latest/database/Date-class.html)
   * `DateTime`
-  * `Timestamp`
-  * `GeoPoint`
+  * [Timestamp](https://pub.dev/documentation/database/latest/database/Timestamp-class.html)
+  * [GeoPoint](https://pub.dev/documentation/database/latest/database/GeoPoint-class.html)
   * `String`
   * `Uint8List`
   * `List`

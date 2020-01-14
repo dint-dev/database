@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Provides an implementation of [Database] using any [Database].
+/// A small in-memory text search engine for developers for use package
+/// [database](https://pub.dev/packages/database).
 library search;
-
-import 'package:database/database.dart';
 
 export 'src/canine_document_scoring.dart';
 export 'src/canine_text_simplifier.dart';

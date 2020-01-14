@@ -16,24 +16,27 @@ import 'package:collection/collection.dart';
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
 
-/// Assesses how well documents match a filter. The choice of algorithm only
-/// affects queries with non-exact filters such as natural language keywords.
-class DocumentScoring {
-  const DocumentScoring();
-
-  DocumentScoringState newState(Filter filter) {
-    return DocumentScoringAlgorithmBase(filter);
-  }
+@deprecated
+class DocumentScoringAlgorithmBase extends DocumentScoringStateBase {
+  DocumentScoringAlgorithmBase(Filter filter) : super(filter);
 }
 
-/// Default implementation of [DocumentScoring].
-class DocumentScoringAlgorithmBase extends DocumentScoringState
+/// Default implementation of [DocumentScoringState].
+///
+/// Features:
+///   * [AndFilter] returns 1.0 if all filter match.
+///   * [OrFilter] returns 1.0 if any filter matches.
+///   * [GeoPoint] returns 1.0 if any [GeoPoint] in the document is within the
+///     specified geographical radius.
+///   * [KeywordFilter] returns 1.0 if any string in the document contains the
+///     keyword.
+class DocumentScoringStateBase extends DocumentScoringState
     implements FilterVisitor<double, Object> {
   static const _deepEquality = DeepCollectionEquality();
 
   final Filter filter;
 
-  DocumentScoringAlgorithmBase(this.filter);
+  DocumentScoringStateBase(this.filter);
 
   @override
   double evaluateSnapshot(Snapshot snapshot) {
@@ -56,8 +59,37 @@ class DocumentScoringAlgorithmBase extends DocumentScoringState
 
   @override
   double visitGeoPointFilter(GeoPointFilter filter, Object input) {
-    // TODO: Implementation
-    return 1.0;
+    if (input is GeoPoint) {
+      final max = filter.range?.max;
+      if (max is num) {
+        final distance = filter.near.distanceTo(input);
+        if (distance < max.toDouble()) {
+          return 1.0;
+        }
+      }
+      return 0.0;
+    }
+    if (input is Iterable) {
+      for (var item in input) {
+        final r = visitGeoPointFilter(filter, item);
+        if (r != 0.0) {
+          return 1.0;
+        }
+      }
+      return 0.0;
+    }
+
+    if (input is Map) {
+      for (var item in input.values) {
+        final r = visitGeoPointFilter(filter, item);
+        if (r != 0.0) {
+          return 1.0;
+        }
+      }
+      return 0.0;
+    }
+
+    return 0.0;
   }
 
   @override
@@ -198,11 +230,4 @@ class DocumentScoringAlgorithmBase extends DocumentScoringState
   double visitValueFilter(ValueFilter filter, Object context) {
     return _deepEquality.equals(filter.value, context) ? 1.0 : 0.0;
   }
-}
-
-/// State constructed by [DocumentScoring] for each query.
-abstract class DocumentScoringState {
-  /// Returns a positive number if the document snapshot matches the filter.
-  /// Otherwise returns 0.0.
-  double evaluateSnapshot(Snapshot snapshot);
 }

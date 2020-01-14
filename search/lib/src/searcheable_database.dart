@@ -17,6 +17,34 @@ import 'package:database/database_adapter.dart';
 import 'package:meta/meta.dart';
 import 'package:search/search.dart';
 
+/// A small in-memory text search engine for developers for use package
+/// [database](https://pub.dev/packages/database).
+///
+/// Intercepts only queries that have keyword filters. The implementation then
+/// simply reads every document in the collection and calculates a score for it.
+///
+/// The default document scoring algorithm is [CanineDocumentScoring].
+///
+/// Example:
+/// ```
+/// import 'package:database/database.dart';
+/// import 'package:search/search.dart';
+///
+/// void main() {
+///   final database = SearchableDatabase(MemoryDatabase());
+///
+///   await database.collection('example').insert({
+///     'greeting': 'Hello world',
+///   });
+///
+///   final results = await database.search(
+///     query: Query(
+///       filter: KeywordFilter('hello'),
+///     ),
+///   );
+/// }
+/// ```
+///
 class SearcheableDatabase extends DelegatingDatabaseAdapter {
   /// The scoring algorithm for documents.
   ///

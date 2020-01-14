@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:typed_data';
+
+import 'package:database/database.dart';
+import 'package:fixnum/fixnum.dart';
+
 /// Compares any support primitives.
 int defaultComparator(Object left, Object right) {
   if (left == right) {
@@ -37,7 +42,18 @@ int defaultComparator(Object left, Object right) {
     return 1;
   }
 
-  // int
+  // Int64
+  if (left is Int64) {
+    if (right is Int64) {
+      return left.compareTo(right);
+    }
+    return -1;
+  }
+  if (right is Int64) {
+    return 1;
+  }
+
+  // int / double
   if (left is num) {
     if (right is num) {
       return left.compareTo(right);
@@ -45,6 +61,17 @@ int defaultComparator(Object left, Object right) {
     return -1;
   }
   if (right is num) {
+    return 1;
+  }
+
+  // Date
+  if (left is Date) {
+    if (right is Date) {
+      return left.compareTo(right);
+    }
+    return -1;
+  }
+  if (right is Date) {
     return 1;
   }
 
@@ -59,6 +86,28 @@ int defaultComparator(Object left, Object right) {
     return 1;
   }
 
+  // Timestamp
+  if (left is Timestamp) {
+    if (right is Timestamp) {
+      return left.compareTo(right);
+    }
+    return -1;
+  }
+  if (right is Timestamp) {
+    return 1;
+  }
+
+  // GeoPoint
+  if (left is GeoPoint) {
+    if (right is GeoPoint) {
+      return left.compareTo(right);
+    }
+    return -1;
+  }
+  if (right is GeoPoint) {
+    return 1;
+  }
+
   // String
   if (left is String) {
     if (right is String) {
@@ -67,6 +116,24 @@ int defaultComparator(Object left, Object right) {
     return -1;
   }
   if (right is String) {
+    return 1;
+  }
+
+  if (left is Uint8List) {
+    if (right is Uint8List) {
+      final leftLength = left.length;
+      final rightLength = right.length;
+      final minLength = leftLength < rightLength ? leftLength : rightLength;
+      for (var i = 0; i < minLength; i++) {
+        final r = left[i].compareTo(right[i]);
+        if (r != 0) {
+          return r;
+        }
+      }
+      return leftLength.compareTo(rightLength);
+    }
+  }
+  if (right is Uint8List) {
     return 1;
   }
 

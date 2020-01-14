@@ -33,6 +33,8 @@
 /// ```
 library database;
 
+export 'package:fixnum/fixnum.dart' show Int64;
+
 export 'src/database/adapters/caching_database.dart';
 export 'src/database/adapters/memory_database.dart';
 export 'src/database/adapters/schema_using_database.dart';
@@ -50,6 +52,7 @@ export 'src/database/filters/sql_filter.dart';
 export 'src/database/primitives/blob.dart';
 export 'src/database/primitives/date.dart';
 export 'src/database/primitives/geo_point.dart';
+export 'src/database/primitives/timestamp.dart';
 export 'src/database/query.dart';
 export 'src/database/query_result.dart';
 export 'src/database/query_result_item.dart';

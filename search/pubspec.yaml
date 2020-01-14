@@ -1,6 +1,8 @@
 name: search
-version: 0.2.0
-description: A 'package:database' middleware that provides a tiny search engine that'
+version: 0.2.1
+description:
+  A small search engine middleware for 'package:database'. Meant for applications that want to do
+  basic searches without an external search engine like ElasticSearch/Lucene.
 homepage: https://github.com/dint-dev/database
 
 environment:

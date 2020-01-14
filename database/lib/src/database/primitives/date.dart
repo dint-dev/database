@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /// A date in the Gregorian calendar. It doesn't have a timezone.
-class Date {
+class Date implements Comparable<Date> {
   final int year;
   final int month;
   final int day;
@@ -38,6 +38,23 @@ class Date {
       year == other.year &&
       month == other.month &&
       day == other.day;
+
+  @override
+  int compareTo(Date other) {
+    {
+      final r = year.compareTo(other.year);
+      if (r != 0) {
+        return r;
+      }
+    }
+    {
+      final r = month.compareTo(other.month);
+      if (r != 0) {
+        return r;
+      }
+    }
+    return day.compareTo(other.day);
+  }
 
   /// Returns `DateTime(year, month, day)`.
   DateTime toDateTime({bool isUtc = false}) {
