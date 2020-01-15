@@ -1,49 +1,21 @@
 import 'package:collection/collection.dart';
-
-class ColumnDescription implements Comparable<ColumnDescription> {
-  final String tableName;
-  final String columnName;
-
-  ColumnDescription({this.tableName, this.columnName});
-
-  @override
-  int get hashCode => tableName.hashCode ^ columnName.hashCode;
-
-  @override
-  bool operator ==(other) =>
-      other is ColumnDescription &&
-      tableName == other.tableName &&
-      columnName == other.columnName;
-
-  @override
-  int compareTo(ColumnDescription other) {
-    {
-      final r = tableName.compareTo(other.tableName);
-      if (r != 0) {
-        return r;
-      }
-    }
-    return columnName.compareTo(other.columnName);
-  }
-
-  @override
-  String toString() {
-    if (tableName == null) {
-      return columnName;
-    }
-    return '$tableName.$columnName';
-  }
-}
+import 'package:meta/meta.dart';
+import 'package:database/database.dart';
 
 class SqlResponse {
   final int affectedRows;
   final List<ColumnDescription> columnDescriptions;
   final List<List> rows;
 
-  SqlResponse.fromLists({
+  SqlResponse.fromAffectedRows(
     this.affectedRows,
-    this.columnDescriptions,
-    this.rows = const <List>[],
+  )   : columnDescriptions = const <ColumnDescription>[],
+        rows = const <List>[];
+
+  SqlResponse.fromLists({
+    @required this.columnDescriptions,
+    @required this.rows,
+    this.affectedRows,
   });
 
   factory SqlResponse.fromMaps(

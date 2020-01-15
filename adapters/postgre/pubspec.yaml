@@ -1,6 +1,6 @@
 name: database_adapter_postgre
 version: 0.1.0
-description: An adapter for connecting 'package:database' to a PostgreSQL database.
+description: An adapter for using 'package:database' API with a PostgreSQL database.
 homepage: https://github.com/dint-dev/database
 
 environment:
@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   collection: ^1.14.0
-  database: ^0.2.5
+  database: ^0.2.6
   fixnum: ^0.10.0
   meta: ^1.1.0
   postgres: ^2.1.0

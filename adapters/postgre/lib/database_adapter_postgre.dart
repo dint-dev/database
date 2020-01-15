@@ -80,7 +80,7 @@ class Postgre extends SqlDatabaseAdapter {
           sql,
           substitutionValues: argumentsMap,
         );
-        return SqlResponse.fromLists(affectedRows: affectedRows);
+        return SqlResponse.fromAffectedRows(affectedRows);
       }
       result = await connection.query(
         sql,
@@ -103,7 +103,7 @@ class Postgre extends SqlDatabaseAdapter {
     if (result.columnDescriptions != null) {
       columnDescriptions = result.columnDescriptions.map((v) {
         return ColumnDescription(
-          tableName: v.tableName,
+          collectionId: v.tableName,
           columnName: v.columnName,
         );
       }).toList(growable: false);

@@ -1,3 +1,7 @@
+## [0.2.6] - January 15, 2020
+
+* Improves the SQL API a bit.
+
 ## [0.2.5] - January 15, 2020
 
 * Adds initial API for SQL databases.

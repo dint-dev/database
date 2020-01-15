@@ -35,12 +35,13 @@ abstract class Database {
     return Collection(this, collectionId);
   }
 
+  /// Performs a SQL statement. Doesn't return rows.
   Future<SqlResponse> executeSql(String sql) {
     ArgumentError.checkNotNull(sql);
     return executeSqlArgs(sql, const []);
   }
 
-  // TODO: Transaction options (consistency, etc.)
+  /// Performs a SQL statement with arguments. Doesn't return rows.
   Future<SqlResponse> executeSqlArgs(String sql, List arguments) async {
     ArgumentError.checkNotNull(sql);
     ArgumentError.checkNotNull(arguments);
@@ -56,18 +57,20 @@ abstract class Database {
     return WriteBatch.simple();
   }
 
-  Future<SqlResponse> querySqlArgsSnapshots(String sql, List arguments) async {
+  /// Performs a SQL query.
+  Future<SqlResponse> querySql(String sql) {
+    ArgumentError.checkNotNull(sql);
+    return querySqlArgs(sql, const []);
+  }
+
+  /// Performs a SQL query with arguments.
+  Future<SqlResponse> querySqlArgs(String sql, List arguments) async {
     ArgumentError.checkNotNull(sql);
     ArgumentError.checkNotNull(arguments);
     return SqlRequest(
       sql,
       arguments,
     ).delegateTo(adapter);
-  }
-
-  Future<SqlResponse> querySqlSnapshots(String sql) {
-    ArgumentError.checkNotNull(sql);
-    return querySqlArgsSnapshots(sql, const []);
   }
 
   /// Begins a transaction.

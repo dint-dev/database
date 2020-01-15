@@ -1060,32 +1060,39 @@ class DatabaseAdapterTester {
       //
       // Write
       //
-      await database.executeSql(
-        '''INSERT INTO test_employee (id, role, name) VALUES (0, 'developer', 'Miss Smith')''',
-      );
-      await database.executeSqlArgs(
-        'INSERT INTO test_employee (id, role, name) VALUES (1, {0}, {1})',
-        ['developer', 'Mr Smith'],
-      );
+      {
+        await database.executeSql(
+          '''INSERT INTO test_employee (id, role, name) VALUES (0, 'developer', 'Miss Smith')''',
+        );
+        final result = await database.executeSqlArgs(
+          'INSERT INTO test_employee (id, role, name) VALUES (1, {0}, {1})',
+          ['developer', 'Mr Smith'],
+        );
+        expect(result.affectedRows, 1);
+        expect(result.columnDescriptions, isEmpty);
+        expect(result.rows, isEmpty);
+      }
 
       //
       // Read
       //
-      final result = await database.querySqlSnapshots(
-        'SELECT * FROM test_employee;',
-      );
-      expect(
-        result.rows,
-        [
-          [0, 'developer', 'Miss Smith'],
-          [1, 'developer', 'Mr Smith'],
-        ],
-      );
+      {
+        final result = await database.querySql(
+          'SELECT * FROM test_employee;',
+        );
+        expect(
+          result.rows,
+          [
+            [0, 'developer', 'Miss Smith'],
+            [1, 'developer', 'Mr Smith'],
+          ],
+        );
 
-      expect(result.columnDescriptions, hasLength(3));
-      expect(result.columnDescriptions[0].columnName, 'id');
-      expect(result.columnDescriptions[1].columnName, 'role');
-      expect(result.columnDescriptions[2].columnName, 'name');
+        expect(result.columnDescriptions, hasLength(3));
+        expect(result.columnDescriptions[0].columnName, 'id');
+        expect(result.columnDescriptions[1].columnName, 'role');
+        expect(result.columnDescriptions[2].columnName, 'name');
+      }
     });
   }
 

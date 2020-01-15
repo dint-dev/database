@@ -39,6 +39,7 @@ export 'src/database/adapters/caching_database.dart';
 export 'src/database/adapters/memory_database.dart';
 export 'src/database/adapters/schema_using_database.dart';
 export 'src/database/collection.dart';
+export 'src/database/column_description.dart';
 export 'src/database/database.dart';
 export 'src/database/document.dart';
 export 'src/database/exceptions.dart';

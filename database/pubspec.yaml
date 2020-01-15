@@ -1,8 +1,8 @@
 name: database
-version: 0.2.5
+version: 0.2.6
 description:
-  A vendor-agnostic database API. Various adapters are available, such as in-memory database,
-  browser APIs, ElasticSearch, and others.
+  A database API for SQL databases, document databases, and search engines. Various adapters are
+  available in this and other packages.
 homepage: https://github.com/dint-dev/database
 
 environment:
