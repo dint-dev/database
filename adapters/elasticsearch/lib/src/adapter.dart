@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// An adapter for using [ElasticSearch](https://www.elastic.co),
-/// a software product by Elastic NV.
-library database_adapter_elastic_search;
-
 import 'dart:convert';
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
 import 'package:meta/meta.dart';
 import 'package:universal_io/io.dart';
+import 'package:database_adapter_elasticsearch/database_adapter_elasticsearch.dart';
 
 /// An adapter for using [ElasticSearch](https://www.elastic.co),
 /// a software product by Elastic NV.
@@ -43,6 +40,7 @@ class ElasticSearch extends DatabaseAdapter {
   final Uri uri;
   final HttpClient httpClient;
   final ElasticSearchCredentials _credentials;
+  final bool autoCreateIndex;
 
   ElasticSearch({
     @required String host,
@@ -50,7 +48,8 @@ class ElasticSearch extends DatabaseAdapter {
     String scheme = 'http',
     ElasticSearchCredentials credentials,
     HttpClient httpClient,
-  }) : this._withUri(
+    bool autoCreateIndex = true,
+  }) : this.withUri(
           Uri(
             scheme: scheme,
             host: host,
@@ -59,22 +58,29 @@ class ElasticSearch extends DatabaseAdapter {
           ),
           credentials: credentials,
           httpClient: httpClient,
+          autoCreateIndex: autoCreateIndex,
         );
 
-  ElasticSearch._withUri(
+  ElasticSearch.withUri(
     this.uri, {
     ElasticSearchCredentials credentials,
     HttpClient httpClient,
+    this.autoCreateIndex = true,
   })  : _credentials = credentials,
         httpClient = httpClient ?? HttpClient() {
     if (credentials != null) {
       credentials.prepareHttpClient(this, httpClient);
     }
+    ArgumentError.checkNotNull(autoCreateIndex, 'autoCreateIndex');
   }
 
   @override
   Future<void> checkHealth({Duration timeout}) async {
-    await _httpRequest('GET', '', timeout: timeout);
+    await _httpRequest(
+      'GET',
+      '/',
+      timeout: timeout,
+    );
   }
 
   @override
@@ -95,7 +101,7 @@ class ElasticSearch extends DatabaseAdapter {
     //
     final response = await _httpRequest(
       'GET',
-      '${collectionId.toLowerCase()}/_doc/$documentId',
+      '/$collectionId/_doc/$documentId',
     );
 
     //
@@ -111,21 +117,27 @@ class ElasticSearch extends DatabaseAdapter {
       throw error;
     }
 
-    //
-    // Handle not found
-    //
-    final found = response.body['found'] as bool;
-    if (!found) {
-      yield (Snapshot.notFound(request.document));
-      return;
+    switch (response.status) {
+      case HttpStatus.ok:
+        break;
+
+      case HttpStatus.notFound:
+        yield (Snapshot.notFound(request.document));
+        return;
+
+      default:
+        throw DatabaseException.internal(
+          message: 'Got HTTP status: ${response.status}',
+        );
     }
-    final data = response.body['_source'];
 
     //
     // Return snapshot
     //
+    final data = response.body['_source'];
     yield (Snapshot(
       document: request.document,
+      versionId: response.body['_seq_no']?.toString(),
       data: schema.decodeLessTyped(data,
           context: LessTypedDecodingContext(
             database: database,
@@ -134,7 +146,8 @@ class ElasticSearch extends DatabaseAdapter {
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) async* {
+  Stream<QueryResult> performSearch(SearchRequest request,
+      {bool autoCreateIndex}) async* {
     final collection = request.collection;
     final database = collection.database;
     final schema = request.schema ?? const ArbitraryTreeSchema();
@@ -149,7 +162,9 @@ class ElasticSearch extends DatabaseAdapter {
     //
     final jsonRequest = <String, Object>{};
 
+    //
     // Filter
+    //
     final query = request.query;
     final filter = query.filter;
     if (filter != null) {
@@ -160,13 +175,32 @@ class ElasticSearch extends DatabaseAdapter {
       };
     }
 
-    // TODO: Sorting
-    if (query.sorter != null) {
-      // jsonRequest['sort'] = ['_score'];
-      throw UnimplementedError('Sorting is not supported at the moment');
+    //
+    // Sort
+    //
+
+    final sorter = query.sorter;
+    if (sorter != null) {
+      final jsonSorters = [];
+      if (sorter is PropertySorter) {
+        jsonSorters.add({sorter.name: sorter.isDescending ? 'desc' : 'asc'});
+      } else if (sorter is MultiSorter) {
+        for (var item in sorter.sorters) {
+          if (item is PropertySorter) {
+            jsonSorters.add({item.name: item.isDescending ? 'desc' : 'asc'});
+          } else {
+            throw UnsupportedError('Unsupported sorter: $item');
+          }
+        }
+      } else {
+        throw UnsupportedError('Unsupported sorter: $sorter');
+      }
+      jsonRequest['sort'] = jsonSorters;
     }
 
+    //
     // Skip
+    //
     {
       final skip = query.skip;
       if (skip != null && skip != 0) {
@@ -174,7 +208,9 @@ class ElasticSearch extends DatabaseAdapter {
       }
     }
 
+    //
     // Take
+    //
     {
       final take = query.take;
       if (take != null) {
@@ -185,16 +221,16 @@ class ElasticSearch extends DatabaseAdapter {
     //
     // Send HTTP request
     //
-    final httpResponse = await _httpRequest(
+    final response = await _httpRequest(
       'POST',
-      '/${collectionId.toLowerCase()}/_search',
+      '/$collectionId/_search',
       json: jsonRequest,
     );
 
     //
     // Handle error
     //
-    final error = httpResponse.error;
+    final error = response.error;
     if (error != null) {
       switch (error.type) {
         case 'index_not_found_exception':
@@ -209,8 +245,18 @@ class ElasticSearch extends DatabaseAdapter {
       throw error;
     }
 
+    switch (response.status) {
+      case HttpStatus.ok:
+        break;
+
+      default:
+        throw DatabaseException.internal(
+          message: 'Got HTTP status: ${response.status}',
+        );
+    }
+
     var items = const <QueryResultItem>[];
-    final jsonHitsMap = httpResponse.body['hits'];
+    final jsonHitsMap = response.body['hits'];
     if (jsonHitsMap is Map) {
       // This map contains information about hits
 
@@ -223,6 +269,7 @@ class ElasticSearch extends DatabaseAdapter {
         return QueryResultItem(
           snapshot: Snapshot(
             document: collection.document(documentId),
+            versionId: h['_seq_no']?.toString(),
             data: schema.decodeLessTyped(
               data,
               context: LessTypedDecodingContext(database: database),
@@ -243,11 +290,12 @@ class ElasticSearch extends DatabaseAdapter {
   @override
   Future<void> performWrite(
     WriteRequest request, {
-    bool createIndex = true,
+    bool autoCreateIndex,
   }) async {
     final document = request.document;
     final collection = document.parent;
     final schema = request.schema ?? const ArbitraryTreeSchema();
+    autoCreateIndex ??= this.autoCreateIndex;
 
     //
     // Validate IDs
@@ -259,6 +307,10 @@ class ElasticSearch extends DatabaseAdapter {
     // Determine method and body
     //
     var method = 'PUT';
+    var path = '/$collectionId/_doc/$documentId';
+    final queryParameters = {
+      'refresh': 'true',
+    };
     Map<String, Object> json;
     switch (request.type) {
       case WriteType.delete:
@@ -271,12 +323,31 @@ class ElasticSearch extends DatabaseAdapter {
 
       case WriteType.insert:
         method = 'PUT';
+        path = '/$collectionId/_create/$documentId';
+        queryParameters['op_type'] = 'create';
         json = schema.encodeLessTyped(request.data);
         break;
 
       case WriteType.update:
-        method = 'PUT';
-        json = schema.encodeLessTyped(request.data);
+        final response = await _httpRequest(
+          'GET',
+          '/$collectionId/_doc/$documentId',
+        );
+        if (response.status != HttpStatus.ok) {
+          throw DatabaseException.notFound(
+            document,
+            message: "can't update non-existing document",
+            error: response.error,
+          );
+        }
+        queryParameters['if_primary_term'] =
+            response.body['_primary_term'].toString();
+        queryParameters['if_seq_no'] = response.body['_seq_no'].toString();
+        method = 'POST';
+        path = '/$collectionId/_update/$documentId';
+        json = <String, Object>{
+          'doc': schema.encodeLessTyped(request.data),
+        };
         break;
 
       case WriteType.upsert:
@@ -293,7 +364,8 @@ class ElasticSearch extends DatabaseAdapter {
     //
     final response = await _httpRequest(
       method,
-      '/${collectionId.toLowerCase()}/_doc/$documentId',
+      path,
+      queryParameters: queryParameters,
       json: json,
     );
 
@@ -302,25 +374,101 @@ class ElasticSearch extends DatabaseAdapter {
     //
     final error = response.error;
     if (error != null) {
-      switch (request.type) {
-        case WriteType.delete:
-          switch (error.type) {
-            case 'index_not_found_exception':
-              return;
+      switch (error.type) {
+        case 'index_not_found_exception':
+          if (request.type == WriteType.deleteIfExists) {
+            return;
           }
-          break;
-
-        case WriteType.deleteIfExists:
-          switch (error.type) {
-            case 'index_not_found_exception':
-              return;
+          if (request.type == WriteType.delete) {
+            throw DatabaseException.notFound(request.document);
           }
-          break;
+          if (autoCreateIndex) {
+            //
+            // Create index
+            //
+            final response = await _httpRequest('PUT', '/$collectionId');
+            final responseError = response.error;
+            if (responseError != null) {
+              throw responseError;
+            }
 
-        default:
-          break;
+            //
+            // Try again
+            //
+            return performWrite(request, autoCreateIndex: false);
+          }
+
+          //
+          // We are not allowed to create an index
+          //
+          throw DatabaseException.internal(
+            document: request.document,
+            message: 'ElasticSearch index was not found',
+          );
       }
-      throw error;
+    }
+    switch (response.status) {
+      case HttpStatus.ok:
+        if (request.type == WriteType.delete) {
+          final result = response.body['result'];
+          if (result != 'deleted') {
+            throw DatabaseException.notFound(
+              document,
+              error: ElasticSearchError.fromJson(response.body),
+            );
+          }
+        }
+        break;
+
+      case HttpStatus.conflict:
+        if (request.type == WriteType.delete) {
+          throw DatabaseException.notFound(
+            document,
+            error: ElasticSearchError.fromJson(response.body),
+          );
+        }
+        break;
+
+      case HttpStatus.created:
+        break;
+
+      case HttpStatus.found:
+        if (request.type == WriteType.delete) {
+          throw DatabaseException.found(
+            document,
+            error: ElasticSearchError.fromJson(response.body),
+          );
+        }
+        if (request.type == WriteType.insert) {
+          throw DatabaseException.found(
+            request.document,
+            error: ElasticSearchError.fromJson(response.body),
+          );
+        }
+        break;
+
+      case HttpStatus.notFound:
+        if (request.type == WriteType.deleteIfExists) {
+          return;
+        }
+        throw DatabaseException.notFound(
+          request.document,
+          error: ElasticSearchError.fromJson(response.body),
+        );
+
+      default:
+        throw DatabaseException.internal(
+          message:
+              'ElasticSearch URI $path, got HTTP status: ${response.status}',
+          error: ElasticSearchError.fromJson(response.body),
+        );
+    }
+    if (request.type == WriteType.insert &&
+        response.status != HttpStatus.created) {
+      throw DatabaseException.found(
+        request.document,
+        error: ElasticSearchError.fromJson(response.body),
+      );
     }
   }
 
@@ -329,8 +477,19 @@ class ElasticSearch extends DatabaseAdapter {
     if (value is int) {
       return value.toDouble();
     }
+    if (value is double) {
+      if (value.isNaN) {
+        return 'nan';
+      }
+      if (value == double.negativeInfinity) {
+        return '-inf';
+      }
+      if (value == double.infinity) {
+        return '+inf';
+      }
+    }
     if (value is DateTime) {
-      return value.toIso8601String();
+      return value.toIso8601String().replaceAll(' ', 'T');
     }
     throw ArgumentError.value(value);
   }
@@ -338,13 +497,16 @@ class ElasticSearch extends DatabaseAdapter {
   Future<_Response> _httpRequest(
     String method,
     String path, {
+    Map<String, String> queryParameters = const {},
     Map<String, Object> json,
     Duration timeout,
   }) async {
     // Open HTTP request
+    final uri =
+        this.uri.resolve(path).replace(queryParameters: queryParameters);
     final httpRequest = await httpClient.openUrl(
       method,
-      uri.resolve(path),
+      uri,
     );
 
     // Set HTTP headers
@@ -360,16 +522,16 @@ class ElasticSearch extends DatabaseAdapter {
     }
 
     // Close HTTP request
-    final httpResponse = await httpRequest.close();
+    final response = await httpRequest.close();
 
     // Read HTTP response body
     timeout ??= const Duration(seconds: 5);
-    final httpResponseBody = await utf8.decodeStream(
-      httpResponse.timeout(timeout),
+    final responseBody = await utf8.decodeStream(
+      response.timeout(timeout),
     );
 
     // Decode JSON
-    final jsonResponse = jsonDecode(httpResponseBody) as Map<String, Object>;
+    final jsonResponse = jsonDecode(responseBody) as Map<String, Object>;
 
     // Handle error
     final jsonError = jsonResponse['error'];
@@ -382,87 +544,26 @@ class ElasticSearch extends DatabaseAdapter {
 
     // Return response
     return _Response(
-      status: httpResponse.statusCode,
-      body: jsonDecode(httpResponseBody),
+      status: response.statusCode,
+      body: jsonDecode(responseBody),
       error: error,
     );
   }
 
+  static final _idRegExp = RegExp(r'[^\/*?"<>| ,#]{1,64}');
+
   static String _validateCollectionId(String id) {
-    if (id.startsWith('_') ||
-        id.contains('/') ||
-        id.contains('%') ||
-        id.contains('?') ||
-        id.contains('#')) {
-      throw ArgumentError.value(id, 'id', 'Invalid collection ID');
+    if (!_idRegExp.hasMatch(id)) {
+      throw ArgumentError.value(id);
     }
-    return id;
+    return id.toLowerCase();
   }
 
   static String _validateDocumentId(String id) {
-    if (id.startsWith('_') ||
-        id.contains('/') ||
-        id.contains('%') ||
-        id.contains('?') ||
-        id.contains('#')) {
-      throw ArgumentError.value(id, 'id', 'Invalid collection ID');
+    if (!_idRegExp.hasMatch(id)) {
+      throw ArgumentError.value(id);
     }
     return id;
-  }
-}
-
-/// Superclass for [ElasticSearch] credentials. Currently the only subclass is
-/// [ElasticSearchPasswordCredentials].
-abstract class ElasticSearchCredentials {
-  const ElasticSearchCredentials();
-
-  void prepareHttpClient(
-    ElasticSearch engine,
-    HttpClient httpClient,
-  ) {}
-
-  void prepareHttpClientRequest(
-    ElasticSearch engine,
-    HttpClientRequest httpClientRequest,
-  ) {}
-}
-
-class ElasticSearchError {
-  final Map<String, Object> detailsJson;
-
-  ElasticSearchError.fromJson(this.detailsJson);
-
-  String get reason => detailsJson['reason'] as String;
-
-  String get type => detailsJson['type'] as String;
-
-  @override
-  String toString() {
-    final details = const JsonEncoder.withIndent('  ')
-        .convert(detailsJson)
-        .replaceAll('\n', '\n  ');
-    return 'ElasticSearch returned an error of type "$type".\n\nDetails:\n  $details';
-  }
-}
-
-class ElasticSearchPasswordCredentials extends ElasticSearchCredentials {
-  final String user;
-  final String password;
-  const ElasticSearchPasswordCredentials({this.user, this.password});
-
-  @override
-  void prepareHttpClient(
-    ElasticSearch database,
-    HttpClient httpClient,
-  ) {
-    httpClient.addCredentials(
-      database.uri.resolve('/'),
-      null,
-      HttpClientBasicCredentials(
-        user,
-        password,
-      ),
-    );
   }
 }
 

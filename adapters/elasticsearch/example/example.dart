@@ -1,11 +1,14 @@
 import 'package:database/database.dart';
-import 'package:database_adapter_elastic_search/database_adapter_elastic_search.dart';
+import 'package:database_adapter_elasticsearch/database_adapter_elasticsearch.dart';
 
 Future main() async {
   // Set up
   final database = ElasticSearch(
+    host: 'localhost',
     credentials: ElasticSearchPasswordCredentials(
-        user: 'example user', password: 'example password'),
+      user: 'example user',
+      password: 'example password',
+    ),
   );
   final collection = database.collection('example');
 

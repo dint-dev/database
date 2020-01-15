@@ -15,16 +15,21 @@
 import 'package:database/database.dart';
 import 'package:test/test.dart';
 
-import '../../database_test_suite.dart';
+import '../../database_adapter_tester.dart';
 
 void main() {
   group('Standard test suite', () {
-    DatabaseTestSuite(
+    DatabaseAdapterTester(
       () => CachingDatabase(
         master: MemoryDatabase(),
         cache: MemoryDatabase(),
       ),
-      isCaching: true,
+
+      // This is a cache
+      isCache: true,
+
+      // Zero delay
+      writeDelay: const Duration(),
     ).run();
   });
   test('A simple caching test', () async {

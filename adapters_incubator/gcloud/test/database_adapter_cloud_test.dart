@@ -15,7 +15,7 @@
 import 'package:database_adapter_gcloud/database_adapter_gcloud.dart';
 import 'package:test_io/test_io.dart';
 
-import 'copy_of_database_test_suite.dart';
+import 'copy_of_database_adapter_tester.dart';
 
 Future<void> main() async {
   final newDatabase = () async {
@@ -36,5 +36,5 @@ Future<void> main() async {
     );
   };
 
-  DatabaseTestSuite(newDatabase).run();
+  DatabaseAdapterTester(newDatabase).run();
 }

@@ -15,7 +15,7 @@
 import 'package:database_adapter_firestore/database_adapter_firestore_browser.dart';
 import 'package:test_io/test_io.dart';
 
-import 'copy_of_database_test_suite.dart';
+import 'copy_of_database_adapter_tester.dart';
 
 Future<void> main() async {
   final newDatabase = () async {
@@ -35,5 +35,5 @@ Future<void> main() async {
       apiKey: secret,
     );
   };
-  DatabaseTestSuite(newDatabase).run();
+  DatabaseAdapterTester(newDatabase).run();
 }

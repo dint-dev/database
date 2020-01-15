@@ -2,6 +2,12 @@
 set -e
 cd `dirname $0`/..
 ROOT=`pwd`
+
+# You can pass arguments.
+#
+# Example:
+#   ./tool/test.sh --platform=vm
+#
 ARGS=${@:1}
 
 if [ -f SECRETS.env ]; then
@@ -45,4 +51,4 @@ visit database
 visit search
 visit sql_database
 
-visit adapters/elastic_search
+visit adapters/elasticsearch

@@ -2,6 +2,12 @@
 set -e
 cd `dirname $0`/..
 ROOT=`pwd`
+
+# You can pass arguments.
+#
+# Example:
+#   ./tool/pub_get.sh --offline
+#
 ARGS=${@:1}
 
 visit() {
@@ -37,7 +43,7 @@ visit database
 visit search
 visit sql_database
 
-visit adapters/elastic_search
+visit adapters/elasticsearch
 
 visit adapters_incubator/algolia
 visit adapters_incubator/azure

@@ -1,3 +1,7 @@
+## [0.2.4] - January 14, 2020
+
+* Fixes issues spotted during testing.
+
 ## [0.2.3] - January 14, 2020
 
 * Fixes various small issues and improves documentation.

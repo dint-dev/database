@@ -19,26 +19,43 @@ import 'package:fixnum/fixnum.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
-class DatabaseTestSuite {
+/// IMPORTANT:
+/// This is a huge file in 'database/test/database_adapter_tester.dart'.
+///
+/// If you modify the file, copy it with the script:
+///
+///     ./tool/copy_database_adapter_test.sh
+///
+class DatabaseAdapterTester {
+  /// Is the database a cache?
   @protected
-  final bool isCaching;
+  final bool isCache;
+
+  /// Does the database support transactions?
   final bool supportsTransactions;
+
+  /// How long we have to wait until the write is visible?
   final Duration writeDelay;
+
   final FutureOr<Database> Function() database;
 
-  DatabaseTestSuite(
+  DatabaseAdapterTester(
     this.database, {
-    this.isCaching = false,
-    this.writeDelay = const Duration(),
+    this.isCache = false,
+    this.writeDelay = const Duration(milliseconds: 100),
     this.supportsTransactions = false,
   });
 
   void run() {
     Database database;
     Collection collection;
-    Document document0;
-    Document document1;
-    Document document2;
+    final inserted = <Document>[];
+
+    Future<Document> insert({Map<String, Object> data}) async {
+      final document = await collection.insert(data: data);
+      inserted.add(document);
+      return document;
+    }
 
     setUpAll(() async {
       database = await this.database();
@@ -49,25 +66,16 @@ class DatabaseTestSuite {
         return;
       }
       collection = database.collection('exampleCollection');
-      document0 = collection.document('example0');
-      document1 = collection.document('example1');
-      document2 = collection.document('example2');
-
-      await document0.deleteIfExists();
-      await document1.deleteIfExists();
-      await document2.deleteIfExists();
       await collection.searchAndDelete();
       await _waitAfterWrite();
-    });
 
-    tearDown(() async {
-      if (database == null) {
-        return;
-      }
-      await document0.deleteIfExists();
-      await document1.deleteIfExists();
-      await document2.deleteIfExists();
-      await _waitAfterWrite();
+      addTearDown(() async {
+        for (var document in inserted) {
+          await document.deleteIfExists();
+        }
+        inserted.clear();
+        await _waitAfterWrite();
+      });
     });
 
     group('Collection:', () {
@@ -91,14 +99,14 @@ class DatabaseTestSuite {
             return;
           }
 
-          final data0 = {'k': 'value0'};
-          final data1 = {'k': 'value1'};
-          final data2 = {'k': 'value1'};
+          final data0 = {'string': 'value0'};
+          final data1 = {'string': 'value1'};
+          final data2 = {'string': 'value1'};
 
           // Insert
-          await document0.insert(data: data0);
-          await document1.insert(data: data1);
-          await document2.insert(data: data2);
+          final document0 = await insert(data: data0);
+          final document1 = await insert(data: data1);
+          final document2 = await insert(data: data2);
           await _waitAfterWrite();
 
           // Search
@@ -112,25 +120,36 @@ class DatabaseTestSuite {
           // Snapshots
           //
           final snapshots = result.snapshots.toList();
+          expect(snapshots, hasLength(3));
+
+          // Sort documents
+          final documents = <Document, Object>{
+            document0: data0,
+            document1: data1,
+            document2: data2,
+          }.entries.toList();
+          documents
+              .sort((a, b) => a.key.documentId.compareTo(b.key.documentId));
+
+          // Sort snapshots
           snapshots.sort(
             (a, b) => a.document.documentId.compareTo(b.document.documentId),
           );
-          expect(snapshots, hasLength(3));
 
           // Document 0
-          expect(snapshots[0].document, document0);
+          expect(snapshots[0].document, documents[0].key);
           expect(snapshots[0].exists, isTrue);
-          expect(snapshots[0].data, data0);
+          expect(snapshots[0].data, documents[0].value);
 
           // Document 1
-          expect(snapshots[1].document, document1);
+          expect(snapshots[1].document, documents[1].key);
           expect(snapshots[1].exists, isTrue);
-          expect(snapshots[1].data, data1);
+          expect(snapshots[1].data, documents[1].value);
 
           // Document 2
-          expect(snapshots[2].document, document2);
+          expect(snapshots[2].document, documents[2].key);
           expect(snapshots[2].exists, isTrue);
-          expect(snapshots[2].data, data2);
+          expect(snapshots[2].data, documents[2].value);
 
           //
           // Detailed items
@@ -142,19 +161,19 @@ class DatabaseTestSuite {
           expect(items, hasLength(3));
 
           // Document 0
-          expect(items[0].document, document0);
+          expect(items[0].document, documents[0].key);
           expect(items[0].snapshot.exists, isTrue);
-          expect(items[0].data, data0);
+          expect(items[0].data, documents[0].value);
 
           // Document 1
-          expect(items[1].document, document1);
+          expect(items[1].document, documents[1].key);
           expect(items[1].snapshot.exists, isTrue);
-          expect(items[1].data, data1);
+          expect(items[1].data, documents[1].value);
 
           // Document 2
-          expect(items[2].document, document2);
+          expect(items[2].document, documents[2].key);
           expect(items[2].snapshot.exists, isTrue);
-          expect(items[2].data, data2);
+          expect(items[2].data, documents[2].value);
         });
       });
 
@@ -179,14 +198,14 @@ class DatabaseTestSuite {
             return;
           }
 
-          final data0 = {'k': 'value0'};
-          final data1 = {'k': 'value1'};
-          final data2 = {'k': 'value1'};
+          final data0 = {'string': 'value0'};
+          final data1 = {'string': 'value1'};
+          final data2 = {'string': 'value1'};
 
           // Insert
-          await document0.insert(data: data0);
-          await document1.insert(data: data1);
-          await document2.insert(data: data2);
+          final document0 = await insert(data: data0);
+          final document1 = await insert(data: data1);
+          final document2 = await insert(data: data2);
           await _waitAfterWrite();
 
           // Search
@@ -200,27 +219,38 @@ class DatabaseTestSuite {
           // Snapshots
           //
           final snapshots = result.snapshots.toList();
-          snapshots.sort(
-            (a, b) => a.document.documentId.compareTo(b.document.documentId),
-          );
 
           // Length
           expect(snapshots, hasLength(3));
 
+          // Sort documents
+          final documents = <Document, Object>{
+            document0: data0,
+            document1: data1,
+            document2: data2,
+          }.entries.toList();
+          documents
+              .sort((a, b) => a.key.documentId.compareTo(b.key.documentId));
+
+          // Sort snapshots
+          snapshots.sort(
+            (a, b) => a.document.documentId.compareTo(b.document.documentId),
+          );
+
           // Document 0
-          expect(snapshots[0].document, document0);
+          expect(snapshots[0].document, documents[0].key);
           expect(snapshots[0].exists, isTrue);
-          expect(snapshots[0].data, data0);
+          expect(snapshots[0].data, documents[0].value);
 
           // Document 1
-          expect(snapshots[1].document, document1);
+          expect(snapshots[1].document, documents[1].key);
           expect(snapshots[1].exists, isTrue);
-          expect(snapshots[1].data, data1);
+          expect(snapshots[1].data, documents[1].value);
 
           // Document 2
-          expect(snapshots[2].document, document2);
+          expect(snapshots[2].document, documents[2].key);
           expect(snapshots[2].exists, isTrue);
-          expect(snapshots[2].data, data2);
+          expect(snapshots[2].data, documents[2].value);
 
           //
           // Detailed items
@@ -229,24 +259,22 @@ class DatabaseTestSuite {
           items.sort(
             (a, b) => a.document.documentId.compareTo(b.document.documentId),
           );
-
-          // Length
           expect(items, hasLength(3));
 
           // Document 0
-          expect(items[0].document, document0);
+          expect(items[0].document, documents[0].key);
           expect(items[0].snapshot.exists, isTrue);
-          expect(items[0].data, data0);
+          expect(items[0].data, documents[0].value);
 
           // Document 1
-          expect(items[1].document, document1);
+          expect(items[1].document, documents[1].key);
           expect(items[1].snapshot.exists, isTrue);
-          expect(items[1].data, data1);
+          expect(items[1].data, documents[1].value);
 
           // Document 2
-          expect(items[2].document, document2);
+          expect(items[2].document, documents[2].key);
           expect(items[2].snapshot.exists, isTrue);
-          expect(items[2].data, data2);
+          expect(items[2].data, documents[2].value);
         });
       });
 
@@ -268,47 +296,56 @@ class DatabaseTestSuite {
             return;
           }
 
-          final data0 = {'k': 'value0'};
-          final data1 = {'k': 'value1'};
-          final data2 = {'k': 'value1'};
+          final data0 = {'string': 'value0'};
+          final data1 = {'string': 'value1'};
+          final data2 = {'string': 'value1'};
 
           // Insert
-          await document0.insert(data: data0);
-          await document1.insert(data: data1);
-          await document2.insert(data: data2);
+          final document0 = await insert(data: data0);
+          final document1 = await insert(data: data1);
+          final document2 = await insert(data: data2);
           await _waitAfterWrite();
 
           // Search
-          var result = await collection
+          var snapshots = await collection
               .searchChunked()
               .map((q) => q.snapshots)
               .reduce((a, b) => [...a, ...b]);
 
           // Make mutable list
-          result = result.toList();
+          snapshots = snapshots.toList();
 
-          // Sort
-          result.sort(
+          // Length
+          expect(snapshots, hasLength(3));
+
+          // Sort documents
+          final documents = <Document, Object>{
+            document0: data0,
+            document1: data1,
+            document2: data2,
+          }.entries.toList();
+          documents
+              .sort((a, b) => a.key.documentId.compareTo(b.key.documentId));
+
+          // Sort snapshots
+          snapshots.sort(
             (a, b) => a.document.documentId.compareTo(b.document.documentId),
           );
 
-          // Length
-          expect(result, hasLength(3));
-
           // Document 0
-          expect(result[0].document, document0);
-          expect(result[0].exists, isTrue);
-          expect(result[0].data, data0);
+          expect(snapshots[0].document, documents[0].key);
+          expect(snapshots[0].exists, isTrue);
+          expect(snapshots[0].data, documents[0].value);
 
           // Document 1
-          expect(result[1].document, document1);
-          expect(result[1].exists, isTrue);
-          expect(result[1].data, data1);
+          expect(snapshots[1].document, documents[1].key);
+          expect(snapshots[1].exists, isTrue);
+          expect(snapshots[1].data, documents[1].value);
 
           // Document 2
-          expect(result[2].document, document2);
-          expect(result[2].exists, isTrue);
-          expect(result[2].data, data2);
+          expect(snapshots[2].document, documents[2].key);
+          expect(snapshots[2].exists, isTrue);
+          expect(snapshots[2].data, documents[2].value);
         });
       });
     });
@@ -321,20 +358,23 @@ class DatabaseTestSuite {
           }
 
           // Upsert
-          final data = {'k0': 'v0', 'k1': 'v1'};
-          await document0.upsert(data: data);
+          final data = {
+            'k0-string': 'v0',
+            'k1-string': 'v1',
+          };
+          final document = await insert(data: data);
           await _waitAfterWrite();
 
           // Get
-          final snapshot = await document0.get();
-          expect(snapshot.document, same(document0));
+          final snapshot = await document.get();
+          expect(snapshot.document, same(document));
           expect(snapshot.exists, isTrue);
           expect(snapshot.data, data);
 
           // Get incrementally
-          final list = await document0.getIncrementalStream().toList();
+          final list = await document.getIncrementalStream().toList();
           expect(list, isNotEmpty);
-          expect(list.last.document, same(document0));
+          expect(list.last.document, same(document));
           expect(list.last.exists, isTrue);
           expect(list.last.data, data);
         });
@@ -345,15 +385,16 @@ class DatabaseTestSuite {
           }
 
           // Get
-          final snapshot = await document0.get();
-          expect(snapshot.document, same(document0));
+          final document = collection.document('not-found');
+          final snapshot = await document.get();
+          expect(snapshot.document, same(document));
           expect(snapshot.exists, isFalse);
           expect(snapshot.data, isNull);
 
           // Get incrementally
-          final list = await document0.getIncrementalStream().toList();
+          final list = await document.getIncrementalStream().toList();
           expect(list, isNotEmpty);
-          expect(list.last.document, same(document0));
+          expect(list.last.document, same(document));
           expect(list.last.exists, isFalse);
           expect(list.last.data, isNull);
         });
@@ -366,14 +407,18 @@ class DatabaseTestSuite {
           }
 
           // Insert
-          await document0.insert(data: {'k0': 'v0', 'k1': 'v1'});
+          final data = {
+            'k0-string': 'v0',
+            'k1-string': 'v1',
+          };
+          final document = await insert(data: data);
           await _waitAfterWrite();
 
           // Get
-          final snapshot = await document0.get();
-          expect(snapshot.document, same(document0));
+          final snapshot = await document.get();
+          expect(snapshot.document, same(document));
           expect(snapshot.exists, isTrue);
-          expect(snapshot.data, {'k0': 'v0', 'k1': 'v1'});
+          expect(snapshot.data, data);
         });
 
         test('document exists, throws DatabaseException', () async {
@@ -382,32 +427,59 @@ class DatabaseTestSuite {
           }
 
           // Insert
-          await document0.insert(data: {'k0': 'v0', 'k1': 'v1'});
+          final data = {
+            'k0-string': 'v0',
+            'k1-string': 'v1',
+          };
+          final document = await insert(data: data);
           await _waitAfterWrite();
 
           // Insert again
           await expectLater(
-            document0.insert(data: {}),
+            document.insert(data: {}),
             throwsA(isA<DatabaseException>()),
           );
         });
 
         group('different values:', () {
+          Schema schema;
+          setUp(() {
+            schema = MapSchema({
+              'null': ArbitraryTreeSchema(),
+              'bool-0': BoolSchema(),
+              'bool-1': BoolSchema(),
+              'int': IntSchema(),
+              'int64-0': Int64Schema(),
+              'int64-1': Int64Schema(),
+              'int64-2': Int64Schema(),
+              'double-0': DoubleSchema(),
+              'double-1': DoubleSchema(),
+              'double-2': DoubleSchema(),
+              'double-3': DoubleSchema(),
+              'dateTime': DateTimeSchema(),
+              'geoPoint': GeoPointSchema(),
+              'string': StringSchema(),
+              'document': DocumentSchema(),
+            });
+          });
           test('null', () async {
             if (database == null) {
               return;
             }
 
             // Insert
-            await document0.insert(data: {
-              'value': null,
+            final document = await insert(data: {
+              'null': null,
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            ;
             expect(snapshot.data, {
-              'value': null,
+              'null': null,
             });
           });
 
@@ -417,17 +489,19 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value0': false,
-              'value1': true,
+            final document = await insert(data: <String, Object>{
+              'bool-0': false,
+              'bool-1': true,
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {
-              'value0': false,
-              'value1': true,
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            expect(snapshot.data, <String, Object>{
+              'bool-0': false,
+              'bool-1': true,
             });
           });
 
@@ -437,17 +511,22 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value0': Int64(-2),
-              'value1': Int64(2),
+            final document = await insert(data: <String, Object>{
+              'int64-0': Int64(-2),
+              'int64-1': Int64(0),
+              'int64-2': Int64(2),
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {
-              'value0': Int64(-2),
-              'value1': Int64(2),
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            ;
+            expect(snapshot.data, <String, Object>{
+              'int64-0': Int64(-2),
+              'int64-1': Int64(0),
+              'int64-2': Int64(2),
             });
           });
 
@@ -457,15 +536,18 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value': 3,
+            final document = await insert(data: <String, Object>{
+              'int': 3,
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {
-              'value': 3,
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            ;
+            expect(snapshot.data, <String, Object>{
+              'int': 3,
             });
           });
 
@@ -475,16 +557,24 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value': 3.14,
+            final document = await insert(data: <String, Object>{
+              'double-0': 3.14,
+              'double-1': double.nan,
+              'double-2': double.negativeInfinity,
+              'double-3': double.infinity,
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {
-              'value': 3.14,
-            });
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            final data = snapshot.data;
+            expect(data, hasLength(4));
+            expect(data['double-0'], 3.14);
+            expect(data['double-1'], isNaN);
+            expect(data['double-2'], double.negativeInfinity);
+            expect(data['double-3'], double.infinity);
           });
 
           test('DateTime', () async {
@@ -493,15 +583,25 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value': DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+            final dateTime = DateTime.fromMillisecondsSinceEpoch(
+              0,
+              isUtc: true,
+            );
+            final dateTimeAsString =
+                dateTime.toIso8601String().replaceAll(' ', 'T');
+
+            final document = await insert(data: <String, Object>{
+              'dateTime': dateTime,
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {
-              'value': DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            ;
+            expect(snapshot.data, <String, Object>{
+              'dateTime': anyOf(dateTime, dateTimeAsString),
             });
           });
 
@@ -511,14 +611,19 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value': GeoPoint(1.0, 2.0),
+            final document = await insert(data: <String, Object>{
+              'geoPoint': GeoPoint(1.0, 2.0),
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {'value': GeoPoint(1.0, 2.0)});
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            ;
+            expect(snapshot.data, <String, Object>{
+              'geoPoint': GeoPoint(1.0, 2.0),
+            });
           });
 
           test('String', () async {
@@ -527,17 +632,20 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value0': '',
-              'value1': 'abc',
+            final document = await insert(data: <String, Object>{
+              'string': '',
+              'string': 'abc',
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {
-              'value0': '',
-              'value1': 'abc',
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            ;
+            expect(snapshot.data, <String, Object>{
+              'string': '',
+              'string': 'abc',
             });
           });
 
@@ -547,15 +655,18 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value': ['a', 'b', 'c']
+            final document = await insert(data: <String, Object>{
+              'list': ['a', 'b', 'c']
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {
-              'value': ['a', 'b', 'c']
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            ;
+            expect(snapshot.data, <String, Object>{
+              'list': ['a', 'b', 'c']
             });
           });
 
@@ -565,15 +676,24 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value': {'k0': 'v0', 'k1': 'v1'},
+            final document = await insert(data: <String, Object>{
+              'map': {
+                'k0-string': 'v0',
+                'k1-string': 'v1',
+              },
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {
-              'value': {'k0': 'v0', 'k1': 'v1'},
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            ;
+            expect(snapshot.data, <String, Object>{
+              'map': {
+                'k0-string': 'v0',
+                'k1-string': 'v1',
+              },
             });
           });
 
@@ -583,15 +703,19 @@ class DatabaseTestSuite {
             }
 
             // Insert
-            await document0.insert(data: {
-              'value': document0,
+            final document = collection.newDocument();
+            await document.insert(data: <String, Object>{
+              'document': document,
             });
             await _waitAfterWrite();
 
             // Get
-            final snapshot = await document0.get();
-            expect(snapshot.data, {
-              'value': document0,
+            final snapshot = await document.get(
+              schema: schema,
+            );
+            ;
+            expect(snapshot.data, <String, Object>{
+              'document': document,
             });
           });
         });
@@ -604,22 +728,25 @@ class DatabaseTestSuite {
           }
 
           // Upsert
-          await document0.upsert(data: {
-            'old': 'value',
+          final document = collection.newDocument();
+          await document.upsert(data: {
+            'k0-string': 'old value',
           });
           await _waitAfterWrite();
 
           // Upsert again
-          await document0.upsert(data: {
-            'new': 'value',
+          await document.upsert(data: {
+            'k1-string': 'new value',
           });
           await _waitAfterWrite();
 
           // Get
-          final snapshot = await document0.get();
-          expect(snapshot.document, same(document0));
+          final snapshot = await document.get();
+          expect(snapshot.document, same(document));
           expect(snapshot.exists, isTrue);
-          expect(snapshot.data, {'new': 'value'});
+          expect(snapshot.data, {
+            'k1-string': 'new value',
+          });
         });
 
         test('ok (does not exist)', () async {
@@ -628,16 +755,19 @@ class DatabaseTestSuite {
           }
 
           // Upsert
-          await document0.upsert(data: {
-            'new': 'value',
+          final document = collection.newDocument();
+          await document.upsert(data: {
+            'k0-string': 'new value',
           });
           await _waitAfterWrite();
 
           // Get
-          final snapshot = await document0.get();
-          expect(snapshot.document, same(document0));
+          final snapshot = await document.get();
+          expect(snapshot.document, same(document));
           expect(snapshot.exists, isTrue);
-          expect(snapshot.data, {'new': 'value'});
+          expect(snapshot.data, {
+            'k0-string': 'new value',
+          });
         });
       });
 
@@ -648,19 +778,27 @@ class DatabaseTestSuite {
           }
 
           // Upsert an existing document
-          await document0.upsert(data: {'old': 'value'});
-          expect((await document0.get()).data, {'old': 'value'});
+          final document = await insert(data: {
+            'string': 'old value',
+          });
           await _waitAfterWrite();
+          expect((await document.get()).data, {
+            'string': 'old value',
+          });
 
           // Update
-          await document0.update(data: {'new': 'value'});
+          await document.update(data: {
+            'string': 'new value',
+          });
           await _waitAfterWrite();
 
           // Get
-          final snapshot = await document0.get();
-          expect(snapshot.document, same(document0));
+          final snapshot = await document.get();
+          expect(snapshot.document, same(document));
           expect(snapshot.exists, isTrue);
-          expect(snapshot.data, {'new': 'value'});
+          expect(snapshot.data, {
+            'string': 'new value',
+          });
         });
 
         test('document does not exist, throws DatabaseException', () async {
@@ -669,8 +807,11 @@ class DatabaseTestSuite {
           }
 
           // Update
+          final document = collection.newDocument();
           await expectLater(
-            document0.update(data: {'new': 'value'}),
+            document.update(data: {
+              'string': 'value',
+            }),
             throwsA(isA<DatabaseException>()),
           );
         });
@@ -683,16 +824,18 @@ class DatabaseTestSuite {
           }
 
           // Insert
-          await document0.insert(data: {'old': 'value'});
+          final document = await insert(data: {
+            'k0-string': 'value',
+          });
           await _waitAfterWrite();
 
           // Delete
-          await document0.delete();
+          await document.delete();
           await _waitAfterWrite();
 
           // Get
-          final snapshot = await document0.get();
-          expect(snapshot.document, same(document0));
+          final snapshot = await document.get();
+          expect(snapshot.document, same(document));
           expect(snapshot.exists, isFalse);
           expect(snapshot.data, isNull);
         });
@@ -703,8 +846,9 @@ class DatabaseTestSuite {
           }
 
           // Delete
+          final document = collection.newDocument();
           await expectLater(
-            document0.delete(),
+            document.delete(),
             throwsA(isA<DatabaseException>()),
           );
         });
@@ -715,16 +859,19 @@ class DatabaseTestSuite {
           }
 
           // Insert
-          await document0.insert(data: {'old': 'value'});
+          final document = collection.newDocument();
+          await document.insert(data: {
+            'k0-string': 'value',
+          });
           await _waitAfterWrite();
 
           // Delete
-          await document0.delete();
+          await document.delete();
           await _waitAfterWrite();
 
           // Delete again
           await expectLater(
-            document0.delete(),
+            document.delete(),
             throwsA(isA<DatabaseException>()),
           );
         });
@@ -737,6 +884,7 @@ class DatabaseTestSuite {
           }
 
           // Delete
+          final document0 = collection.newDocument();
           await document0.deleteIfExists();
           await _waitAfterWrite();
 
@@ -753,6 +901,7 @@ class DatabaseTestSuite {
           }
 
           // Delete
+          final document0 = collection.newDocument();
           await document0.deleteIfExists();
           await _waitAfterWrite();
 
@@ -774,9 +923,18 @@ class DatabaseTestSuite {
             return;
           }
 
+          final document0 = collection.newDocument();
+          final document1 = collection.newDocument();
+
           final batch = database.newWriteBatch();
-          batch.upsert(document0, data: {'k': 'value0'});
-          batch.upsert(document1, data: {'k': 'value1'});
+          batch.upsert(document0, data: {
+            'k0-string': 'old value',
+          });
+          batch.upsert(document1, data: {
+            'k0-string': 'new value',
+          });
+
+          // Wait
           await _waitAfterWrite();
 
           // Check that the writes are not committed
@@ -785,6 +943,8 @@ class DatabaseTestSuite {
 
           // Commit
           await batch.commit();
+
+          // Wait
           await _waitAfterWrite();
 
           // Check that the commit succeeded
@@ -799,6 +959,9 @@ class DatabaseTestSuite {
             if (database == null) {
               return;
             }
+            final document0 = collection.newDocument();
+            final document1 = collection.newDocument();
+            final document2 = collection.newDocument();
 
             await database.runInTransaction(callback: (transaction) async {
               // Read
@@ -808,8 +971,12 @@ class DatabaseTestSuite {
               }
 
               // Write
-              await transaction.insert(document0, data: {'k': 'value0'});
-              await transaction.upsert(document1, data: {'k': 'value1'});
+              await transaction.insert(document0, data: {
+                'k0-string': 'old value',
+              });
+              await transaction.upsert(document1, data: {
+                'k0-string': 'new value',
+              });
               await transaction.deleteIfExists(document2);
               await _waitAfterWrite();
 

@@ -516,6 +516,8 @@ class DoubleSchema extends PrimitiveSchema<double> {
           return double.nan;
         case '-inf':
           return double.negativeInfinity;
+        case '+inf':
+          return double.infinity;
         case 'inf':
           return double.infinity;
       }
@@ -530,7 +532,10 @@ class DoubleSchema extends PrimitiveSchema<double> {
       return null;
     }
     if (argument is num) {
-      if (context != null && !context.supportsDoubleSpecialValues) {
+      final supportsSpecialValues =
+          context != null && context.supportsDoubleSpecialValues;
+
+      if (!supportsSpecialValues) {
         if (argument.isNaN) {
           return 'nan';
         }
@@ -1361,8 +1366,10 @@ abstract class Schema<T> {
         }
         final propertySchemas = <String, Schema>{};
         for (var entry in value.entries) {
-          final valueSchema = Schema.fromValue(entry.value,
-              cycleDetectionStack: cycleDetectionStack);
+          final valueSchema = Schema.fromValue(
+            entry.value,
+            cycleDetectionStack: cycleDetectionStack,
+          );
           if (valueSchema != null) {
             propertySchemas[entry.key] = valueSchema;
           }

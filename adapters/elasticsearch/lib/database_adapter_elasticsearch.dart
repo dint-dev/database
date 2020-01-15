@@ -12,24 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:database/browser.dart';
-import 'package:test/test.dart';
-import 'package:universal_html/html.dart' as html;
+/// An adapter for using [ElasticSearch](https://www.elastic.co),
+/// a software product by Elastic NV.
+library database_adapter_elasticsearch;
 
-import 'database_adapter_tester.dart';
-
-void main() {
-  group('BrowserDatabase:', () {
-    tearDown(() {
-      html.window.localStorage.clear();
-    });
-    DatabaseAdapterTester(() => BrowserDatabase()).run();
-  });
-
-  group('BrowserLocalStorage:', () {
-    tearDown(() {
-      html.window.localStorage.clear();
-    });
-    DatabaseAdapterTester(() => BrowserLocalStorageDatabase()).run();
-  });
-}
+export 'src/adapter.dart';
+export 'src/credentials.dart';
+export 'src/exception.dart';

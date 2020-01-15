@@ -78,6 +78,7 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
       return Stream<Snapshot>.value(Snapshot.notFound(document));
     }
     final deserialized = _decode(
+      request.schema,
       request.document.database,
       serialized,
     ) as Map<String, Object>;
@@ -105,8 +106,9 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
       if (serialized == null) {
         return null;
       }
-      final decoded = _decode(request.collection.database, serialized)
-          as Map<String, Object>;
+      final decoded =
+          _decode(request.schema, request.collection.database, serialized)
+              as Map<String, Object>;
       return Snapshot(
         document: document,
         data: decoded,
@@ -151,18 +153,18 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
         if (exists) {
           throw DatabaseException.notFound(document);
         }
-        impl[key] = encode(request.data);
+        impl[key] = encode(request.schema, request.data);
         break;
 
       case WriteType.update:
         if (!exists) {
           throw DatabaseException.notFound(document);
         }
-        impl[key] = encode(request.data);
+        impl[key] = encode(request.schema, request.data);
         break;
 
       case WriteType.upsert:
-        impl[key] = encode(request.data);
+        impl[key] = encode(request.schema, request.data);
         break;
 
       default:
@@ -190,18 +192,18 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
     return sb.toString();
   }
 
-  static String encode(Object value) {
-    final schema = Schema.fromValue(value);
+  static String encode(Schema schema, Object value) {
+    schema ??= Schema.fromValue(value);
     return jsonEncode({
       'schema': schema.toJson(),
       'value': schema.encodeLessTyped(value),
     });
   }
 
-  static Object _decode(Database database, String s) {
+  static Object _decode(Schema schema, Database database, String s) {
     // TODO: Use protocol buffers?
     final json = jsonDecode(s) as Map<String, Object>;
-    final schema = Schema.fromJson(json['schema']) ?? ArbitraryTreeSchema();
+    schema ??= Schema.fromJson(json['schema']) ?? ArbitraryTreeSchema();
     return schema.decodeLessTyped(
       json['value'],
       context: LessTypedDecodingContext(database: database),

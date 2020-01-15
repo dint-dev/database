@@ -16,45 +16,102 @@ import 'package:database/database.dart';
 import 'package:meta/meta.dart';
 
 class DatabaseException implements Exception {
+  final Document document;
   final int code;
   final String name;
   final String message;
+  final Object error;
 
   const DatabaseException.custom({
+    this.document,
     @required this.code,
     @required this.name,
     this.message,
+    this.error,
   });
 
-  const DatabaseException.found(Document document)
-      : this.custom(
+  const DatabaseException.found(
+    Document document, {
+    String message,
+    Object error,
+  }) : this.custom(
+          document: document,
           code: DatabaseExceptionCodes.found,
           name: 'found',
+          message: message,
+          error: error,
         );
 
-  const DatabaseException.notFound(Document document)
-      : this.custom(
+  const DatabaseException.internal({
+    Document document,
+    String message,
+    Object error,
+  }) : this.custom(
+          document: document,
+          code: DatabaseExceptionCodes.internal,
+          name: 'internal',
+          message: message,
+          error: error,
+        );
+
+  const DatabaseException.notFound(
+    Document document, {
+    String message,
+    Object error,
+  }) : this.custom(
+          document: document,
           code: DatabaseExceptionCodes.notFound,
           name: 'not_found',
+          message: message,
+          error: error,
         );
 
-  const DatabaseException.transactionUnsupported()
-      : this.custom(
+  const DatabaseException.transactionUnsupported({
+    Document document,
+    String message,
+    Object error,
+  }) : this.custom(
+          document: document,
           code: DatabaseExceptionCodes.transactionUnsupported,
           name: 'transaction_unsupported',
+          message: message,
+          error: error,
         );
 
-  const DatabaseException.unavailable()
-      : this.custom(
+  const DatabaseException.unavailable({
+    Document document,
+    String message,
+    Object error,
+  }) : this.custom(
+          document: document,
           code: DatabaseExceptionCodes.unavailable,
           name: 'unavailable',
+          message: message,
+          error: error,
         );
 
   bool get isUnavailable => code == DatabaseExceptionCodes.unavailable;
 
   @override
   String toString() {
-    return 'Database exception $code ("$name"): "$message")';
+    final sb = StringBuffer();
+    sb.write('Database exception $code ("$name")');
+    final message = this.message;
+    if (message != null) {
+      sb.write('\n  message = ');
+      sb.write(message.replaceAll('\n', '\n    '));
+    }
+    final document = this.document;
+    if (document != null) {
+      sb.write('\n  document = ');
+      sb.write(document.toString().replaceAll('\n', '\n    '));
+    }
+    final error = this.error;
+    if (error != null) {
+      sb.write('\n  error = ');
+      sb.write(error.toString().replaceAll('\n', '\n    '));
+    }
+    return sb.toString();
   }
 }
 
@@ -64,4 +121,5 @@ class DatabaseExceptionCodes {
   static const found = 2;
   static const notFound = 3;
   static const transactionUnsupported = 4;
+  static const internal = 5;
 }

@@ -22,7 +22,7 @@ import 'package:grpc/service_api.dart' as grpc;
 import 'package:http2/http2.dart' as http2;
 import 'package:test/test.dart';
 
-import 'copy_of_database_test_suite.dart';
+import 'copy_of_database_adapter_tester.dart';
 
 Future<void> main() async {
   final newDatabase = () async {
@@ -57,7 +57,7 @@ Future<void> main() async {
     );
   };
 
-  DatabaseTestSuite(newDatabase).run();
+  DatabaseAdapterTester(newDatabase).run();
 
   group('encoding/decoding data:', () {
     test('null', () {

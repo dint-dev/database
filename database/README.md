@@ -31,8 +31,8 @@ developer/maintainer.
     * Stores data in memory.
 
 ### In other packages
-  * [database_adapter_elastic_search](https://pub.dev/packages/database_adapter_elastic_search) ([Github](https://github.com/dint-dev/database/tree/master/adapters/elastic_search/lib/))
-    * For using [ElasticSearch](https://www.elastic.co).
+  * [database_adapter_elasticsearch](https://pub.dev/packages/database_adapter_elasticsearch) ([Github](https://github.com/dint-dev/database/tree/master/adapters/elasticsearch/lib/))
+    * For using [Elasticsearch](https://www.elastic.co).
   * _Have a package? Add it here!_
 
 The following packages are currently far from passing our shared test suite:

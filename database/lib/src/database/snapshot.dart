@@ -23,6 +23,8 @@ class SnaphotBuilder<T> {
 
   bool exists;
 
+  String versionId;
+
   /// Optional data of the snapshot.
   Map<String, Object> data;
 
@@ -54,6 +56,9 @@ class Snapshot {
   /// Whether the document exists.
   final bool exists;
 
+  /// Optional version ID. Only some databases return version IDs.
+  final String versionId;
+
   /// Optional data of the snapshot.
   final Map<String, Object> data;
 
@@ -61,12 +66,14 @@ class Snapshot {
     @required this.document,
     @required this.data,
     this.exists = true,
+    this.versionId,
   })  : assert(document != null),
         assert(exists != null);
 
   Snapshot.notFound(this.document)
       : exists = false,
-        data = null;
+        data = null,
+        versionId = null;
 
   @override
   int get hashCode =>
@@ -77,12 +84,14 @@ class Snapshot {
       other is Snapshot &&
       document == other.document &&
       exists == other.exists &&
+      versionId == other.versionId &&
       _deepEquality.equals(data, other.data);
 
   SnaphotBuilder toBuilder() {
     return SnaphotBuilder()
       ..document = document
       ..exists = exists
+      ..versionId = versionId
       ..data = data;
   }
 

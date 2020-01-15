@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:database_adapter_elastic_search/database_adapter_elastic_search.dart';
+import 'package:database_adapter_elasticsearch/database_adapter_elasticsearch.dart';
 
-import 'copy_of_database_test_suite.dart';
+import 'copy_of_database_adapter_tester.dart';
 
 void main() async {
   final newDatabase = () async {
@@ -26,7 +26,7 @@ void main() async {
       await database.checkHealth(timeout: const Duration(milliseconds: 500));
     } catch (error) {
       print(
-        'ElasticSearch is not running at port 9200.\nTo run it with Docker, use script: ./tool/elastic_search/docker_run.sh',
+        'ElasticSearch is not running at port 9200.\nTo run it with Docker, use script: ./tool/elasticsearch/docker_run.sh',
       );
       return null;
     }
@@ -34,5 +34,5 @@ void main() async {
     return database;
   };
 
-  DatabaseTestSuite(newDatabase).run();
+  DatabaseAdapterTester(newDatabase).run();
 }

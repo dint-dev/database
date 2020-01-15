@@ -15,10 +15,17 @@
 import 'package:database/database.dart';
 import 'package:test/test.dart';
 
-import '../../database_test_suite.dart';
+import '../../database_adapter_tester.dart';
 
 void main() {
   group('MemoryDatabase:', () {
-    DatabaseTestSuite(() => MemoryDatabase()).run();
+    final tester = DatabaseAdapterTester(
+      () => MemoryDatabase(),
+
+      // Zero delay
+      writeDelay: const Duration(),
+    );
+
+    tester.run();
   });
 }

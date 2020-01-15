@@ -34,11 +34,13 @@ abstract class DatabaseAdapter extends Database {
     return Future<void>.value();
   }
 
-  /// Called by document. Databases that can issue their own IDs should override this
-  /// method.
+  /// Called by document. Databases that can issue their own IDs should override
+  /// this method.
   Future<Document> collectionInsert(Collection collection,
-      {Map<String, Object> data}) {
-    return collection.newDocument().insert(data: data);
+      {Map<String, Object> data}) async {
+    final document = collection.newDocument();
+    await document.insert(data: data);
+    return document;
   }
 
   /// Returns schema of the [collectionId] or [fullType].
