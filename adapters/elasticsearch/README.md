@@ -2,11 +2,13 @@
 [![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
 
 # Overview
-This is an adapter between [database](https://pub.dev/packages/database) and [ElasticSearch](https://www.elastic.co).
+This package enables you to use the package [database](https://pub.dev/packages/database) with
+[Elasticsearch](https://www.elastic.co), a search engine product.
 
 ## Links
   * [API documentation](https://pub.dev/documentation/database_adapter_elasticsearch/latest/database_adapter_elasticsearch/ElasticSearch-class.html)
-  * [Github source code](https://github.com/dint-dev/database/tree/master/adapters/elasticsearch/lib/database_adapter_elasticsearch.dart)
+  * [Issue tracker](https://github.com/dint-dev/database/issues)
+  * [Github source code](https://github.com/dint-dev/database/tree/master/adapters/elasticsearch/lib/)
 
 # Getting started
 ```dart

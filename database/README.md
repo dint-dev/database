@@ -2,7 +2,7 @@
 [![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
 
 # Introduction
- __Warning:__ this package is not ready for general use yet.
+ __Warning:__ this package isn't ready for use!
 
 The package aims to be usable with:
   * __SQL databases__
@@ -19,8 +19,10 @@ Any feedback on the design is appreciated. The project is licensed under the
 developer/maintainer.
 
 
-## API reference
-  * [pub.dev/documentation/database/latest/](https://pub.dev/documentation/database/latest/)
+## Links
+  * [API documentation](https://pub.dev/documentation/database/latest/)
+  * [Issue tracker](https://github.com/dint-dev/database/issues)
+  * [Github source code](https://github.com/dint-dev/database/tree/master/database)
 
 
 ## Available adapters
@@ -44,7 +46,7 @@ The following packages are currently far from passing our shared test suite:
   * _database_adapter_gcloud_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/gcloud/lib/))
     * For using [Google Cloud Database](https://cloud.google.com/database).
   * _database_adapter_grpc_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/grpc/lib/))
-    * For communicating with a server using a [GRPC](https://grpc.io) channel.
+    * For communicating with a server over a [GRPC](https://grpc.io) channel.
   * _database_adapter_firestore_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore/lib/))
     * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore).
   * _database_adapter_firestore_flutter_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore_flutter/lib/))

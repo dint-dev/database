@@ -2,36 +2,18 @@
 [![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
 
 # Overview
- __Warning:__ this package is not ready for general use yet.
 
-This projects aims to help Dart developers use database and information retrieval products.
+This is a database API for [Dart](https://dart.dev) / [Flutter](https://flutter.io) applications.
 
-## Directory structure
-  * [database](database)
-    * The main package.
-    * [Pub package](https://pub.dev/packages/database)
-    * [API reference](https://pub.dev/documentation/database/latest/)
-  * [search](search)
-    * A search engine for applications that want search to work offline.
-    * [Pub package](https://pub.dev/packages/search)
-    * [API reference](https://pub.dev/documentation/search/latest/)
-  * [adapters](adapters) contains various adapters.
-  * [adapters_incubators](adapters_incubator) contains various stubs for adapters.
+The package aims to be usable with:
+  * __SQL databases__
+  * __Document databases__
+  * __Search engines__
+
+## Packages in this repository
+  * [database](database) ([Pub](https://pub.dev/packages/database))
+  * [database_adapter_elasticsearch](adapters/elasticsearch) ([Pub](https://pub.dev/packages/database_adapter_elasticsearch))
+  * [search](search) ([Pub](https://pub.dev/packages/search))
 
 # Getting started
 Go to the [documentation](database).
-
-# Contributing
-This is an open-source community project. Anyone, even beginners, can contribute.
-
-This is how you contribute:
-  1. Fork [github.com/dint-dev/dint](https://github.com/dint-dev/database) by pressing fork button.
-  2. Clone your fork to your computer: `git clone github.com/your_username/database`
-  3. Run `./tool/pub_get.sh` to get dependencies for all packages.
-  4. Do your changes.
-  5. When you are done, commit changes with `git add -A` and `git commit`.
-  6. Push changes to your personal repository: `git push origin`
-  7. Go to [github.com/dint-dev/dint](https://github.com/dint-dev/dint) and create a pull request.
-
-Contributors may be added to the Github organization team so they can save time by pushing
-directly to the repository.
