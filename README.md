@@ -12,9 +12,22 @@ The package aims to be usable with:
 
 ## Packages in this repository
   * [database](database) ([Pub](https://pub.dev/packages/database))
+  * [database_adapter_algolia](adapters/algolia) ([Pub](https://pub.dev/packages/database_adapter_algolia))
   * [database_adapter_elasticsearch](adapters/elasticsearch) ([Pub](https://pub.dev/packages/database_adapter_elasticsearch))
+  * [database_adapter_firestore_browser](adapters/firestore_browser) ([Pub](https://pub.dev/packages/database_adapter_firestore_browser))
+  * [database_adapter_firestore_flutter](adapters/firestore_flutter) ([Pub](https://pub.dev/packages/database_adapter_firestore_flutter))
   * [database_adapter_postgre](adapters/postgre) ([Pub](https://pub.dev/packages/database_adapter_postgre))
   * [search](search) ([Pub](https://pub.dev/packages/search))
 
 # Getting started
 Go to the [documentation](database).
+
+# Contributing
+## Setting test secrets
+Create `SECRETS.env` in the root of your fork.
+
+It should look like:
+```
+export TEST_GOOGLE_FIREBASE_ID=your app ID
+export TEST_GOOGLE_FIREBASE_SECRET=your API key
+```

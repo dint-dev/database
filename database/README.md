@@ -33,26 +33,24 @@ developer/maintainer.
     * Stores data in memory.
 
 ### In other packages
+  * [database_adapter_algolia](https://pub.dev/packages/database_adapter_algolia) ([Github](https://github.com/dint-dev/database/tree/master/adapters/algolia/lib/))
+    * For using [Algolia](https://www.algolia.com).
+  * [database_adapter_firestore_browser](https://pub.dev/packages/database_adapter_firestore_browser) ([Github](https://github.com/dint-dev/database/tree/master/adapters/firestore_browser/lib/))
+    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore) in browser applications.
+  * [database_adapter_firestore_flutter](https://pub.dev/packages/database_adapter_firestore_flutter) ([Github](https://github.com/dint-dev/database/tree/master/adapters/firestore_flutter/lib/))
+    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore) in Flutter.
   * [database_adapter_elasticsearch](https://pub.dev/packages/database_adapter_elasticsearch) ([Github](https://github.com/dint-dev/database/tree/master/adapters/elasticsearch/lib/))
     * For using [Elasticsearch](https://www.elastic.co).
   * [database_adapter_postgre](https://pub.dev/packages/database_adapter_postgre) ([Github](https://github.com/dint-dev/database/tree/master/adapters/postgre/lib/))
     * For using [PostgreSQL](https://www.postgresql.org/).
   * _Have a package? Add it here!_
 
-The following packages are currently far from passing our shared test suite:
-  * _database_adapter_algolia_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/algolia/lib/))
-    * For using [Algolia](https://www.algolia.com).
+The following packages are currently far from passing tests:
   * _database_adapter_azure_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/azure/lib/))
     * For using [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction).
     * For using [Azure Cognitive Search](https://azure.microsoft.com/en-us/services/search).
-  * _database_adapter_gcloud_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/gcloud/lib/))
-    * For using [Google Cloud Database](https://cloud.google.com/database).
   * _database_adapter_grpc_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/grpc/lib/))
     * For communicating with a server over a [GRPC](https://grpc.io) channel.
-  * _database_adapter_firestore_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore/lib/))
-    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore).
-  * _database_adapter_firestore_flutter_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/firestore_flutter/lib/))
-    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore).
 
 
 ## Available middleware classes

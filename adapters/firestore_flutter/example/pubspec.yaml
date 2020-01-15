@@ -1,0 +1,20 @@
+name: example
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  database: any
+  database_adapter_firestore_flutter: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+dependency_overrides:
+  database:
+    path: '../../../database'
+  database_adapter_firestore_flutter:
+    path: '../'

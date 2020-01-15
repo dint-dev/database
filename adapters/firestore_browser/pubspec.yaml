@@ -1,22 +1,22 @@
-name: database_adapter_grpc
+name: database_adapter_firestore_browser
 version: 0.1.0
-description: Adapters for various database products that have REST APIs.
+description:
+  An adapter for connecting 'package:database' to Google Cloud Firestore. Works only in browsers.
 homepage: https://github.com/dint-dev/database
 
 environment:
   sdk: '>=2.6.0 <3.0.0'
 
 dependencies:
-  database: 0.2.2
+  database: ^0.2.6
+  firebase: ^7.0.0
   fixnum: ^0.10.0
-  grpc: ^2.0.0
   meta: ^1.1.0
-  protobuf: '>=0.13.0 <2.0.0'
 
 dev_dependencies:
-  http2: ^1.0.0
   pedantic: ^1.8.0
   test: ^1.8.0
+  test_io: ^0.1.0
 
 dependency_overrides:
   database:

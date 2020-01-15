@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 cd `dirname $0`/..
-ROOT=`pwd`
 
 COPIED="database/test/database_adapter_tester.dart"
 echo "-------------------------------------------------"
@@ -14,14 +13,11 @@ visit() {
   cp $COPIED $DEST/test/copy_of_database_adapter_tester.dart
 }
 
+visit adapters/algolia
 visit adapters/elasticsearch
+visit adapters/firestore_browser
+visit adapters/firestore_flutter
 visit adapters/postgre
-visit adapters/sqlite
 
-visit adapters_incubator/algolia
 visit adapters_incubator/azure
-visit adapters_incubator/gcloud
 visit adapters_incubator/grpc
-visit adapters_incubator/firestore
-visit adapters_incubator/firestore_flutter
-visit adapters_incubator/mysql

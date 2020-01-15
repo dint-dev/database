@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 cd `dirname $0`/..
-ROOT=`pwd`
 
 # You can pass arguments.
 #
@@ -22,7 +21,11 @@ visit() {
   else
     flutter pub get $ARGS
   fi
-  cd $ROOT
+  if [[ $NAME == *"/"* ]]; then
+    cd ../..
+  else
+    cd ..
+  fi
 }
 
 visit_flutter() {
@@ -36,20 +39,21 @@ visit_flutter() {
   echo "Running: flutter pub get $ARGS"
   cd $NAME
   flutter pub get $ARGS
-  cd $ROOT
+  if [[ $NAME == *"/"* ]]; then
+    cd ../..
+  else
+    cd ..
+  fi
 }
 
 visit database
 visit search
 
+visit         adapters/algolia
 visit         adapters/elasticsearch
+visit         adapters/firestore_browser
+visit_flutter adapters/firestore_flutter
 visit         adapters/postgre
-visit_flutter adapters/sqlite
 
-visit         adapters_incubator/algolia
 visit         adapters_incubator/azure
-visit         adapters_incubator/firestore
-visit_flutter adapters_incubator/firestore_flutter
-visit         adapters_incubator/gcloud
 visit         adapters_incubator/grpc
-visit         adapters_incubator/mysql

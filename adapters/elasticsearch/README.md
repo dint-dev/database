@@ -7,8 +7,8 @@ This package enables you to use the package [database](https://pub.dev/packages/
 
 ## Links
   * [API documentation](https://pub.dev/documentation/database_adapter_elasticsearch/latest/database_adapter_elasticsearch/ElasticSearch-class.html)
-  * [Issue tracker](https://github.com/dint-dev/database/issues)
-  * [Github source code](https://github.com/dint-dev/database/tree/master/adapters/elasticsearch/lib/)
+  * [Issue tracker in Github](https://github.com/dint-dev/database/issues)
+  * [Source code in Github](https://github.com/dint-dev/database/tree/master/adapters/elasticsearch/lib/)
 
 # Getting started
 ```dart
