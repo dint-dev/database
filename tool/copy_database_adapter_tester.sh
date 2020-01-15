@@ -15,6 +15,8 @@ visit() {
 }
 
 visit adapters/elasticsearch
+visit adapters/postgre
+visit adapters/sqlite
 
 visit adapters_incubator/algolia
 visit adapters_incubator/azure
@@ -23,5 +25,3 @@ visit adapters_incubator/grpc
 visit adapters_incubator/firestore
 visit adapters_incubator/firestore_flutter
 visit adapters_incubator/mysql
-visit adapters_incubator/postgre
-visit adapters_incubator/sqlite

@@ -60,4 +60,5 @@ export 'src/database/schemas/schema.dart';
 export 'src/database/schemas/schema_visitor.dart';
 export 'src/database/snapshot.dart';
 export 'src/database/sorter.dart';
+export 'src/database/sql_response.dart';
 export 'src/database/transaction.dart';

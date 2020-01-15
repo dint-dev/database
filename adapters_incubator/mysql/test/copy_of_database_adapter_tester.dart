@@ -16,7 +16,6 @@ import 'dart:async';
 
 import 'package:database/database.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
 /// IMPORTANT:
@@ -27,9 +26,11 @@ import 'package:test/test.dart';
 ///     ./tool/copy_database_adapter_test.sh
 ///
 class DatabaseAdapterTester {
-  /// Is the database a cache?
-  @protected
+  /// Is it a cache?
   final bool isCache;
+
+  /// Is it a SQL database?
+  final bool isSqlDatabase;
 
   /// Does the database support transactions?
   final bool supportsTransactions;
@@ -37,16 +38,33 @@ class DatabaseAdapterTester {
   /// How long we have to wait until the write is visible?
   final Duration writeDelay;
 
-  final FutureOr<Database> Function() database;
+  final FutureOr<Database> Function() databaseBuilder;
 
   DatabaseAdapterTester(
-    this.database, {
+    this.databaseBuilder, {
     this.isCache = false,
+    this.isSqlDatabase = false,
     this.writeDelay = const Duration(milliseconds: 100),
     this.supportsTransactions = false,
   });
 
   void run() {
+    group('Document database tests:', () {
+      if (isSqlDatabase) {
+        return;
+      }
+      runCollectionAndDocumentTests();
+    });
+
+    // SQL database?
+    if (isSqlDatabase) {
+      group('SQL tests:', () {
+        runSqlTests();
+      });
+    }
+  }
+
+  void runCollectionAndDocumentTests() {
     Database database;
     Collection collection;
     final inserted = <Document>[];
@@ -58,7 +76,7 @@ class DatabaseAdapterTester {
     }
 
     setUpAll(() async {
-      database = await this.database();
+      database = await databaseBuilder();
     });
 
     setUp(() async {
@@ -1001,7 +1019,82 @@ class DatabaseAdapterTester {
     });
   }
 
+  void runSqlTests() {
+    Database database;
+
+    setUpAll(() async {
+      database = await databaseBuilder();
+    });
+
+    tearDownAll(() async {
+      await database?.adapter?.close();
+    });
+
+    test('a simple example', () async {
+      //
+      // Create table
+      //
+      try {
+        await database.executeSql(
+          'DROP TABLE test_employee',
+        );
+      } on DatabaseException {
+        // Ignore
+      }
+      await database.executeSql(
+        '''CREATE TABLE test_employee (
+  id int PRIMARY KEY,
+  role varchar(255),
+  name varchar(255)
+);
+''',
+      );
+
+      // Drop the table later
+      addTearDown(() async {
+        await database.executeSql(
+          'DROP TABLE test_employee',
+        );
+      });
+
+      //
+      // Write
+      //
+      await database.executeSql(
+        '''INSERT INTO test_employee (id, role, name) VALUES (0, 'developer', 'Miss Smith')''',
+      );
+      await database.executeSqlArgs(
+        'INSERT INTO test_employee (id, role, name) VALUES (1, {0}, {1})',
+        ['developer', 'Mr Smith'],
+      );
+
+      //
+      // Read
+      //
+      final result = await database.querySqlSnapshots(
+        'SELECT * FROM test_employee;',
+      );
+      expect(
+        result.rows,
+        [
+          [0, 'developer', 'Miss Smith'],
+          [1, 'developer', 'Mr Smith'],
+        ],
+      );
+
+      expect(result.columnDescriptions, hasLength(3));
+      expect(result.columnDescriptions[0].columnName, 'id');
+      expect(result.columnDescriptions[1].columnName, 'role');
+      expect(result.columnDescriptions[2].columnName, 'name');
+    });
+  }
+
   Future<void> _waitAfterWrite() {
     return Future<void>.delayed(writeDelay);
   }
+}
+
+class SqlDatabaseAdapterTester extends DatabaseAdapterTester {
+  SqlDatabaseAdapterTester(Database Function() databaseBuilder)
+      : super(databaseBuilder, isSqlDatabase: true);
 }

@@ -13,6 +13,7 @@ The package aims to be usable with:
 ## Packages in this repository
   * [database](database) ([Pub](https://pub.dev/packages/database))
   * [database_adapter_elasticsearch](adapters/elasticsearch) ([Pub](https://pub.dev/packages/database_adapter_elasticsearch))
+  * [database_adapter_postgre](adapters/postgre) ([Pub](https://pub.dev/packages/database_adapter_postgre))
   * [search](search) ([Pub](https://pub.dev/packages/search))
 
 # Getting started

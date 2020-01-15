@@ -1,7 +1,6 @@
 # Overview
 This is the official adapter for connecting the package [database](https://pub.dev/packages/database)
-with Postgre databases. Depends on the package [postgres](https://pub.dev/packages/postgres) for the
-actual implementation.
+with Postgre databases. The implementation uses the package [postgres](https://pub.dev/packages/postgres).
 
 # Getting started
 ## 1.Add dependency

@@ -31,6 +31,11 @@ class DelegatingDatabaseAdapter extends Database implements DatabaseAdapter {
   }
 
   @override
+  Future<void> close() async {
+    await _database.close();
+  }
+
+  @override
   Future<Document> collectionInsert(Collection collection,
       {Map<String, Object> data}) {
     return _database.collectionInsert(collection, data: data);
@@ -54,6 +59,11 @@ class DelegatingDatabaseAdapter extends Database implements DatabaseAdapter {
 
   @override
   Stream<QueryResult> performSearch(SearchRequest request) {
+    return request.delegateTo(_database);
+  }
+
+  @override
+  Future<SqlResponse> performSql(SqlRequest request) {
     return request.delegateTo(_database);
   }
 

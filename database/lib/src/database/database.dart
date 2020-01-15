@@ -35,12 +35,41 @@ abstract class Database {
     return Collection(this, collectionId);
   }
 
+  Future<SqlResponse> executeSql(String sql) {
+    ArgumentError.checkNotNull(sql);
+    return executeSqlArgs(sql, const []);
+  }
+
+  // TODO: Transaction options (consistency, etc.)
+  Future<SqlResponse> executeSqlArgs(String sql, List arguments) async {
+    ArgumentError.checkNotNull(sql);
+    ArgumentError.checkNotNull(arguments);
+    return SqlRequest(
+      sql,
+      arguments,
+      isNotQuery: true,
+    ).delegateTo(adapter);
+  }
+
   /// Return a new write batch. This should always succeed.
   WriteBatch newWriteBatch() {
     return WriteBatch.simple();
   }
 
-  // TODO: Transaction options (consistency, etc.)
+  Future<SqlResponse> querySqlArgsSnapshots(String sql, List arguments) async {
+    ArgumentError.checkNotNull(sql);
+    ArgumentError.checkNotNull(arguments);
+    return SqlRequest(
+      sql,
+      arguments,
+    ).delegateTo(adapter);
+  }
+
+  Future<SqlResponse> querySqlSnapshots(String sql) {
+    ArgumentError.checkNotNull(sql);
+    return querySqlArgsSnapshots(sql, const []);
+  }
+
   /// Begins a transaction.
   ///
   /// Note that many database implementations do not support transactions.

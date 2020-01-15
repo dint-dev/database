@@ -12,8 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:universal_io/io.dart';
 import 'package:database_adapter_elasticsearch/database_adapter_elasticsearch.dart';
+import 'package:universal_io/io.dart';
+
+/// Superclass for [ElasticSearch] credentials. Currently the only subclass is
+/// [ElasticSearchPasswordCredentials].
+abstract class ElasticSearchCredentials {
+  const ElasticSearchCredentials();
+
+  void prepareHttpClient(
+    ElasticSearch engine,
+    HttpClient httpClient,
+  ) {}
+
+  void prepareHttpClientRequest(
+    ElasticSearch engine,
+    HttpClientRequest httpClientRequest,
+  ) {}
+}
 
 class ElasticSearchPasswordCredentials extends ElasticSearchCredentials {
   final String user;
@@ -34,20 +50,4 @@ class ElasticSearchPasswordCredentials extends ElasticSearchCredentials {
       ),
     );
   }
-}
-
-/// Superclass for [ElasticSearch] credentials. Currently the only subclass is
-/// [ElasticSearchPasswordCredentials].
-abstract class ElasticSearchCredentials {
-  const ElasticSearchCredentials();
-
-  void prepareHttpClient(
-    ElasticSearch engine,
-    HttpClient httpClient,
-  ) {}
-
-  void prepareHttpClientRequest(
-    ElasticSearch engine,
-    HttpClientRequest httpClientRequest,
-  ) {}
 }

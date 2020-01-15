@@ -12,18 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:meta/meta.dart';
+import 'package:database_adapter_postgre/database_adapter_postgre.dart';
 
-class SQLite {
-  final String host;
-  final int port;
-  final String user;
-  final String password;
+import 'copy_of_database_adapter_tester.dart';
 
-  SQLite({
-    @required this.host,
-    @required this.port,
-    @required this.user,
-    @required this.password,
+void main() {
+  // To start PostgreSQL in a Docker container, run:
+  //   ./tool/docker_run.sh
+
+  final tester = SqlDatabaseAdapterTester(() {
+    return Postgre(
+      host: 'localhost',
+      port: 5432,
+      user: 'database_test_user',
+      password: 'database_test_password',
+      databaseName: 'test',
+    );
   });
+
+  tester.run();
 }

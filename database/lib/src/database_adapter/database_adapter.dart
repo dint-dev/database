@@ -34,6 +34,10 @@ abstract class DatabaseAdapter extends Database {
     return Future<void>.value();
   }
 
+  /// Closes the database adapter.
+  @mustCallSuper
+  Future<void> close() async {}
+
   /// Called by document. Databases that can issue their own IDs should override
   /// this method.
   Future<Document> collectionInsert(Collection collection,
@@ -67,6 +71,13 @@ abstract class DatabaseAdapter extends Database {
   Stream<QueryResult> performSearch(
     SearchRequest request,
   );
+
+  @protected
+  Future<SqlResponse> performSql(
+    SqlRequest request,
+  ) async {
+    throw UnsupportedError('Adapter does not support SQL: $runtimeType');
+  }
 
   /// Performs document writing.
   @protected

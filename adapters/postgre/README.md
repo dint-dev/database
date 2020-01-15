@@ -1,7 +1,8 @@
 # Overview
-This is the official adapter for connecting the package [database](https://pub.dev/packages/database)
-with Postgre databases. Depends on the package [postgre](https://pub.dev/packages/postgre) for the
-actual implementation.
+This is enables use API of the package [database](https://pub.dev/packages/database) with
+[PostgreSQL](https://www.postgresql.org/).
+
+The adapter uses the package [postgres](https://pub.dev/packages/postgres).
 
 # Getting started
 ## 1.Add dependency
@@ -13,7 +14,6 @@ dependencies:
 
 ## 2.Configure
 ```dart
-
 import 'package:database/database.dart';
 import 'package:database_adapter_postgre/adapter.dart';
 

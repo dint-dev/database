@@ -16,9 +16,9 @@ import 'dart:convert';
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database_adapter_elasticsearch/database_adapter_elasticsearch.dart';
 import 'package:meta/meta.dart';
 import 'package:universal_io/io.dart';
-import 'package:database_adapter_elasticsearch/database_adapter_elasticsearch.dart';
 
 /// An adapter for using [ElasticSearch](https://www.elastic.co),
 /// a software product by Elastic NV.
@@ -37,9 +37,11 @@ import 'package:database_adapter_elasticsearch/database_adapter_elasticsearch.da
 /// }
 /// ```
 class ElasticSearch extends DatabaseAdapter {
+  static final _idRegExp = RegExp(r'[^\/*?"<>| ,#]{1,64}');
   final Uri uri;
   final HttpClient httpClient;
   final ElasticSearchCredentials _credentials;
+
   final bool autoCreateIndex;
 
   ElasticSearch({
@@ -549,8 +551,6 @@ class ElasticSearch extends DatabaseAdapter {
       error: error,
     );
   }
-
-  static final _idRegExp = RegExp(r'[^\/*?"<>| ,#]{1,64}');
 
   static String _validateCollectionId(String id) {
     if (!_idRegExp.hasMatch(id)) {

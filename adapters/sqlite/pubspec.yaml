@@ -1,15 +1,15 @@
-name: database_adapter_postgre
+name: database_adapter_sqlite
 version: 0.0.1
-description: An adapter for using 'package:database' with Postgre.
-homepage: https://github.com/dint-dev/database
+description: An adapter for using 'package:database' with SQLite.
+homepage: https://github.com/terrier989/database
 
 environment:
   sdk: '>=2.6.0 <3.0.0'
 
 dependencies:
-  database: ^0.0.1
+  database: ^0.2.5
   fixnum: ^0.10.0
-  postgres: any
+  sqflite: ^1.2.0
 
 dev_dependencies:
   pedantic: ^1.9.0

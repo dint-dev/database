@@ -1,3 +1,8 @@
+## [0.2.5] - January 15, 2020
+
+* Adds initial API for SQL databases.
+* Adds PostgreSQL support.
+
 ## [0.2.4] - January 14, 2020
 
 * Fixes issues spotted during testing.
