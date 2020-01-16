@@ -1,8 +1,8 @@
 name: database
-version: 0.2.6
+version: 0.2.7
 description:
   A database API for SQL databases, document databases, and search engines. Various adapters are
-  available in this and other packages.
+  available (e.g. memory, browser, Firestore, PostgreSQL, ElasticSearch, etc.)
 homepage: https://github.com/dint-dev/database
 
 environment:

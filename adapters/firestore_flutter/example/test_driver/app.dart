@@ -12,26 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:io';
+import 'dart:async';
 
 import 'package:database_adapter_firestore_flutter/database_adapter_firestore_flutter.dart';
-
+import 'package:flutter_driver/driver_extension.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'copy_of_database_adapter_tester.dart';
 
 void main() {
-  const idEnv = 'TEST_GOOGLE_FIREBASE_ID';
-  const secretEnv = 'TEST_GOOGLE_FIREBASE_SECRET';
-  final id = Platform.environment[idEnv] ?? '';
-  final secret = Platform.environment[secretEnv] ?? '';
-  if (id == '' || secret == '') {
-    print(
-      'SKIPPING: Google Cloud Firestore: environmental variables $idEnv / $secretEnv are undefined.',
-    );
-    return null;
-  }
-  final database = FirestoreFlutter(
-    appId: id,
-    apiKey: secret,
+  final Completer<String> completer = Completer<String>();
+  enableFlutterDriverExtension(
+    handler: (_) {
+      return completer.future;
+    },
   );
-  return DatabaseAdapterTester(() => database).run();
+  tearDownAll(() {
+    completer.complete(null);
+  });
+
+  final tester = DatabaseAdapterTester(() => FirestoreFlutter());
+  tester.run();
 }

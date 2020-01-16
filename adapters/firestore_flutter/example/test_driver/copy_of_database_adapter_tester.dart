@@ -16,7 +16,7 @@ import 'dart:async';
 
 import 'package:database/database.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 /// IMPORTANT:
 /// This is a huge file in 'database/test/database_adapter_tester.dart'.

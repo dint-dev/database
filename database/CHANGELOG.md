@@ -1,3 +1,7 @@
+## [0.2.7] - January 16, 2020
+
+* Improves documentation.
+
 ## [0.2.6] - January 15, 2020
 
 * Improves the SQL API a bit.

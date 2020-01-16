@@ -2,19 +2,16 @@
 set -e
 cd `dirname $0`/..
 
-# You can pass arguments.
-#
-# Example:
-#   ./tool/test.sh --platform=vm
-#
-ARGS=${@:1}
+echo '-----------------------------------------------------------'
+echo 'Running: flutter drive --target=test_driver/main.dart'
+echo '-----------------------------------------------------------'
 
-if [ -f ../../SECRETS.env ]; then
-  echo "-------------------------------------------------"
-  echo "Loading environmental variables from 'SECRETS.env'"
-  echo "(An optional file for local testing)"
-  echo "-------------------------------------------------"
-  source ../../SECRETS.env
+SERVICES_JSON=example/android/app/google-services.json
+if [ ! -f $SERVICES_JSON ]; then
+  echo "Configuration file '$SERVICES_JSON' is not found!"
+  exit
 fi
 
-pub run test $ARGS
+cd example
+flutter pub get --offline
+flutter drive --target=test_driver/app.dart

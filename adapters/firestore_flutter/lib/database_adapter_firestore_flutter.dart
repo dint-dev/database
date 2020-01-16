@@ -13,8 +13,8 @@
 // limitations under the License.
 
 /// Connects the package [database](https://pub.dev/packages/database)
-/// to [Google Cloud Firestore](https://cloud.google.com/firestore/). Works only
-/// in Flutter.
+/// to [Google Cloud Firestore](https://cloud.google.com/firestore/).
+/// Works only in Flutter.
 library database_adapter_firestore_flutter;
 
 import 'dart:async';
@@ -22,45 +22,19 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
-import 'package:firebase_core/firebase_core.dart' as firebase_core;
-import 'package:meta/meta.dart';
-
-Object _valueToFirestore(firestore.Firestore impl, Object argument) {
-  if (argument == null ||
-      argument is bool ||
-      argument is num ||
-      argument is DateTime ||
-      argument is String) {
-    return argument;
-  }
-  if (argument is GeoPoint) {
-    return firestore.GeoPoint(argument.latitude, argument.longitude);
-  }
-  if (argument is Document) {
-    final collectionId = argument.parent.collectionId;
-    final documentId = argument.documentId;
-    return impl.collection(collectionId).document(documentId);
-  }
-  if (argument is List) {
-    return argument.map((item) => _valueToFirestore(impl, item)).toList();
-  }
-  if (argument is Map) {
-    final result = <String, Object>{};
-    for (var entry in argument.entries) {
-      result[entry.key] = _valueToFirestore(impl, entry.value);
-    }
-    return result;
-  }
-  throw ArgumentError.value(argument);
-}
 
 Object _valueFromFirestore(Database database, Object argument) {
   if (argument == null ||
       argument is bool ||
       argument is num ||
-      argument is DateTime ||
       argument is String) {
     return argument;
+  }
+  if (argument is DateTime) {
+    return argument.toUtc();
+  }
+  if (argument is firestore.Timestamp) {
+    return argument.toDate().toUtc();
   }
   if (argument is firestore.GeoPoint) {
     return GeoPoint(argument.latitude, argument.longitude);
@@ -88,27 +62,59 @@ Object _valueFromFirestore(Database database, Object argument) {
   throw ArgumentError.value(argument);
 }
 
+Object _valueToFirestore(firestore.Firestore impl, Object argument) {
+  if (argument == null ||
+      argument is bool ||
+      argument is num ||
+      argument is DateTime ||
+      argument is String) {
+    return argument;
+  }
+  if (argument is Int64) {
+    return argument.toInt();
+  }
+  if (argument is Date) {
+    return argument.toString();
+  }
+  if (argument is Timestamp) {
+    return argument.toString();
+  }
+  if (argument is GeoPoint) {
+    return firestore.GeoPoint(argument.latitude, argument.longitude);
+  }
+  if (argument is Document) {
+    final collectionId = argument.parent.collectionId;
+    final documentId = argument.documentId;
+    return impl.collection(collectionId).document(documentId);
+  }
+  if (argument is List) {
+    return argument.map((item) => _valueToFirestore(impl, item)).toList();
+  }
+  if (argument is Map) {
+    final result = <String, Object>{};
+    for (var entry in argument.entries) {
+      result[entry.key] = _valueToFirestore(impl, entry.value);
+    }
+    return result;
+  }
+  throw ArgumentError.value(argument);
+}
+
 /// A database adapter for [Google Cloud Firestore](https://cloud.google.com/firestore/).
+///
+/// ```
+/// final database = FirestoreFlutter();
+/// database.collection('greeting').insert({'value': 'Hello world!'});
+/// ```
 class FirestoreFlutter extends DatabaseAdapter {
   final firestore.Firestore _impl;
 
-  /// Constructs a new adapter configuration.
-  ///
-  /// Both [apiKey] and [appId] can be null.
-  factory FirestoreFlutter({
-    @required String apiKey,
-    @required String appId,
-  }) {
-    if (appId == null) {
-      return FirestoreFlutter.withImpl(firestore.Firestore.instance);
-    }
-    final implApp = firebase_core.FirebaseApp(
-      name: appId,
-    );
-    final impl = firestore.Firestore(app: implApp);
-    return FirestoreFlutter.withImpl(impl);
+  /// Uses the default Firestore configuration.
+  factory FirestoreFlutter() {
+    return FirestoreFlutter.withImpl(firestore.Firestore.instance);
   }
 
+  /// Enables choosing a custom Firestore configuration.
   FirestoreFlutter.withImpl(this._impl);
 
   @override
@@ -123,10 +129,26 @@ class FirestoreFlutter extends DatabaseAdapter {
     final implCollection = _impl.collection(collection.collectionId);
     final implDocument = implCollection.document(document.documentId);
     final implSnapshot = await implDocument.get();
+    if (!implSnapshot.exists) {
+      yield (Snapshot.notFound(document));
+      return;
+    }
+    var value = _valueFromFirestore(
+      request.document.database,
+      implSnapshot.data,
+    );
+    final schema = request.schema;
+    if (schema != null) {
+      value = schema.decodeLessTyped(
+        value,
+        context: LessTypedDecodingContext(
+          database: collection.database,
+        ),
+      );
+    }
     yield (Snapshot(
-      document: request.document,
-      exists: implSnapshot.exists,
-      data: _valueFromFirestore(request.document.database, implSnapshot.data),
+      document: document,
+      data: value,
     ));
   }
 
@@ -135,28 +157,95 @@ class FirestoreFlutter extends DatabaseAdapter {
     final collection = request.collection;
     final query = request.query;
     final implCollection = _impl.collection(collection.collectionId);
-    firestore.Query fsQuery = implCollection;
-    final result = fsQuery.snapshots().map((implSnapshot) {
-      final snapshots = implSnapshot.documents.map((implSnapshot) {
-        return Snapshot(
-          document: collection.document(
-            implSnapshot.documentID,
+    firestore.Query implQuery = implCollection;
+
+    //
+    // Filter
+    //
+    implQuery = _handleFilter(implQuery, null, query.filter);
+
+    //
+    // Sorters
+    //
+    {
+      final sorter = query.sorter;
+      if (sorter != null) {
+        if (sorter is MultiSorter) {
+          //
+          // Many sorters
+          //
+          for (var sorter in sorter.sorters) {
+            if (sorter is PropertySorter) {
+              implQuery = implQuery.orderBy(
+                sorter.name,
+                descending: sorter.isDescending,
+              );
+            } else {
+              throw UnsupportedError('${sorter.runtimeType}');
+            }
+          }
+        } else if (sorter is PropertySorter) {
+          //
+          // Single sorter
+          //
+          implQuery = implQuery.orderBy(
+            sorter.name,
+            descending: sorter.isDescending,
+          );
+        } else {
+          throw UnsupportedError('${sorter.runtimeType}');
+        }
+      }
+    }
+
+    // Skip is handled later in the function because Firestore API doesn't
+    // support it natively.
+
+    //
+    // Take
+    //
+    {
+      final take = query.take;
+      if (take != null) {
+        implQuery = implQuery.limit(take);
+      }
+    }
+
+    // TODO: Watching, incremental results
+
+    final implSnapshot = await implQuery.getDocuments();
+    final snapshots = implSnapshot.documents
+        .skip(
+      query.skip ?? 0,
+    )
+        .map((implSnapshot) {
+      final document = collection.document(
+        implSnapshot.documentID,
+      );
+      var value = _valueFromFirestore(
+        request.collection.database,
+        implSnapshot.data,
+      );
+      final schema = request.schema;
+      if (schema != null) {
+        value = schema.decodeLessTyped(
+          value,
+          context: LessTypedDecodingContext(
+            database: request.collection.database,
           ),
-          data: _valueFromFirestore(
-              request.collection.database, implSnapshot.data),
         );
-      });
-      return QueryResult(
-        collection: collection,
-        query: query,
-        snapshots: List<Snapshot>.unmodifiable(snapshots),
+      }
+      return Snapshot(
+        document: document,
+        data: value,
       );
     });
-    if (request.chunkedStreamSettings != null) {
-      yield (await result.last);
-    } else {
-      yield* (result);
-    }
+    final queryResult = QueryResult(
+      collection: collection,
+      query: query,
+      snapshots: List<Snapshot>.unmodifiable(snapshots),
+    );
+    yield (queryResult);
   }
 
   @override
@@ -174,15 +263,17 @@ class FirestoreFlutter extends DatabaseAdapter {
 
     switch (request.type) {
       case WriteType.delete:
-        bool didFail;
+        bool didFail = false;
         await _impl.runTransaction((transaction) async {
           final implSnapshot = await transaction.get(implDocument);
           if (!implSnapshot.exists) {
             didFail = true;
-            return null;
+            // If we return, we will have an exception.
+            //
+            // I'm not sure whether it would make more sense to return or
+            // delete.
           }
           await transaction.delete(implDocument);
-          didFail = false;
           return null;
         });
         if (didFail) {
@@ -195,6 +286,19 @@ class FirestoreFlutter extends DatabaseAdapter {
         break;
 
       case WriteType.insert:
+        //
+        // A preliminary checkup
+        //
+        final implSnapshot = await implDocument.get(
+          source: firestore.Source.server,
+        );
+        if (implSnapshot.exists) {
+          throw DatabaseException.found(document);
+        }
+
+        //
+        // Actual transaction
+        //
         bool didFail;
         await _impl.runTransaction((transaction) async {
           final implSnapshot = await transaction.get(implDocument);
@@ -225,6 +329,61 @@ class FirestoreFlutter extends DatabaseAdapter {
 
       default:
         throw UnimplementedError();
+    }
+  }
+
+  firestore.Query _handleFilter(
+      firestore.Query q, String propertyName, Filter filter) {
+    if (filter == null) {
+      return q;
+    } else if (filter is AndFilter) {
+      for (var filter in filter.filters) {
+        q = _handleFilter(q, propertyName, filter);
+      }
+      return q;
+    } else if (filter is MapFilter) {
+      if (propertyName != null) {
+        throw UnsupportedError('Nested properties');
+      }
+      for (var entry in filter.properties.entries) {
+        q = _handleFilter(q, entry.key, _valueToFirestore(_impl, entry.value));
+      }
+      return q;
+    } else if (filter is ValueFilter) {
+      return q.where(
+        propertyName,
+        isEqualTo: _valueToFirestore(_impl, filter.value),
+      );
+    } else if (filter is RangeFilter) {
+      if (filter.min != null) {
+        if (filter.isExclusiveMin) {
+          q = q.where(
+            propertyName,
+            isGreaterThan: _valueToFirestore(_impl, filter.min),
+          );
+        } else {
+          q = q.where(
+            propertyName,
+            isGreaterThanOrEqualTo: _valueToFirestore(_impl, filter.min),
+          );
+        }
+      }
+      if (filter.max != null) {
+        if (filter.isExclusiveMin) {
+          q = q.where(
+            propertyName,
+            isGreaterThan: _valueToFirestore(_impl, filter.max),
+          );
+        } else {
+          q = q.where(
+            propertyName,
+            isGreaterThanOrEqualTo: _valueToFirestore(_impl, filter.max),
+          );
+        }
+      }
+      return q;
+    } else {
+      throw UnsupportedError('${filter.runtimeType}');
     }
   }
 }

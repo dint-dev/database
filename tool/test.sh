@@ -59,4 +59,3 @@ visit search
 
 visit         adapters/algolia
 visit         adapters/firestore_browser
-visit_flutter adapters/firestore_flutter

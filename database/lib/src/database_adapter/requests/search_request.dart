@@ -53,13 +53,22 @@ class SearchRequest {
   /// the equal to the previous added item.
   WatchSettings watchSettings;
 
+  /// Schema used for decoding values.
+  ///
+  /// For example, JSON documents don't contain type information and need
+  /// decoding.
   Schema schema;
+
+  /// If true, the results must reflect the best knowledge about the state.
+  /// The default is true.
+  bool best;
 
   SearchRequest({
     @required this.collection,
     Query query,
     this.chunkedStreamSettings,
     this.watchSettings,
+    this.best = true,
   })  : assert(collection != null),
         query = query ?? const Query();
 

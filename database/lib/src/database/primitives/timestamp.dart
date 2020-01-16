@@ -14,9 +14,10 @@
 
 class Timestamp implements Comparable<Timestamp> {
   final DateTime utc;
-  final String timezone;
+  @deprecated
+  String get timezone => 'Z';
 
-  Timestamp.fromDateTime(DateTime utc, {this.timezone = 'Z'})
+  Timestamp.fromDateTime(DateTime utc, {@deprecated String timezone = 'Z'})
       : utc = utc?.toUtc() {
     ArgumentError.checkNotNull(utc, 'utc');
     ArgumentError.checkNotNull(timezone, 'timezone');

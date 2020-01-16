@@ -5,7 +5,6 @@ Connects the package [database](https://pub.dev/packages/database) to [Algolia](
   * [Issue tracker in Github](https://github.com/dint-dev/database/issues)
   * [Source code in Github](https://github.com/dint-dev/database/tree/master/adapters/algolia/lib/)
 
-
 # Getting started
 ## 1.Add dependency
 ```yaml

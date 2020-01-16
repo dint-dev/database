@@ -38,7 +38,7 @@ developer/maintainer.
   * [database_adapter_firestore_browser](https://pub.dev/packages/database_adapter_firestore_browser) ([Github](https://github.com/dint-dev/database/tree/master/adapters/firestore_browser/lib/))
     * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore) in browser applications.
   * [database_adapter_firestore_flutter](https://pub.dev/packages/database_adapter_firestore_flutter) ([Github](https://github.com/dint-dev/database/tree/master/adapters/firestore_flutter/lib/))
-    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore) in Flutter.
+    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore) in Flutter applications.
   * [database_adapter_elasticsearch](https://pub.dev/packages/database_adapter_elasticsearch) ([Github](https://github.com/dint-dev/database/tree/master/adapters/elasticsearch/lib/))
     * For using [Elasticsearch](https://www.elastic.co).
   * [database_adapter_postgre](https://pub.dev/packages/database_adapter_postgre) ([Github](https://github.com/dint-dev/database/tree/master/adapters/postgre/lib/))
@@ -59,6 +59,8 @@ The following packages are currently far from passing tests:
     * Caches data in another database (such as _MemoryDatabase_).
   * [SchemaUsingDatabase](https://pub.dev/documentation/database/latest/database/SchemaUsingDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/schema_using_database.dart))
     * Enforces schemas on reads/writes.
+  * [SearchForwardingDatabase](https://pub.dev/documentation/database/latest/database/SearchForwardingDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/search_forwarding_database.dart))
+    * Forwards cache-accepting search requests to a search engine.
 
 ### Other packages
   * [search](https://pub.dev/packages/search) ([Github](https://github.com/dint-dev/database/tree/master/search/lib/))

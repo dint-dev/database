@@ -34,28 +34,25 @@ String _jsonPointerUnescape(String s) {
   return s.replaceAll('~1', '/').replaceAll('~0', '~');
 }
 
-/// A database that stores data using some browser API.
+/// A database adapter that stores data using some browser API. The default
+/// factory returns an instance of [BrowserLocalStorageDatabase].
 ///
-/// An example:
 /// ```dart
 /// import 'package:database/browser.dart';
 /// import 'package:database/database.dart';
 ///
 /// void main() {
-///   Database.freezeDefaultInstance(
-///     BrowserDatabase(), // Uses the best API supported by the browser.
-///   );
-///
+///   final database = BrowserDatabase(),
 ///   // ...
 /// }
 /// ```
-abstract class BrowserDatabase implements Database {
+abstract class BrowserDatabase implements DatabaseAdapter {
   factory BrowserDatabase() {
     return BrowserLocalStorageDatabase();
   }
 }
 
-/// A database that stores data using [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
+/// A database adapter that stores data using [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
 /// (`window.localStorage`).
 class BrowserLocalStorageDatabase extends DatabaseAdapter
     implements BrowserDatabase {
