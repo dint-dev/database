@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 void main() {
   test('SimpleDatabase', () async {
     final database = SearcheableDatabase(
-      database: MemoryDatabaseAdapter(),
+      master: MemoryDatabaseAdapter(),
     ).database();
 
     final collection = database.collection('greetings');

@@ -4,7 +4,7 @@ import 'package:search/search.dart';
 void main() async {
   // Set default database
   final database = SearcheableDatabase(
-    database: MemoryDatabaseAdapter(),
+    master: MemoryDatabaseAdapter(),
     isReadOnly: true,
   ).database();
 

@@ -1,5 +1,5 @@
 name: search
-version: 0.2.1
+version: 0.3.0
 description:
   A small search engine middleware for 'package:database'. Meant for applications that want to do
   basic searches without an external search engine like ElasticSearch/Lucene.
@@ -10,7 +10,7 @@ environment:
 
 dependencies:
   charcode: ^1.1.0
-  database: ^0.2.3
+  database: ^0.3.0
   meta: ^1.1.0
 
 dev_dependencies:

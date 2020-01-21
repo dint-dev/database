@@ -32,7 +32,9 @@ import 'package:search/search.dart';
 /// import 'package:search/search.dart';
 ///
 /// void main() {
-///   final database = SearchableDatabase(MemoryDatabaseAdapter());
+///   final database = SearchableDatabase(
+///     master: MemoryDatabaseAdapter(),
+///   ).database();
 ///
 ///   await database.collection('example').insert({
 ///     'greeting': 'Hello world',
@@ -56,13 +58,13 @@ class SearcheableDatabase extends DelegatingDatabaseAdapter {
   final bool isReadOnly;
 
   SearcheableDatabase({
-    @required DatabaseAdapter database,
+    @required DatabaseAdapter master,
     this.isReadOnly = false,
     this.scoring = const CanineDocumentScoring(),
-  })  : assert(database != null),
+  })  : assert(master != null),
         assert(isReadOnly != null),
         assert(scoring != null),
-        super(database);
+        super(master);
 
   @override
   Stream<QueryResult> performDocumentSearch(

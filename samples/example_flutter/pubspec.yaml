@@ -7,10 +7,14 @@ description:
 publish_to: none
 
 dependencies:
-  database: any
+  database: ^0.3.0
   database_adapter_algolia: any
   database_adapter_elasticsearch: any
+  database_adapter_firestore_flutter: any
   database_adapter_postgre: any
+  database_adapter_sqlite: any
+  search: any
 
+  # We want to avoid dependency conflicts with the following packages:
   flutter:
     sdk: flutter
