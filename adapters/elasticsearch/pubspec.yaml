@@ -1,6 +1,8 @@
 name: database_adapter_elasticsearch
-version: 0.2.0
-description: Adapter between 'package:database' and ElasticSearch.
+version: 0.2.1
+description:
+  Adapter between 'package:database' and Elasticsearch, a full-featured text search engine based on
+  Apache Lucene.
 homepage: https://github.com/dint-dev/database
 
 environment:
