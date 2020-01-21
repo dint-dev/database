@@ -17,6 +17,6 @@ dev_dependencies:
   test: ^1.8.0
   test_io: ^0.1.0
 
-dependency_overrides:
-  database:
-    path: '../../database'
+#dependency_overrides:
+#  database:
+#    path: '../../database'

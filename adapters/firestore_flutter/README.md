@@ -20,15 +20,27 @@ dependencies:
   database_adapter_firestore_flutter: any
 ```
 
-## 2.Configure database
+## 2.Configure the plugin
+Follow instructions for [cloud_firestore](https://pub.dev/packages/cloud_firestore):
+  * [Instructions for Android](https://firebase.google.com/docs/android/setup#add_the_sdk)
+  * [Instructions for iOS](https://firebase.google.com/docs/ios/setup)
+
+
+## 3.Configure database
 ```dart
 import 'package:database/database.dart';
 import 'package:database_adapter_firestore_flutter/database_adapter_firestore_flutter.dart';
 
 Database getDatabase() {
-  return FirestoreFlutter(
-    appId: 'Your application ID',
-    apiKey: 'Your API key',
-  );
+  return FirestoreFlutter().database();
+}
+
+Future main() async {
+  final database = getDatabase();
+  final document = await database.collection('greetings').insert({
+    'greeting': 'Hello world!',
+  });
 }
 ```
+
+Read more about [database.dart API](https://pub.dev/packages/database).

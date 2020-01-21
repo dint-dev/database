@@ -1,6 +1,4 @@
 # Overview
-__Warning:__ This package is not ready for production systems.
-
 This is an adapter for the package [database](https://pub.dev/packages/database) that connects it to
 [Google Cloud Firestore](https://cloud.google.com/firestore/).
 
@@ -24,9 +22,6 @@ import 'package:database/database.dart';
 import 'package:database_adapter_firestore_browser/database_adapter_firestore_browser.dart';
 
 Database getDatabase() {
-  return FirestoreBrowser(
-    appId: 'Your application ID',
-    apiKey: 'Your API key',
-  );
+  return FirestoreBrowser().database();
 }
 ```

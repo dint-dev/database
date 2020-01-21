@@ -16,7 +16,6 @@ import 'dart:async';
 
 import 'package:database/database.dart';
 import 'package:database/schema.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:test/test.dart';
 
 void runCollectionAndDocumentTests() {
