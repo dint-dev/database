@@ -2,8 +2,7 @@
 [![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
 
 # Overview
-This is a simple information retrieval engine for the package
-[database](https://pub.dev/packages/search).
+This is a simple information retrieval engine for the package [database](https://pub.dev/packages/database).
 
 Licensed under the [Apache License 2.0](LICENSE).
 

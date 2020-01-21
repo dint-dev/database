@@ -1,6 +1,6 @@
-# Introduction
-__Warning:__ This package is not ready for production systems.
+[![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
 
+# Introduction
 This package enables you to connect [database](https://pub.dev/packages/database) (a vendor-agnostic
 database API with many adapters) to [Google Cloud Firestore](https://cloud.google.com/firestore/).
 
@@ -10,7 +10,9 @@ __This package requires Flutter__ (iOS / Android) because the package relies on
 can be used in any browser application.
 
 ## Links
+  * [Issue tracker in Github](https://github.com/dint-dev/database/issues)
   * [Source code in Github](https://github.com/dint-dev/database/tree/master/adapters/firestore_flutter/lib)
+  * [API reference](https://pub.dev/documentation/database_adapter_firestore_flutter/latest/database_adapter_firestore_flutter/FirestoreFlutter-class.html)
 
 # Getting started
 ## 1.Add dependency

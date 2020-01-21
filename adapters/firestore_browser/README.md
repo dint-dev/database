@@ -1,3 +1,5 @@
+[![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
+
 # Overview
 This is an adapter for the package [database](https://pub.dev/packages/database) that connects it to
 [Google Cloud Firestore](https://cloud.google.com/firestore/).
