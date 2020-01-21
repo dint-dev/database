@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 import 'dart:convert';
 
 import 'package:database/database.dart';
+import 'package:database/filter.dart';
 import 'package:database/search_query_parsing.dart';
 
 /// Parser for the search query syntax supported by 'package:database'.

@@ -36,7 +36,6 @@ visit_flutter() {
   echo "-------------------------------------------------"
   echo "Getting dependencies for '$NAME'"
   echo "-------------------------------------------------"
-  echo "Running: flutter pub get $ARGS"
   cd $NAME
   flutter pub get $ARGS
   if [[ $NAME == *"/"* ]]; then
@@ -53,7 +52,6 @@ visit         adapters/algolia
 visit         adapters/elasticsearch
 visit         adapters/firestore_browser
 visit_flutter adapters/firestore_flutter
-visit_flutter adapters/firestore_flutter/example
 visit         adapters/postgre
 
 visit         adapters_incubator/azure

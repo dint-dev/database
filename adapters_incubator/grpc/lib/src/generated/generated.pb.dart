@@ -1088,10 +1088,10 @@ class WriteInput extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i =
       $pb.BuilderInfo('WriteInput', createEmptyInstance: create)
         ..aOM<Document>(1, 'document', subBuilder: Document.create)
-        ..e<WriteType>(2, 'type', $pb.PbFieldType.OE,
-            defaultOrMaker: WriteType.unspecifiedWriteType,
-            valueOf: WriteType.valueOf,
-            enumValues: WriteType.values)
+        ..e<DocumentWriteType>(2, 'type', $pb.PbFieldType.OE,
+            defaultOrMaker: DocumentWriteType.unspecifiedDocumentWriteType,
+            valueOf: DocumentWriteType.valueOf,
+            enumValues: DocumentWriteType.values)
         ..aOM<Value>(3, 'value', subBuilder: Value.create)
         ..hasRequiredFields = false;
 
@@ -1114,9 +1114,9 @@ class WriteInput extends $pb.GeneratedMessage {
   @$core.override
   $pb.BuilderInfo get info_ => _i;
   @$pb.TagNumber(2)
-  WriteType get type => $_getN(1);
+  DocumentWriteType get type => $_getN(1);
   @$pb.TagNumber(2)
-  set type(WriteType v) {
+  set type(DocumentWriteType v) {
     setField(2, v);
   }
 

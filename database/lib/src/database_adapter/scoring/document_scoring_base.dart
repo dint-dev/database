@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 import 'package:collection/collection.dart';
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/filter.dart';
 
 @deprecated
 class DocumentScoringAlgorithmBase extends DocumentScoringStateBase {
@@ -60,7 +61,7 @@ class DocumentScoringStateBase extends DocumentScoringState
   @override
   double visitGeoPointFilter(GeoPointFilter filter, Object input) {
     if (input is GeoPoint) {
-      final max = filter.range?.max;
+      final max = filter.maxDistance;
       if (max is num) {
         final distance = filter.near.distanceTo(input);
         if (distance < max.toDouble()) {

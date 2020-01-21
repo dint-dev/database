@@ -15,6 +15,25 @@ const Document$json = {
   ],
 };
 
+///
+//  Generated code. Do not modify.
+//  source: database.proto
+//
+// @dart = 2.3
+// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
+
+const DocumentWriteType$json = {
+  '1': 'DocumentWriteType',
+  '2': [
+    {'1': 'unspecifiedDocumentWriteType', '2': 0},
+    {'1': 'delete', '2': 1},
+    {'1': 'deleteIfExists', '2': 2},
+    {'1': 'insert', '2': 3},
+    {'1': 'update', '2': 4},
+    {'1': 'upsert', '2': 5},
+  ],
+};
+
 const Error$json = {
   '1': 'Error',
   '2': [
@@ -231,7 +250,14 @@ const WriteInput$json = {
       '6': '.Document',
       '10': 'document'
     },
-    {'1': 'type', '3': 2, '4': 1, '5': 14, '6': '.WriteType', '10': 'type'},
+    {
+      '1': 'type',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.DocumentWriteType',
+      '10': 'type'
+    },
     {'1': 'value', '3': 3, '4': 1, '5': 11, '6': '.Value', '10': 'value'},
   ],
 };
@@ -240,24 +266,5 @@ const WriteOutput$json = {
   '1': 'WriteOutput',
   '2': [
     {'1': 'error', '3': 1, '4': 1, '5': 11, '6': '.Error', '10': 'error'},
-  ],
-};
-
-///
-//  Generated code. Do not modify.
-//  source: database.proto
-//
-// @dart = 2.3
-// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
-
-const WriteType$json = {
-  '1': 'WriteType',
-  '2': [
-    {'1': 'unspecifiedWriteType', '2': 0},
-    {'1': 'delete', '2': 1},
-    {'1': 'deleteIfExists', '2': 2},
-    {'1': 'insert', '2': 3},
-    {'1': 'update', '2': 4},
-    {'1': 'upsert', '2': 5},
   ],
 };

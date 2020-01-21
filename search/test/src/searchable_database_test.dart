@@ -1,12 +1,14 @@
 import 'package:database/database.dart';
+import 'package:database/filter.dart';
 import 'package:search/search.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('SimpleDatabase', () async {
     final database = SearcheableDatabase(
-      database: MemoryDatabase(),
-    );
+      database: MemoryDatabaseAdapter(),
+    ).database();
+
     final collection = database.collection('greetings');
 
     // Insert
@@ -25,14 +27,14 @@ void main() {
 
     // Get
     expect(
-      await document0.getIncrementalStream().last,
+      await document0.getIncrementally().last,
       Snapshot(
         document: document0,
         data: {'greeting': 'Hello world!'},
       ),
     );
     expect(
-      await document1.getIncrementalStream().last,
+      await document1.getIncrementally().last,
       Snapshot(
         document: document1,
         data: {'greeting': 'Hi world!'},

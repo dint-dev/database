@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/filter.dart';
 import 'package:meta/meta.dart';
 import 'package:search/search.dart';
 
@@ -31,7 +32,7 @@ import 'package:search/search.dart';
 /// import 'package:search/search.dart';
 ///
 /// void main() {
-///   final database = SearchableDatabase(MemoryDatabase());
+///   final database = SearchableDatabase(MemoryDatabaseAdapter());
 ///
 ///   await database.collection('example').insert({
 ///     'greeting': 'Hello world',
@@ -55,7 +56,7 @@ class SearcheableDatabase extends DelegatingDatabaseAdapter {
   final bool isReadOnly;
 
   SearcheableDatabase({
-    @required Database database,
+    @required DatabaseAdapter database,
     this.isReadOnly = false,
     this.scoring = const CanineDocumentScoring(),
   })  : assert(database != null),
@@ -64,22 +65,19 @@ class SearcheableDatabase extends DelegatingDatabaseAdapter {
         super(database);
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) async* {
+  Stream<QueryResult> performDocumentSearch(
+      DocumentSearchRequest request) async* {
     final query = request.query;
     final filter = query?.filter;
 
     // If no keyword filters
     if (filter == null || !filter.descendants.any((f) => f is KeywordFilter)) {
       // Delegate this request
-      yield* (super.performSearch(request));
+      yield* (super.performDocumentSearch(request));
       return;
     }
 
     final collection = request.collection;
-    final dsCollection = super.collection(
-      collection.collectionId,
-    );
-    final dsResults = dsCollection.searchChunked();
     final sortedItems = <QueryResultItem>[];
     final intermediateResultInterval = const Duration(milliseconds: 500);
     var intermediateResultAt = DateTime.now().add(intermediateResultInterval);
@@ -88,8 +86,8 @@ class SearcheableDatabase extends DelegatingDatabaseAdapter {
     //
     // For each document
     //
-    await for (var dsResult in dsResults) {
-      for (final dsSnapshot in dsResult.snapshots) {
+    await for (var chunk in collection.searchChunked()) {
+      for (final dsSnapshot in chunk.snapshots) {
         // Score
         var score = 1.0;
         if (filter != null) {
@@ -111,8 +109,7 @@ class SearcheableDatabase extends DelegatingDatabaseAdapter {
         sortedItems.add(queryResultItem);
 
         // Should have an intermediate result?
-        if (request.isIncremental &&
-            DateTime.now().isAfter(intermediateResultAt)) {
+        if (DateTime.now().isAfter(intermediateResultAt)) {
           if (filter != null) {
             sortedItems.sort(
               (a, b) {

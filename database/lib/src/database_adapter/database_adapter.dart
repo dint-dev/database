@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
-import 'package:database/mapper.dart';
+import 'package:database/schema.dart';
+import 'package:database/sql.dart';
+import 'package:database/src/database_adapter/requests/schema_read_request.dart';
 import 'package:meta/meta.dart';
 
 /// Superclass for database adapters.
@@ -24,64 +26,137 @@ import 'package:meta/meta.dart';
 ///
 /// If your adapter is read-only, you should use mixin
 /// [ReadOnlyDatabaseAdapterMixin].
-abstract class DatabaseAdapter extends Database {
-  @override
-  DatabaseAdapter get adapter => this;
-
-  /// Performs health check.
-  @override
-  Future<void> checkHealth({Duration timeout}) {
-    return Future<void>.value();
-  }
+abstract class DatabaseAdapter {
+  const DatabaseAdapter();
 
   /// Closes the database adapter.
   @mustCallSuper
   Future<void> close() async {}
 
-  /// Called by document. Databases that can issue their own IDs should override
-  /// this method.
-  Future<Document> collectionInsert(Collection collection,
-      {Map<String, Object> data}) async {
-    final document = collection.newDocument();
-    await document.insert(data: data);
-    return document;
+  /// Returns the database.
+  Database database() {
+    return Database.withAdapter(this);
   }
 
-  /// Returns schema of the [collectionId] or [fullType].
-  Schema getSchema({String collectionId, FullType fullType}) {
-    return null;
+  Future<void> performCheckConnection({Duration timeout}) {
+    return Future<void>.value();
   }
 
-  /// Performs vendor extension.
-  @protected
+  Future<void> performDocumentBatch(
+    DocumentBatchRequest request,
+  ) {
+    final documentDeleteResponses = List<Future<void>>.unmodifiable(
+      request.documentDeleteRequests.map((request) {
+        return performDocumentDelete(request);
+      }),
+    );
+    final documentInsertResponses = List<Future<void>>.unmodifiable(
+      request.documentInsertRequests.map((request) {
+        return performDocumentInsert(request);
+      }),
+    );
+    final documentSearchResponses =
+        request.documentSearchRequests.map((request) {
+      return performDocumentSearch(request);
+    });
+    final documentReadResponses = request.documentReadRequests.map((request) {
+      return performDocumentRead(request);
+    });
+    final documentUpdateResponses = List<Future<void>>.unmodifiable(
+      request.documentUpdateRequests.map((request) {
+        return performDocumentUpdate(request);
+      }),
+    );
+    final documentUpsertResponses = List<Future<void>>.unmodifiable(
+      request.documentUpsertRequests.map((request) {
+        return performDocumentUpsert(request);
+      }),
+    );
+    return Future<DocumentBatchResponse>.value(DocumentBatchResponse(
+      documentDeleteResponses: documentDeleteResponses,
+      documentInsertResponses: documentInsertResponses,
+      documentSearchResponses: documentSearchResponses,
+      documentReadResponses: documentReadResponses,
+      documentUpdateResponses: documentUpdateResponses,
+      documentUpsertResponses: documentUpsertResponses,
+    ));
+  }
+
+  Future<void> performDocumentDelete(
+    DocumentDeleteRequest request,
+  );
+
+  Future<void> performDocumentDeleteBySearch(
+    DocumentDeleteBySearchRequest request,
+  );
+
+  Future<void> performDocumentInsert(
+    DocumentInsertRequest request,
+  );
+
+  Stream<Snapshot> performDocumentRead(
+    DocumentReadRequest request,
+  );
+
+  Stream<Snapshot> performDocumentReadWatch(
+    DocumentReadWatchRequest request,
+  );
+
+  Stream<QueryResult> performDocumentSearch(
+    DocumentSearchRequest request,
+  );
+
+  Stream<QueryResult> performDocumentSearchChunked(
+    DocumentSearchChunkedRequest request,
+  ) async* {
+    // Read all documents into memory
+    final last = await performDocumentSearch(DocumentSearchRequest(
+      collection: request.collection,
+      query: request.query,
+      reach: request.reach,
+    )).last;
+
+    // Yield them
+    yield (last);
+  }
+
+  Stream<QueryResult> performDocumentSearchWatch(
+    DocumentSearchWatchRequest request,
+  );
+
+  Future<void> performDocumentTransaction(
+    DocumentTransactionRequest request,
+  );
+
+  Future<void> performDocumentUpdate(
+    DocumentUpdateRequest request,
+  );
+
+  Future<void> performDocumentUpdateBySearch(
+    DocumentUpdateBySearchRequest request,
+  );
+
+  Future<void> performDocumentUpsert(
+    DocumentUpsertRequest request,
+  );
+
   Stream<DatabaseExtensionResponse> performExtension(
     DatabaseExtensionRequest request,
   ) {
     return request.unsupported(this);
   }
 
-  /// Performs document reading.
-  @protected
-  Stream<Snapshot> performRead(
-    ReadRequest request,
+  Stream<DatabaseSchema> performSchemaRead(SchemaReadRequest request) async* {}
+
+  Future<SqlIterator> performSqlQuery(
+    SqlQueryRequest request,
   );
 
-  /// Performs document searching.
-  @protected
-  Stream<QueryResult> performSearch(
-    SearchRequest request,
+  Future<SqlStatementResult> performSqlStatement(
+    SqlStatementRequest request,
   );
 
-  @protected
-  Future<SqlResponse> performSql(
-    SqlRequest request,
-  ) async {
-    throw UnsupportedError('Adapter does not support SQL: $runtimeType');
-  }
-
-  /// Performs document writing.
-  @protected
-  Future<void> performWrite(
-    WriteRequest request,
+  Future<void> performSqlTransaction(
+    SqlTransactionRequest request,
   );
 }

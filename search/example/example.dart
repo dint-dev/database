@@ -4,9 +4,9 @@ import 'package:search/search.dart';
 void main() async {
   // Set default database
   final database = SearcheableDatabase(
-    database: MemoryDatabase(),
+    database: MemoryDatabaseAdapter(),
     isReadOnly: true,
-  );
+  ).database();
 
   // Search items
   final collection = database.collection('employee');

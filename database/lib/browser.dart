@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import 'dart:convert';
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/schema.dart';
 import 'package:universal_html/html.dart' as html;
 
 String _jsonPointerEscape(String s) {
@@ -42,20 +43,20 @@ String _jsonPointerUnescape(String s) {
 /// import 'package:database/database.dart';
 ///
 /// void main() {
-///   final database = BrowserDatabase(),
+///   final database = BrowserDatabaseAdapter(),
 ///   // ...
 /// }
 /// ```
-abstract class BrowserDatabase implements DatabaseAdapter {
-  factory BrowserDatabase() {
+abstract class BrowserDatabaseAdapter implements DatabaseAdapter {
+  factory BrowserDatabaseAdapter() {
     return BrowserLocalStorageDatabase();
   }
 }
 
 /// A database adapter that stores data using [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
 /// (`window.localStorage`).
-class BrowserLocalStorageDatabase extends DatabaseAdapter
-    implements BrowserDatabase {
+class BrowserLocalStorageDatabase extends DocumentDatabaseAdapter
+    implements BrowserDatabaseAdapter {
   final html.Storage impl;
   final String prefix;
 
@@ -67,7 +68,29 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
   BrowserLocalStorageDatabase._withStorage(this.impl, {this.prefix = ''});
 
   @override
-  Stream<Snapshot> performRead(ReadRequest request) {
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) async {
+    final key = _documentKey(request.document);
+    if (request.mustExist && !impl.containsKey(key)) {
+      throw DatabaseException.notFound(request.document);
+    }
+    impl.remove(key);
+  }
+
+  @override
+  Future<void> performDocumentInsert(DocumentInsertRequest request) async {
+    final document = request.document ?? request.collection.newDocument();
+    if (request.onDocument != null) {
+      request.onDocument(document);
+    }
+    final key = _documentKey(document);
+    if (impl.containsKey(key)) {
+      throw DatabaseException.found(document);
+    }
+    impl[key] = encode(request.inputSchema, request.data);
+  }
+
+  @override
+  Stream<Snapshot> performDocumentRead(DocumentReadRequest request) {
     final document = request.document;
     final key = _documentKey(document);
     final serialized = impl[key];
@@ -75,7 +98,7 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
       return Stream<Snapshot>.value(Snapshot.notFound(document));
     }
     final deserialized = _decode(
-      request.schema,
+      request.outputSchema,
       request.document.database,
       serialized,
     ) as Map<String, Object>;
@@ -86,7 +109,7 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) {
+  Stream<QueryResult> performDocumentSearch(DocumentSearchRequest request) {
     final collection = request.collection;
 
     // Construct prefix
@@ -104,7 +127,7 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
         return null;
       }
       final decoded =
-          _decode(request.schema, request.collection.database, serialized)
+          _decode(request.outputSchema, request.collection.database, serialized)
               as Map<String, Object>;
       return Snapshot(
         document: document,
@@ -129,45 +152,23 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
   }
 
   @override
-  Future<void> performWrite(WriteRequest request) async {
-    final document = request.document;
-    final key = _documentKey(document);
-    final exists = impl.containsKey(key);
+  Future<void> performDocumentTransaction(DocumentTransactionRequest request) {
+    throw DatabaseException.transactionUnsupported();
+  }
 
-    switch (request.type) {
-      case WriteType.delete:
-        if (!exists) {
-          throw DatabaseException.notFound(document);
-        }
-        impl.remove(key);
-        break;
-
-      case WriteType.deleteIfExists:
-        impl.remove(key);
-        break;
-
-      case WriteType.insert:
-        if (exists) {
-          throw DatabaseException.notFound(document);
-        }
-        impl[key] = encode(request.schema, request.data);
-        break;
-
-      case WriteType.update:
-        if (!exists) {
-          throw DatabaseException.notFound(document);
-        }
-        impl[key] = encode(request.schema, request.data);
-        break;
-
-      case WriteType.upsert:
-        impl[key] = encode(request.schema, request.data);
-        break;
-
-      default:
-        throw UnimplementedError();
+  @override
+  Future<void> performDocumentUpdate(DocumentUpdateRequest request) async {
+    final key = _documentKey(request.document);
+    if (!impl.containsKey(key)) {
+      throw DatabaseException.notFound(request.document);
     }
-    return Future.value();
+    impl[key] = encode(request.inputSchema, request.data);
+  }
+
+  @override
+  Future<void> performDocumentUpsert(DocumentUpsertRequest request) async {
+    final key = _documentKey(request.document);
+    impl[key] = encode(request.inputSchema, request.data);
   }
 
   String _collectionPrefix(Collection collection) {
@@ -191,19 +192,22 @@ class BrowserLocalStorageDatabase extends DatabaseAdapter
 
   static String encode(Schema schema, Object value) {
     schema ??= Schema.fromValue(value);
-    return jsonEncode({
-      'schema': schema.toJson(),
-      'value': schema.encodeLessTyped(value),
-    });
+    final converted = schema.encodeWith(
+      const JsonEncoder(),
+      {
+        'schema': schema.toJson(),
+        'value': schema.acceptVisitor(JsonEncoder(), value),
+      },
+    );
+    return jsonEncode(converted);
   }
 
   static Object _decode(Schema schema, Database database, String s) {
-    // TODO: Use protocol buffers?
     final json = jsonDecode(s) as Map<String, Object>;
     schema ??= Schema.fromJson(json['schema']) ?? ArbitraryTreeSchema();
-    return schema.decodeLessTyped(
+    return schema.decodeWith(
+      JsonDecoder(database: database),
       json['value'],
-      context: LessTypedDecodingContext(database: database),
     );
   }
 }

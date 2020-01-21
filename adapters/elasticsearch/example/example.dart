@@ -9,7 +9,7 @@ Future main() async {
       user: 'example user',
       password: 'example password',
     ),
-  );
+  ).database();
   final collection = database.collection('example');
 
   // Insert a document

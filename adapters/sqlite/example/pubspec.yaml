@@ -1,0 +1,27 @@
+name: example
+description: A new Flutter project.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ">=2.6.0 <3.0.0"
+
+dependencies:
+  database: any
+  database_adapter_sqlite: any
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_driver:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+
+flutter:
+
+dependency_overrides:
+  database:
+    path: '../../../database'
+  database_adapter_sqlite:
+    path: '../'

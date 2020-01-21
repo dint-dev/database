@@ -2,7 +2,7 @@ import 'package:database/database.dart';
 
 void main() async {
   // Choose a database
-  final database = MemoryDatabase();
+  final database = MemoryDatabaseAdapter().database();
 
   // Search
   final response = await database.collection('people').search(

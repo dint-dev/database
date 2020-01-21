@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ message ReadOutput {
 
 message WriteInput {
   Document document  = 1;
-  WriteType type = 2;
+  DocumentWriteType type = 2;
   Value value = 3;
 }
 
@@ -65,8 +65,8 @@ message WriteOutput {
   Error error = 1;
 }
 
-enum WriteType {
-  unspecifiedWriteType = 0;
+enum DocumentWriteType {
+  unspecifiedDocumentWriteType = 0;
   delete = 1;
   deleteIfExists = 2;
   insert = 3;

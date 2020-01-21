@@ -55,7 +55,7 @@ import 'package:search/search.dart';
 
 void main() {
   final database = SearchableDatabase(
-    database: MemoryDatabase(),
+    database: MemoryDatabaseAdapter(),
   );
   final collection = database.collection('employee');
   final result = await collection.search(

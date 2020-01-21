@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/filter.dart';
+import 'package:database/schema.dart';
 
 Object _valueFromFirestore(Database database, Object argument) {
   if (argument == null ||
@@ -106,7 +108,7 @@ Object _valueToFirestore(firestore.Firestore impl, Object argument) {
 /// final database = FirestoreFlutter();
 /// database.collection('greeting').insert({'value': 'Hello world!'});
 /// ```
-class FirestoreFlutter extends DatabaseAdapter {
+class FirestoreFlutter extends DocumentDatabaseAdapter {
   final firestore.Firestore _impl;
 
   /// Uses the default Firestore configuration.
@@ -118,12 +120,73 @@ class FirestoreFlutter extends DatabaseAdapter {
   FirestoreFlutter.withImpl(this._impl);
 
   @override
-  WriteBatch newWriteBatch() {
-    return _WriteBatch(_impl, _impl.batch());
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) async {
+    final document = request.document;
+    final collection = document.parent;
+    final implCollection = _impl.collection(collection.collectionId);
+    final implDocument = implCollection.document(document.documentId);
+
+    if (request.mustExist) {
+      bool didFail = false;
+      await _impl.runTransaction((transaction) async {
+        final implSnapshot = await transaction.get(implDocument);
+        if (!implSnapshot.exists) {
+          didFail = true;
+          // If we return, we will have an exception.
+          //
+          // I'm not sure whether it would make more sense to return or
+          // delete.
+        }
+        await transaction.delete(implDocument);
+        return null;
+      });
+      if (didFail) {
+        throw DatabaseException.notFound(document);
+      }
+    } else {
+      return implDocument.delete();
+    }
   }
 
   @override
-  Stream<Snapshot> performRead(ReadRequest request) async* {
+  Future<void> performDocumentInsert(DocumentInsertRequest request) async {
+    final document = request.document;
+    final collection = document.parent;
+    final implCollection = _impl.collection(collection.collectionId);
+    final implDocument = implCollection.document(document.documentId);
+    final implData = _valueToFirestore(_impl, request.data);
+
+    //
+    // A preliminary checkup of existence
+    //
+    final implSnapshot = await implDocument.get(
+      source: firestore.Source.server,
+    );
+    if (implSnapshot.exists) {
+      throw DatabaseException.found(document);
+    }
+
+    //
+    // Actual transaction
+    //
+    bool didFail;
+    await _impl.runTransaction((transaction) async {
+      final implSnapshot = await transaction.get(implDocument);
+      if (implSnapshot.exists) {
+        didFail = true;
+        return null;
+      }
+      await transaction.set(implDocument, implData);
+      didFail = false;
+      return null;
+    });
+    if (didFail) {
+      throw DatabaseException.found(document);
+    }
+  }
+
+  @override
+  Stream<Snapshot> performDocumentRead(DocumentReadRequest request) async* {
     final document = request.document;
     final collection = document.parent;
     final implCollection = _impl.collection(collection.collectionId);
@@ -137,13 +200,11 @@ class FirestoreFlutter extends DatabaseAdapter {
       request.document.database,
       implSnapshot.data,
     );
-    final schema = request.schema;
+    final schema = request.outputSchema;
     if (schema != null) {
-      value = schema.decodeLessTyped(
+      value = schema.decodeWith(
+        JsonDecoder(database: collection.database),
         value,
-        context: LessTypedDecodingContext(
-          database: collection.database,
-        ),
       );
     }
     yield (Snapshot(
@@ -153,9 +214,10 @@ class FirestoreFlutter extends DatabaseAdapter {
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) async* {
+  Stream<QueryResult> performDocumentSearch(
+      DocumentSearchRequest request) async* {
     final collection = request.collection;
-    final query = request.query;
+    final query = request.query ?? Query();
     final implCollection = _impl.collection(collection.collectionId);
     firestore.Query implQuery = implCollection;
 
@@ -226,13 +288,11 @@ class FirestoreFlutter extends DatabaseAdapter {
         request.collection.database,
         implSnapshot.data,
       );
-      final schema = request.schema;
+      final schema = request.outputSchema;
       if (schema != null) {
-        value = schema.decodeLessTyped(
+        value = schema.decodeWith(
+          JsonDecoder(database: collection.database),
           value,
-          context: LessTypedDecodingContext(
-            database: request.collection.database,
-          ),
         );
       }
       return Snapshot(
@@ -249,87 +309,29 @@ class FirestoreFlutter extends DatabaseAdapter {
   }
 
   @override
-  Future<void> performWrite(WriteRequest request) async {
+  Future<void> performDocumentUpdate(DocumentUpdateRequest request) async {
     final document = request.document;
     final collection = document.parent;
     final implCollection = _impl.collection(collection.collectionId);
     final implDocument = implCollection.document(document.documentId);
+    final implData = _valueToFirestore(_impl, request.data);
 
-    final implDataOrNull = _valueToFirestore(_impl, request.data);
-    Map<String, Object> implData;
-    if (implDataOrNull is Map<String, Object>) {
-      implData = implDataOrNull;
+    try {
+      await implDocument.updateData(implData);
+    } catch (e) {
+      throw DatabaseException.notFound(document);
     }
+  }
 
-    switch (request.type) {
-      case WriteType.delete:
-        bool didFail = false;
-        await _impl.runTransaction((transaction) async {
-          final implSnapshot = await transaction.get(implDocument);
-          if (!implSnapshot.exists) {
-            didFail = true;
-            // If we return, we will have an exception.
-            //
-            // I'm not sure whether it would make more sense to return or
-            // delete.
-          }
-          await transaction.delete(implDocument);
-          return null;
-        });
-        if (didFail) {
-          throw DatabaseException.notFound(document);
-        }
-        return;
+  @override
+  Future<void> performDocumentUpsert(DocumentUpsertRequest request) async {
+    final document = request.document;
+    final collection = document.parent;
+    final implCollection = _impl.collection(collection.collectionId);
+    final implDocument = implCollection.document(document.documentId);
+    final implData = _valueToFirestore(_impl, request.data);
 
-      case WriteType.deleteIfExists:
-        await implDocument.delete();
-        break;
-
-      case WriteType.insert:
-        //
-        // A preliminary checkup
-        //
-        final implSnapshot = await implDocument.get(
-          source: firestore.Source.server,
-        );
-        if (implSnapshot.exists) {
-          throw DatabaseException.found(document);
-        }
-
-        //
-        // Actual transaction
-        //
-        bool didFail;
-        await _impl.runTransaction((transaction) async {
-          final implSnapshot = await transaction.get(implDocument);
-          if (implSnapshot.exists) {
-            didFail = true;
-            return null;
-          }
-          await transaction.set(implDocument, implData);
-          didFail = false;
-          return null;
-        });
-        if (didFail) {
-          throw DatabaseException.found(document);
-        }
-        return;
-
-      case WriteType.update:
-        try {
-          await implDocument.updateData(implData);
-        } catch (e) {
-          throw DatabaseException.notFound(document);
-        }
-        return;
-
-      case WriteType.upsert:
-        await implDocument.setData(implData);
-        return;
-
-      default:
-        throw UnimplementedError();
-    }
+    await implDocument.setData(implData);
   }
 
   firestore.Query _handleFilter(
@@ -385,45 +387,5 @@ class FirestoreFlutter extends DatabaseAdapter {
     } else {
       throw UnsupportedError('${filter.runtimeType}');
     }
-  }
-}
-
-class _WriteBatch implements WriteBatch {
-  final firestore.Firestore _impl;
-  final firestore.WriteBatch _writeBatch;
-
-  final _completer = Completer();
-
-  _WriteBatch(this._impl, this._writeBatch);
-
-  Future get done => _completer.future;
-
-  @override
-  Future<void> commit() async {
-    await _writeBatch.commit();
-    _completer.complete();
-  }
-
-  @override
-  Future<void> deleteIfExists(Document document) async {
-    final implDocument =
-        _valueToFirestore(_impl, document) as firestore.DocumentReference;
-    await _writeBatch.delete(implDocument);
-  }
-
-  @override
-  Future<void> update(Document document, {Map<String, Object> data}) async {
-    final implDocument =
-        _valueToFirestore(_impl, document) as firestore.DocumentReference;
-    final implValue = _valueToFirestore(_impl, data);
-    await _writeBatch.updateData(implDocument, implValue);
-  }
-
-  @override
-  Future<void> upsert(Document document, {Map<String, Object> data}) async {
-    final implDocument =
-        _valueToFirestore(_impl, document) as firestore.DocumentReference;
-    final implValue = _valueToFirestore(_impl, data);
-    await _writeBatch.setData(implDocument, implValue);
   }
 }

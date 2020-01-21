@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ import 'dart:math';
 import 'package:built_value/serializer.dart';
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/schema.dart';
 import 'package:database/search_query_parsing.dart';
 
 /// A reference to a collection of documents.
@@ -67,6 +68,9 @@ class Collection {
       collectionId == other.collectionId &&
       database == other.database;
 
+  /// Returns a column.
+  Column<T> column<T>(String name) => Column<T>.fromCollection(this, name);
+
   /// Returns a document.
   ///
   /// Example:
@@ -77,8 +81,21 @@ class Collection {
     return Document(this, documentId);
   }
 
-  Future<Document> insert({Map<String, Object> data}) {
-    return database.adapter.collectionInsert(this, data: data);
+  Future<Document> insert({
+    Map<String, Object> data,
+    Reach reach,
+  }) async {
+    Document result;
+    await DocumentInsertRequest(
+      collection: this,
+      document: null,
+      data: data,
+      reach: reach,
+      onDocument: (v) {
+        result = v;
+      },
+    ).delegateTo(database.adapter);
+    return result;
   }
 
   /// Returns a new document with a random 128-bit lowercase hexadecimal ID.
@@ -97,15 +114,24 @@ class Collection {
     return document(sb.toString());
   }
 
+  Future<Schema> schema() async {
+    final schemaResponse = await SchemaReadRequest.forCollection(this)
+        .delegateTo(database.adapter)
+        .last;
+    return schemaResponse.schemasByCollection[collectionId];
+  }
+
   /// Searches documents.
   ///
   /// This is a shorthand for taking the last item in a stream returned by
   /// [searchIncrementally].
   Future<QueryResult> search({
     Query query,
+    Reach reach,
   }) {
     return searchIncrementally(
       query: query,
+      reach: reach,
     ).last;
   }
 
@@ -122,16 +148,13 @@ class Collection {
   /// filter.
   Future<void> searchAndDelete({
     Query query,
+    Reach reach,
   }) async {
-    // TODO: An implementation that databases can easily override
-    final responses = searchChunked(
+    return DocumentSearchChunkedRequest(
+      collection: this,
       query: query,
-    );
-    await for (var chunk in responses) {
-      for (var snapshot in chunk.snapshots) {
-        await snapshot.document.deleteIfExists();
-      }
-    }
+      reach: reach,
+    ).delegateTo(database.adapter);
   }
 
   /// Searches documents and returns the snapshots in chunks, which means that
@@ -165,12 +188,14 @@ class Collection {
   /// ```
   Stream<QueryResult> searchChunked({
     Query query,
-  }) {
-    return SearchRequest(
-      collection: this,
+    Reach reach = Reach.server,
+  }) async* {
+    // TODO: Real implementation
+    final all = await search(
       query: query,
-      chunkedStreamSettings: const ChunkedStreamSettings(),
-    ).delegateTo(database);
+      reach: reach,
+    );
+    yield (all);
   }
 
   /// Searches documents and returns the result as a stream where the snapshot
@@ -204,11 +229,13 @@ class Collection {
   /// ```
   Stream<QueryResult> searchIncrementally({
     Query query,
+    Reach reach = Reach.server,
   }) {
-    return SearchRequest(
+    return DocumentSearchRequest(
       collection: this,
       query: query,
-    ).delegateTo(database);
+      reach: reach,
+    ).delegateTo(database.adapter);
   }
 
   @override

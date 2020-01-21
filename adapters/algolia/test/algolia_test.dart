@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,9 @@ import 'package:test_io/test_io.dart';
 //
 void main() {
   test('basic usage', () async {
-    final env = await getEnvironmentalVariables();
+    final env = await getEnvironmentalVariables(
+      includeFiles: ['../../SECRETS.env'],
+    );
     const idEnv = 'TEST_ALGOLIA_ID';
     const secretEnv = 'TEST_ALGOLIA_SECRET';
     final id = env[idEnv] ?? '';
@@ -46,7 +48,7 @@ void main() {
     final database = Algolia(
       appId: id,
       apiKey: secret,
-    );
+    ).database();
 
     final collection = database.collection(
       'example',
@@ -69,10 +71,18 @@ void main() {
     final doc1 = collection.document('doc1');
     final doc2 = collection.document('doc2');
 
+    await doc0.delete();
+    await doc1.delete();
+    await doc2.delete();
+
+    // Wait for Algolia task to finish
+    // 5 seconds should be enough
+    await Future.delayed(const Duration(seconds: 5));
+
     addTearDown(() async {
-      await doc0.deleteIfExists();
-      await doc1.deleteIfExists();
-      await doc2.deleteIfExists();
+      await doc0.delete();
+      await doc1.delete();
+      await doc2.delete();
     });
 
     //
@@ -180,7 +190,7 @@ void main() {
     }
 
     // Delete
-    await doc0.deleteIfExists();
+    await doc0.delete(mustExist: true);
 
     // Wait for Algolia task to finish
     // 5 seconds should be enough

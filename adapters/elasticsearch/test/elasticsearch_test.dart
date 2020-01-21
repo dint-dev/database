@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,16 +21,15 @@ void main() async {
     final database = ElasticSearch(
       host: 'localhost',
       port: 9200,
-    );
+    ).database();
     try {
-      await database.checkHealth(timeout: const Duration(milliseconds: 500));
+      await database.checkHealth();
     } catch (error) {
       print(
         'ElasticSearch is not running at port 9200.\nTo run it with Docker, use script: ./tool/elasticsearch/docker_run.sh',
       );
       return null;
     }
-    ;
     return database;
   };
 

@@ -7,7 +7,7 @@ environment:
   sdk: '>=2.6.0 <3.0.0'
 
 dependencies:
-  database: 0.2.2
+  database: ^0.3.0
   fixnum: ^0.10.0
   grpc: ^2.0.0
   meta: ^1.1.0

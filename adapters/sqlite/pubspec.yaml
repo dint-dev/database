@@ -1,0 +1,24 @@
+name: database_adapter_sqlite
+version: 0.1.0
+description: An adapter for using 'package:database' API with SQLite.
+homepage: https://github.com/dint-dev/database
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+dependencies:
+  database: ^0.3.0
+  flutter:
+    sdk: flutter
+  meta: ^1.1.0
+  sqflite: ^1.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  pedantic: ^1.8.0
+  test: ^1.8.0
+
+#dependency_overrides:
+#  database:
+#    path: '../../database'

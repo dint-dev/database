@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:database/database.dart';
+import 'package:database/filter.dart';
 import 'package:meta/meta.dart';
 
 class SearchQueryPrinter extends FilterVisitor<void, Null> {
@@ -69,10 +69,14 @@ class SearchQueryPrinter extends FilterVisitor<void, Null> {
     _sb.write(filter.near.latitude.toStringAsFixed(5));
     _sb.write(',');
     _sb.write(filter.near.longitude.toStringAsFixed(5));
-    final s = filter.range?.toString();
-    if (s != '') {
+    final maxDistance = filter.maxDistance;
+    if (maxDistance != null) {
+      final s = maxDistance.toString();
       _sb.write(' ');
       _sb.write(s);
+      if (!s.contains('.') && !s.contains('e') && !s.contains('E')) {
+        _sb.write('.0');
+      }
     }
     _sb.write(')');
   }

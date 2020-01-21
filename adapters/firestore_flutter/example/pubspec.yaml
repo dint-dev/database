@@ -4,11 +4,11 @@ version: 0.0.1
 publish_to: none
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
-  database_adapter_firestore_flutter:
-    path: '../'
+  database: any
+  database_adapter_firestore_flutter: any
   flutter:
     sdk: flutter
 
@@ -19,3 +19,9 @@ dev_dependencies:
     sdk: flutter
 
 flutter:
+
+dependency_overrides:
+  database:
+    path: '../../../database'
+  database_adapter_firestore_flutter:
+    path: '../'

@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,63 +14,57 @@
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/sql.dart';
 import 'package:meta/meta.dart';
 
 /// A database contains any number of collections ([Collection]). A collection
 /// contains any number of documents ([Document]).
 abstract class Database {
-  const Database();
+  /// Cached collections.
+  final _collections = <String, Collection>{};
 
-  /// Actual low-level implementation of the database methods.
+  SqlClient _sqlClient;
+
+  Database();
+
+  factory Database.withAdapter(DatabaseAdapter adapter) = _Database;
+
+  /// Database adapter that implements operations for this database.
   DatabaseAdapter get adapter;
+
+  SqlClient get sqlClient {
+    return _sqlClient ??= SqlClient(this);
+  }
 
   /// Checks that the database can be used.
   ///
   /// The future will complete with a descriptive error if the database can't be
   /// used.
-  Future<void> checkHealth();
+  Future<void> checkHealth() async {}
 
   /// Returns a collection with the name.
   Collection collection(String collectionId) {
-    return Collection(this, collectionId);
-  }
+    // A small optimization: we cache collections.s
+    final collections = _collections;
+    var collection = collections[collectionId];
+    if (collection != null) {
+      return collection;
+    }
 
-  /// Performs a SQL statement. Doesn't return rows.
-  Future<SqlResponse> executeSql(String sql) {
-    ArgumentError.checkNotNull(sql);
-    return executeSqlArgs(sql, const []);
-  }
+    // Keep maximum 100 collections in memory
+    if (collections.length > 100) {
+      collections.clear();
+    }
 
-  /// Performs a SQL statement with arguments. Doesn't return rows.
-  Future<SqlResponse> executeSqlArgs(String sql, List arguments) async {
-    ArgumentError.checkNotNull(sql);
-    ArgumentError.checkNotNull(arguments);
-    return SqlRequest(
-      sql,
-      arguments,
-      isNotQuery: true,
-    ).delegateTo(adapter);
+    // Add collection
+    collection = Collection(this, collectionId);
+    collections[collectionId] = collection;
+    return collection;
   }
 
   /// Return a new write batch. This should always succeed.
   WriteBatch newWriteBatch() {
     return WriteBatch.simple();
-  }
-
-  /// Performs a SQL query.
-  Future<SqlResponse> querySql(String sql) {
-    ArgumentError.checkNotNull(sql);
-    return querySqlArgs(sql, const []);
-  }
-
-  /// Performs a SQL query with arguments.
-  Future<SqlResponse> querySqlArgs(String sql, List arguments) async {
-    ArgumentError.checkNotNull(sql);
-    ArgumentError.checkNotNull(arguments);
-    return SqlRequest(
-      sql,
-      arguments,
-    ).delegateTo(adapter);
   }
 
   /// Begins a transaction.
@@ -79,11 +73,22 @@ abstract class Database {
   /// Adapter should throw [DatabaseException.transactionUnsupported] if it
   /// doesn't support transactions.
   Future<void> runInTransaction({
-    @required Future<void> Function(Transaction transaction) callback,
+    Reach reach,
     Duration timeout,
+    @required Future<void> Function(Transaction transaction) callback,
   }) async {
     throw UnsupportedError(
       'Transactions are not supported by $runtimeType',
     );
   }
+
+  @override
+  String toString() => 'Database(...)';
+}
+
+class _Database extends Database {
+  @override
+  final DatabaseAdapter adapter;
+
+  _Database(this.adapter);
 }

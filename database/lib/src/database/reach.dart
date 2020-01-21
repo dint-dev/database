@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,23 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Describes distance to go for reading/writing data.
+/// Describes distance to the global truth.
+///
+/// For ordinary reads and writes, enforcing [Reach.server] is usually good
+/// enough.
+///
+/// Enforce [Reach.global] when you want to eliminate inconsistent /
+/// out-of-date reads and writes completely.
 enum Reach {
-  /// Truth in the local device. This reach has the best latency, it doesn't
-  /// consume network traffic, and it's never unavailable.
+  /// Truth in the local device.
   local,
 
-  /// A possibly out-of-date, inconsistent, or partial view at the global truth
-  /// such as a slowly indexing search engine.
-  ///
-  /// In terms of latency and availability, this level is much worse than
-  /// [Reach.local], but better than [Reach.regionalMaster].
-  internet,
+  /// A server that has access to all data, but the view may be many seconds
+  /// old, inconsistent, or lack some data.
+  server,
 
-  /// The regional master truth. May diverge from the global truth during
+  /// The regional master truth. May diverge from the global truth during global
   /// network partitions, but this is rare.
-  regionalMaster,
+  regional,
 
   /// The global master truth.
-  globalMaster,
+  global,
 }

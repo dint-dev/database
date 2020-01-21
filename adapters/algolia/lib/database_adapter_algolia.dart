@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import 'package:universal_io/io.dart';
 ///   );
 /// }
 /// ```
-class Algolia extends DatabaseAdapter {
+class Algolia extends DocumentDatabaseAdapter {
   final String appId;
   final String apiKey;
 
@@ -64,7 +64,82 @@ class Algolia extends DatabaseAdapter {
   }
 
   @override
-  Stream<Snapshot> performRead(ReadRequest request) async* {
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) async {
+    final document = request.document;
+    final collection = document.parent;
+    final collectionId = _validateCollectionId(collection.collectionId);
+    final documentId = _validateDocumentId(document.documentId);
+
+    if (request.mustExist) {
+      //
+      // Check existence
+      //
+      final resp = await _apiRequest(
+        method: 'GET',
+        path: '/1/indexes/$collectionId/$documentId',
+      );
+      if (resp.statusCode == HttpStatus.notFound) {
+        throw DatabaseException.notFound(document);
+      }
+    }
+
+    //
+    // Dispatch request
+    //
+    final apiResponse = await _apiRequest(
+      method: 'DELETE',
+      path: '/1/indexes/$collectionId/$documentId',
+      isWrite: true,
+    );
+
+    //
+    // Handle error
+    //
+    final error = apiResponse.error;
+    if (error != null) {
+      throw error;
+    }
+  }
+
+  @override
+  Future<void> performDocumentInsert(DocumentInsertRequest request) async {
+    final document = request.document;
+    final collection = document.parent;
+    final collectionId = _validateCollectionId(collection.collectionId);
+    final documentId = _validateDocumentId(document.documentId);
+
+    //
+    // Check existence
+    //
+    final resp = await _apiRequest(
+      method: 'GET',
+      path: '/1/indexes/$collectionId/$documentId',
+    );
+    if (resp.statusCode == HttpStatus.ok) {
+      throw DatabaseException.found(document);
+    }
+
+    //
+    // Dispatch request
+    //
+    final apiResponse = await _apiRequest(
+      method: 'PUT',
+      path: '/1/indexes/$collectionId/$documentId',
+      bodyJson: request.data,
+      isWrite: true,
+    );
+
+    //
+    // Handle error
+    //
+    final error = apiResponse.error;
+    if (error != null) {
+      throw error;
+    }
+  }
+
+  @override
+  Stream<Snapshot> performDocumentRead(DocumentReadRequest request) async* {
     final document = request.document;
     final collection = document.parent;
     final collectionId = _validateCollectionId(collection.collectionId);
@@ -104,14 +179,15 @@ class Algolia extends DatabaseAdapter {
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) async* {
+  Stream<QueryResult> performDocumentSearch(
+      DocumentSearchRequest request) async* {
     final queryArguments = <String, String>{};
 
     // Validate index name
     final collection = request.collection;
     final collectionId = _validateCollectionId(collection.collectionId);
 
-    final query = request.query;
+    final query = request.query ?? const Query();
 
     // Query string
     {
@@ -230,146 +306,65 @@ class Algolia extends DatabaseAdapter {
   }
 
   @override
-  Future<void> performWrite(WriteRequest request) async {
+  Future<void> performDocumentUpdate(DocumentUpdateRequest request) async {
     final document = request.document;
     final collection = document.parent;
     final collectionId = _validateCollectionId(collection.collectionId);
     final documentId = _validateDocumentId(document.documentId);
 
-    switch (request.type) {
-      case WriteType.insert:
-        //
-        // Check existence
-        //
-        final resp = await _apiRequest(
-          method: 'GET',
-          path: '/1/indexes/$collectionId/$documentId',
-        );
-        if (resp.statusCode == HttpStatus.ok) {
-          throw DatabaseException.found(document);
-        }
+    //
+    // Check existence
+    //
+    final resp = await _apiRequest(
+      method: 'GET',
+      path: '/1/indexes/$collectionId/$documentId',
+    );
+    if (resp.statusCode == HttpStatus.notFound) {
+      throw DatabaseException.notFound(document);
+    }
 
-        //
-        // Dispatch request
-        //
-        final apiResponse = await _apiRequest(
-          method: 'PUT',
-          path: '/1/indexes/$collectionId/$documentId',
-          bodyJson: request.data,
-          isWrite: true,
-        );
+    //
+    // Dispatch request
+    //
+    final apiResponse = await _apiRequest(
+      method: 'PUT',
+      path: '/1/indexes/$collectionId/$documentId',
+      bodyJson: request.data,
+      isWrite: true,
+    );
 
-        //
-        // Handle error
-        //
-        final error = apiResponse.error;
-        if (error != null) {
-          throw error;
-        }
-        break;
+    //
+    // Handle error
+    //
+    final error = apiResponse.error;
+    if (error != null) {
+      throw error;
+    }
+  }
 
-      case WriteType.update:
-        //
-        // Check existence
-        //
-        final resp = await _apiRequest(
-          method: 'GET',
-          path: '/1/indexes/$collectionId/$documentId',
-        );
-        if (resp.statusCode == HttpStatus.notFound) {
-          throw DatabaseException.notFound(document);
-        }
+  @override
+  Future<void> performDocumentUpsert(DocumentUpsertRequest request) async {
+    final document = request.document;
+    final collection = document.parent;
+    final collectionId = _validateCollectionId(collection.collectionId);
+    final documentId = _validateDocumentId(document.documentId);
 
-        //
-        // Dispatch request
-        //
-        final apiResponse = await _apiRequest(
-          method: 'PUT',
-          path: '/1/indexes/$collectionId/$documentId',
-          bodyJson: request.data,
-          isWrite: true,
-        );
+    //
+    // Dispatch request
+    //
+    final apiResponse = await _apiRequest(
+      method: 'PUT',
+      path: '/1/indexes/$collectionId/$documentId',
+      bodyJson: request.data,
+      isWrite: true,
+    );
 
-        //
-        // Handle error
-        //
-        final error = apiResponse.error;
-        if (error != null) {
-          throw error;
-        }
-        break;
-
-      case WriteType.upsert:
-        //
-        // Dispatch request
-        //
-        final apiResponse = await _apiRequest(
-          method: 'PUT',
-          path: '/1/indexes/$collectionId/$documentId',
-          bodyJson: request.data,
-          isWrite: true,
-        );
-
-        //
-        // Handle error
-        //
-        final error = apiResponse.error;
-        if (error != null) {
-          throw error;
-        }
-        break;
-
-      case WriteType.delete:
-        //
-        // Check existence
-        //
-        final resp = await _apiRequest(
-          method: 'GET',
-          path: '/1/indexes/$collectionId/$documentId',
-        );
-        if (resp.statusCode == HttpStatus.notFound) {
-          throw DatabaseException.notFound(document);
-        }
-
-        //
-        // Dispatch request
-        //
-        final apiResponse = await _apiRequest(
-          method: 'DELETE',
-          path: '/1/indexes/$collectionId/$documentId',
-          isWrite: true,
-        );
-
-        //
-        // Handle error
-        //
-        final error = apiResponse.error;
-        if (error != null) {
-          throw error;
-        }
-        break;
-
-      case WriteType.deleteIfExists:
-        //
-        // Dispatch request
-        //
-        final apiResponse = await _apiRequest(
-          method: 'DELETE',
-          path: '/1/indexes/$collectionId/$documentId',
-          isWrite: true,
-        );
-
-        //
-        // Handle error
-        //
-        final error = apiResponse.error;
-        if (error != null) {
-          throw error;
-        }
-        break;
-
-      default:
-        throw UnimplementedError();
+    //
+    // Handle error
+    //
+    final error = apiResponse.error;
+    if (error != null) {
+      throw error;
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'package:database/database.dart';
+import 'package:database/filter.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -105,21 +106,21 @@ void main() {
 
   group('GeoPointFilter', () {
     test('"hashCode" / "=="', () {
-      final filter = GeoPointFilter.withDistance(
+      final filter = GeoPointFilter.withMaxDistance(
         GeoPoint.zero,
-        RangeFilter(max: 2.0),
+        3.0,
       );
-      final clone = GeoPointFilter.withDistance(
+      final clone = GeoPointFilter.withMaxDistance(
         GeoPoint.zero,
-        RangeFilter(max: 2.0),
+        3.0,
       );
-      final other0 = GeoPointFilter.withDistance(
+      final other0 = GeoPointFilter.withMaxDistance(
         GeoPoint.zero,
-        RangeFilter(max: 3.0),
+        99.0,
       );
-      final other1 = GeoPointFilter.withDistance(
+      final other1 = GeoPointFilter.withMaxDistance(
         GeoPoint(99.0, 99.0),
-        RangeFilter(max: 2.0),
+        3.0,
       );
       expect(filter, clone);
       expect(filter, isNot(other0));

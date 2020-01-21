@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,23 +18,46 @@ import 'package:database/database_adapter.dart';
 /// Mixin for read-only database adapters.
 mixin ReadOnlyDatabaseAdapterMixin implements DatabaseAdapter {
   @override
-  WriteBatch newWriteBatch() {
-    throw UnsupportedError('Database is read-only');
-  }
-
-  @override
-  Future<void> performWrite(WriteRequest request) {
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) {
     return Future<Transaction>.error(
-      UnsupportedError('Database is read-only'),
+      DatabaseException.databaseReadOnly(),
     );
   }
 
   @override
-  Future<void> runInTransaction(
-      {Duration timeout,
-      Future<void> Function(Transaction transaction) callback}) {
+  Future<void> performDocumentDeleteBySearch(
+      DocumentDeleteBySearchRequest request) {
     return Future<Transaction>.error(
-      UnsupportedError('Database is read-only'),
+      DatabaseException.databaseReadOnly(),
+    );
+  }
+
+  @override
+  Future<void> performDocumentInsert(DocumentInsertRequest request) {
+    return Future<Transaction>.error(
+      DatabaseException.databaseReadOnly(),
+    );
+  }
+
+  @override
+  Future<void> performDocumentUpdate(DocumentUpdateRequest request) {
+    return Future<Transaction>.error(
+      DatabaseException.databaseReadOnly(),
+    );
+  }
+
+  @override
+  Future<void> performDocumentUpdateBySearch(
+      DocumentUpdateBySearchRequest request) {
+    return Future<Transaction>.error(
+      DatabaseException.databaseReadOnly(),
+    );
+  }
+
+  @override
+  Future<void> performDocumentUpsert(DocumentUpsertRequest request) {
+    return Future<Transaction>.error(
+      DatabaseException.databaseReadOnly(),
     );
   }
 }

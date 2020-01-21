@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ Future<void> main() async {
     // Define server
     //
     final serverService = GrpcSearchServerService(
-      database: MemoryDatabase(),
+      adapter: MemoryDatabaseAdapter(),
       onError: (call, request, error, stackTrace) {
         print('Error: $error');
       },
@@ -54,7 +54,7 @@ Future<void> main() async {
       channelOptions: grpc.ChannelOptions(
         credentials: grpc.ChannelCredentials.insecure(),
       ),
-    );
+    ).database();
   };
 
   DatabaseAdapterTester(newDatabase).run();

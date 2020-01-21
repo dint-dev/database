@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@ import 'package:universal_html/html.dart' as html;
 import 'database_adapter_tester.dart';
 
 void main() {
-  group('BrowserDatabase:', () {
+  group('BrowserDatabaseAdapter:', () {
     tearDown(() {
       html.window.localStorage.clear();
     });
-    DatabaseAdapterTester(() => BrowserDatabase()).run();
+    DatabaseAdapterTester(() => BrowserDatabaseAdapter().database()).run();
   });
 
   group('BrowserLocalStorage:', () {
     tearDown(() {
       html.window.localStorage.clear();
     });
-    DatabaseAdapterTester(() => BrowserLocalStorageDatabase()).run();
+    DatabaseAdapterTester(() => BrowserLocalStorageDatabase().database()).run();
   });
 }

@@ -1,6 +1,6 @@
 # Overview
 Provides an adapter for using the package [database](https://pub.dev/packages/database) with
-[PostgreSQL](https://www.postgresql.org/). The implementation uses the package
+[PostgreSQL](https://www.postgresql.org/). The implementation relies on the package
 [postgres](https://pub.dev/packages/postgres).
 
 # Getting started
@@ -13,10 +13,12 @@ dependencies:
 
 ## 2.Configure
 ```dart
+import 'package:database/database.dart';
+import 'package:database/sql.dart';
 import 'package:database_adapter_postgre/database_adapter_postgre.dart';
 
 Future main() async {
-  final database = Postgre(
+  final config = Postgre(
     host: 'localhost',
     port: 5432,
     user: 'your username',
@@ -24,7 +26,9 @@ Future main() async {
     databaseName: 'example',
   );
 
-  final result = await database.querySql('SELECT (name) FROM employee');
+  final sqlClient = config.database().sqlClient;
+
+  final result = await sqlClient.query('SELECT name FROM employee').toRows();
   for (var row in result.rows) {
     print('Name: ${row[0]}');
   }

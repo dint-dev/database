@@ -13,36 +13,43 @@
 // limitations under the License.
 
 class Timestamp implements Comparable<Timestamp> {
-  final DateTime utc;
-  @deprecated
-  String get timezone => 'Z';
+  final int seconds;
+  final int nanos;
 
-  Timestamp.fromDateTime(DateTime utc, {@deprecated String timezone = 'Z'})
-      : utc = utc?.toUtc() {
-    ArgumentError.checkNotNull(utc, 'utc');
-    ArgumentError.checkNotNull(timezone, 'timezone');
+  Timestamp(this.seconds, this.nanos);
+
+  factory Timestamp.fromDateTime(DateTime dateTime) {
+    dateTime = dateTime.toUtc();
+    return Timestamp(
+      dateTime.millisecondsSinceEpoch ~/ 1000,
+      (dateTime.microsecondsSinceEpoch % 1000000) * 1000,
+    );
   }
 
   @override
-  int get hashCode => utc.hashCode ^ timezone.hashCode;
+  int get hashCode => seconds.hashCode ^ nanos.hashCode;
 
   @override
   bool operator ==(other) =>
-      other is Timestamp && utc == other.utc && timezone == other.timezone;
+      other is Timestamp && seconds == other.seconds && nanos == other.nanos;
 
   @override
   int compareTo(Timestamp other) {
-    final r = utc.compareTo(other.utc);
+    final r = seconds.compareTo(other.seconds);
     if (r != 0) {
       return r;
     }
-    return timezone.compareTo(other.timezone);
+    return nanos.compareTo(other.nanos);
+  }
+
+  DateTime toDateTime() {
+    return DateTime.fromMicrosecondsSinceEpoch(
+      seconds * 1000000 + nanos ~/ 1000,
+    );
   }
 
   @override
   String toString() {
-    var s = utc.toUtc().toIso8601String();
-    s = s.substring(s.length - 1) + timezone;
-    return s;
+    return toDateTime().toIso8601String();
   }
 }

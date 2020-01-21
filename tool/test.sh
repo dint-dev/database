@@ -14,7 +14,7 @@ if [ -f SECRETS.env ]; then
   echo "Loading environmental variables from 'SECRETS.env'"
   echo "(An optional file for local testing)"
   echo "-------------------------------------------------"
-  source SECRETS.env
+  export $(cat SECRETS.env | xargs)
 fi
 
 visit() {
@@ -59,3 +59,6 @@ visit search
 
 visit         adapters/algolia
 visit         adapters/firestore_browser
+
+visit         samples/example
+visit_flutter samples/example_flutter

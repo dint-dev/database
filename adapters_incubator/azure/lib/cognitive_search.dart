@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 /// An adapter for using [Azure Cognitive Search](https://azure.microsoft.com/en-us/services/search),
 /// a commercial cloud service by Microsoft.
-library cognitive_search;
+library azure.cognitive_search;
 
 import 'dart:convert';
 
@@ -28,21 +28,18 @@ import 'package:universal_io/io.dart';
 ///
 /// An example:
 /// ```dart
-/// import 'package:database/adapters.dart';
 /// import 'package:database/database.dart';
 ///
 /// void main() {
-///   Database.freezeDefaultInstance(
-///     AzureCosmosDB(
-///       credentials: AzureCognitiveSearchCredentials(
-///         apiKey: 'API KEY',
-///       ),
+///   final database = AzureCognitiveSearch(
+///     credentials: AzureCognitiveSearchCredentials(
+///       apiKey: 'API KEY',
 ///     ),
-///   );
+///   ).database();
 ///
 ///   // ...
 /// }
-class AzureCognitiveSearch extends DatabaseAdapter {
+class AzureCognitiveSearch extends DocumentDatabaseAdapter {
   final AzureCognitiveSearchCredentials _credentials;
   final HttpClient httpClient;
 
@@ -56,7 +53,29 @@ class AzureCognitiveSearch extends DatabaseAdapter {
   }
 
   @override
-  Stream<Snapshot> performRead(ReadRequest request) async* {
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> performDocumentInsert(DocumentInsertRequest request) async {
+    final document = request.document;
+    final collection = document.parent;
+    final collectionId = collection.collectionId;
+    final documentId = document.documentId;
+    final json = <String, Object>{};
+    json.addAll(request.data);
+    json['@search.action'] = 'update';
+    json['_id'] = documentId;
+    await _apiRequest(
+      method: 'POST',
+      path: '/indexes/$collectionId/docs/index',
+      json: json,
+    );
+  }
+
+  @override
+  Stream<Snapshot> performDocumentRead(DocumentReadRequest request) async* {
     final document = request.document;
     final collection = document.parent;
     final collectionId = collection.collectionId;
@@ -72,7 +91,8 @@ class AzureCognitiveSearch extends DatabaseAdapter {
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) async* {
+  Stream<QueryResult> performDocumentSearch(
+      DocumentSearchRequest request) async* {
     final query = request.query;
     final collection = request.collection;
     final collectionId = collection.collectionId;
@@ -146,20 +166,8 @@ class AzureCognitiveSearch extends DatabaseAdapter {
   }
 
   @override
-  Future<void> performWrite(WriteRequest request) async {
-    final document = request.document;
-    final collection = document.parent;
-    final collectionId = collection.collectionId;
-    final documentId = document.documentId;
-    final json = <String, Object>{};
-    json.addAll(request.data);
-    json['@search.action'] = 'update';
-    json['_id'] = documentId;
-    await _apiRequest(
-      method: 'POST',
-      path: '/indexes/$collectionId/docs/index',
-      json: json,
-    );
+  Future<void> performDocumentUpsert(DocumentUpsertRequest request) {
+    throw UnimplementedError();
   }
 
   Future<_Response> _apiRequest({

@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import 'package:test/test.dart';
 void main() {
   group('Document:', () {
     test('"==" / hashCode', () {
-      final database = MemoryDatabase();
+      final database = MemoryDatabaseAdapter().database();
       final value = database.collection('a').document('b');
       final clone = database.collection('a').document('b');
       final other0 = database.collection('a').document('other');
@@ -34,10 +34,11 @@ void main() {
     });
 
     test('toString()', () {
-      final value = MemoryDatabase().collection('a').document('b');
+      final value =
+          MemoryDatabaseAdapter().database().collection('a').document('b');
       expect(
         value.toString(),
-        'Instance of \'MemoryDatabase\'.collection("a").document("b")',
+        'Database(...).collection("a").document("b")',
       );
     });
   });

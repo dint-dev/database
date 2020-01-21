@@ -2,136 +2,180 @@
 [![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
 
 # Introduction
- __Warning:__ this package isn't ready for use!
+This is __database.dart__, a vendor-agnostic database API for [Flutter](https://flutter.io) and
+other [Dart](https://dart.dev) projects.
 
-The package aims to be usable with:
-  * __SQL databases__
-  * __Document databases__ (like Google Cloud Firestore)
-  * __Search engines__ (like ElasticSearch/Lucene)
-
-The current iteration of the API has a single API for all three database paradigms. This is somewhat
-unconventional and carries a risk of confusion when developers read documentation or make
-assumptions about behavior. We evaluate the current approach, and if it doesn't seem right, split
-the unified API into two or three libraries.
-
-Any feedback on the design is appreciated. The project is licensed under the
-[Apache License 2.0](LICENSE). If this project interests you, please consider becoming a
-developer/maintainer.
-
+## Features
+  * 👫 __Document & SQL database support__. The API has been designed to support both SQL databases
+    and document databases. You - or your customers - can always choose the best database without
+    rewriting any code.
+  * 🔭 __Full-text search engine support__. The API supports forwarding specific queries to search
+    engines that can, for example, handle natural language queries better than transaction databases.
+    There are already several search engines already supported (Algolia, ElasticSearch, and a simple
+    search engine written in Dart).
+  * 🚚 __Used in commercial products__. The authors use the package in enterprise applications. The
+    package is also used by open-source projects such as [Dint](https://dint.dev).
 
 ## Links
-  * [API documentation](https://pub.dev/documentation/database/latest/)
-  * [Issue tracker](https://github.com/dint-dev/database/issues)
-  * [Github source code](https://github.com/dint-dev/database/tree/master/database)
-
-
-## Available adapters
-### In this package
-  * [BrowserDatabase](https://pub.dev/documentation/database/latest/database.browser/BrowserDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/browser.dart))
-    * Stores data using browser APIs.
-  * [MemoryDatabase](https://pub.dev/documentation/database/latest/database/MemoryDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/memory_database.dart))
-    * Stores data in memory.
-
-### In other packages
-  * [database_adapter_algolia](https://pub.dev/packages/database_adapter_algolia) ([Github](https://github.com/dint-dev/database/tree/master/adapters/algolia/lib/))
-    * For using [Algolia](https://www.algolia.com).
-  * [database_adapter_firestore_browser](https://pub.dev/packages/database_adapter_firestore_browser) ([Github](https://github.com/dint-dev/database/tree/master/adapters/firestore_browser/lib/))
-    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore) in browser applications.
-  * [database_adapter_firestore_flutter](https://pub.dev/packages/database_adapter_firestore_flutter) ([Github](https://github.com/dint-dev/database/tree/master/adapters/firestore_flutter/lib/))
-    * For using [Google Cloud Firestore](https://firebase.google.com/docs/firestore) in Flutter applications.
-  * [database_adapter_elasticsearch](https://pub.dev/packages/database_adapter_elasticsearch) ([Github](https://github.com/dint-dev/database/tree/master/adapters/elasticsearch/lib/))
-    * For using [Elasticsearch](https://www.elastic.co).
-  * [database_adapter_postgre](https://pub.dev/packages/database_adapter_postgre) ([Github](https://github.com/dint-dev/database/tree/master/adapters/postgre/lib/))
-    * For using [PostgreSQL](https://www.postgresql.org/).
-  * _Have a package? Add it here!_
-
-The following packages are currently far from passing tests:
-  * _database_adapter_azure_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/azure/lib/))
-    * For using [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction).
-    * For using [Azure Cognitive Search](https://azure.microsoft.com/en-us/services/search).
-  * _database_adapter_grpc_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/grpc/lib/))
-    * For communicating with a server over a [GRPC](https://grpc.io) channel.
-
-
-## Available middleware classes
-### In this package
-  * [CachingDatabase](https://pub.dev/documentation/database/latest/database/CachingDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/caching_database.dart))
-    * Caches data in another database (such as _MemoryDatabase_).
-  * [SchemaUsingDatabase](https://pub.dev/documentation/database/latest/database/SchemaUsingDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/schema_using_database.dart))
-    * Enforces schemas on reads/writes.
-  * [SearchForwardingDatabase](https://pub.dev/documentation/database/latest/database/SearchForwardingDatabase-class.html) ([Github](https://github.com/dint-dev/database/tree/master/packages/database/lib/src/database/adapters/search_forwarding_database.dart))
-    * Forwards cache-accepting search requests to a search engine.
-
-### Other packages
-  * [search](https://pub.dev/packages/search) ([Github](https://github.com/dint-dev/database/tree/master/search/lib/))
-    * An minimalistic search engine for small collections.
-  * _Have a package? Add it here!_
-
+  * [Issue tracker](https://github.com/dint-dev/database/issues).
+  * [Github project](https://github.com/dint-dev/database/tree/master/database)
+  * [API reference](https://pub.dev/documentation/database/latest/)
 
 ## Contributing
-This is an open-source community project. Anyone, even beginners, can contribute.
+  * Just create a pull request [in Github](https://github.com/dint-dev/database).
 
-This is how you contribute:
-  1. Fork [github.com/dint-dev/dint](https://github.com/dint-dev/database) by pressing fork button.
-  2. Clone your fork to your computer: `git clone github.com/your_username/database`
-  3. Run `./tool/pub_get.sh` to get dependencies for all packages.
-  4. Do your changes.
-  5. When you are done, commit changes with `git add -A` and `git commit`.
-  6. Push changes to your personal repository: `git push origin`
-  7. Go to [github.com/dint-dev/dint](https://github.com/dint-dev/dint) and create a pull request.
+## Supported products and APIs
+### Document databases
+  * __Azure Cosmos DB__ ([website](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction))
+    * Package (not ready for use): _database_adapter_azure_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/azure/lib/)
+  * __Google Cloud Firestore__ ([website](https://firebase.google.com/docs/firestore))
+    * Browser package: [database_adapter_firestore_browser](https://pub.dev/packages/database_adapter_firestore_browser) ([Github](https://github.com/dint-dev/database/tree/master/adapters/firestore_browser/lib/))
+    * Flutter (iOS /Android) package: [database_adapter_firestore_flutter](https://pub.dev/packages/database_adapter_firestore_flutter) ([Github](https://github.com/dint-dev/database/tree/master/adapters/firestore_flutter/lib/))
+  * _Have a package? Add it here!_
 
-Contributors may be added to the Github organization team so they can save time by pushing
-directly to the repository.
+### SQL databases
+  * __PostgreSQL__ ([website](https://www.postgresql.org/))
+    * Package: [database_adapter_postgre](https://pub.dev/packages/database_adapter_postgre) ([Github](https://github.com/dint-dev/database/tree/master/adapters/postgre/lib/))
+  * __SQLite__ ([website](https://www.sqlite.org/))
+    * Package: [database_adapter_sqlite](https://pub.dev/packages/database_adapter_sqlite) ([Github](https://github.com/dint-dev/database/tree/master/adapters/sqlite/lib/))
+  * _Have a package? Add it here!_
+
+### Search engines
+  * __Algolia__ ([website](https://www.algolia.com))
+    * Package: [database_adapter_algolia](https://pub.dev/packages/database_adapter_algolia) ([Github](https://github.com/dint-dev/database/tree/master/adapters/algolia/lib/))
+  * __Azure Cognitive Search__ ([search](https://azure.microsoft.com/en-us/services/search))
+    * Package (not ready for use): _database_adapter_azure_ ([Github](https://github.com/dint-dev/database/tree/master/adapters_incubator/azure/lib/)
+  * __Elasticsearch__ ([website](https://www.elastic.co)))
+    * Package: [database_adapter_elasticsearch](https://pub.dev/packages/database_adapter_elasticsearch) ([Github](https://github.com/dint-dev/database/tree/master/adapters/elasticsearch/lib/))
+  * _Have a package? Add it here!_
+
+### Other
+  * __Web APIs__
+    * [BrowserDatabaseAdapter](https://pub.dev/documentation/database/latest/database.browser/BrowserDatabaseAdapter-class.html) ([Github](https://github.com/dint-dev/database/tree/master/database/browser.dart))
+      uses the best available web API.
+    * [LocalStorageDatabaseAdapter](https://pub.dev/documentation/database/latest/database.browser/LocalStorageDatabaseAdapter-class.html) ([Github](https://github.com/dint-dev/database/tree/master/database/browser.dart)).
+  * __Memory__
+    * [MemoryDatabaseAdapter](https://pub.dev/documentation/database/latest/database/MemoryDatabaseAdapter-class.html) ([Github](https://github.com/dint-dev/database/tree/master/database/lib/src/database/adapters/memory.dart))
+    keeps data in memory. Good for tests and caching.
+  * _Have a package? Add it here!_
+
+### Middleware
+  * [CachingDatabaseAdapter](https://pub.dev/documentation/database/latest/database/CachingDatabaseAdapter-class.html) ([Github](https://github.com/dint-dev/database/tree/master/database/lib/src/database/adapters/caching_database.dart))
+    * Caches data in another database (such as _MemoryDatabaseAdapter_).
+  * [SchemaEnforcingDatabaseAdapter](https://pub.dev/documentation/database/latest/database/SchemaEnforcingDatabaseAdapter-class.html) ([Github](https://github.com/dint-dev/database/tree/master/database/lib/src/database/adapters/schema_using_database.dart))
+    * Enforces schemas on reads/writes.
+  * [SearchEnginePromotingDatabaseAdapter](https://pub.dev/documentation/database/latest/database/SearchEnginePromotingDatabaseAdapter-class.html) ([Github](https://github.com/dint-dev/database/tree/master/database/lib/src/database/adapters/search_forwarding_database.dart))
+    * Forwards cache-accepting search requests to a search engine.
+  * _SearchingDatabaseAdapter_ in package [search](https://pub.dev/packages/search) ([Github](https://github.com/dint-dev/database/tree/master/search/lib/))
+    provides minimalistic search engine for small collections.
+  * _Have a package? Add it here!_
+
 
 # Getting started
-## Add dependency
+## 1.Add dependency
 In `pubspec.yaml`, add:
 ```yaml
 dependencies:
   database: any
 ```
 
-## Construct instance
+## 2.Choose adapter
+
+Look at the earlier list of adapters.
+
+For example:
+
 ```dart
 import 'package:database/database.dart';
 
-Future<void> main() async {
-  //
-  // Use in-memory database
-  //
-  final database = MemoryDatabase();
-
-  // ...
-}
+final Database database = MemoryDatabaseAdapter().database();
 ```
 
+# Reading/writing documents
+## Supported primitives
+  * `null`
+  * `bool`
+  * `int`
+  * [Int64](https://pub.dev/documentation/fixnum/latest/fixnum/Int64-class.html)
+  * `double`
+  * [Date](https://pub.dev/documentation/database/latest/database/Date-class.html)
+  * `DateTime`
+  * [Timestamp](https://pub.dev/documentation/database/latest/database/Timestamp-class.html)
+  * [GeoPoint](https://pub.dev/documentation/database/latest/database/GeoPoint-class.html)
+  * `String`
+  * `Uint8List`
+  * `List`
+  * `Map<String,Object>`
 
-## Write and read documents
+## Writing
+### Upsert, delete
 ```dart
-// Insert
-final document = await database.collection('employee').insert({
-  'name': 'Jane',
-  'title': 'software developer',
-  'skills': ['dart'],
+// Allocate a document with a random 128-bit identifier
+final document = database.collection('example').newDocument();
+
+// Upsert, which means "inserting or updating".
+await document.upsert({
+  'any property': 'any value',
 });
 
-// Update
-await document.update({
-  // ...
-});
-
-// Read
-await snapshot = document.get();
-
-// DElete
+// Delete
 await document.delete();
 ```
 
 
-### Query documents
+### Insert, update, delete
 ```dart
-final result = await database.collection('employee').search(
-  query: Query.parse('name:(John OR Jane)')
+// Insert
+final product = database.collection('product').insert({
+  'name: 'Coffee mug',
+  'price': 8,
+})s;
+
+// Update
+await product.update(
+  {
+    'name': 'Coffee mug',
+    'price': 12,
+  },
+);
+
+// Delete
+await document.delete(mustExist:true);
+```
+
+
+## Reading data
+### get()
+
+```dart
+// Read a snapshot from a regional master database.
+// If it's acceptable to have a locally cached version, use Reach.local.
+final snapshot = await document.get(reach: Reach.regional);
+
+// Use 'exists' to check whether the document exists
+if (snapshot.exists) {
+  final price = snapshot.data['price'];
+  print('price: $price');
+}
+```
+
+### watch()
+By using `watch` function, you continue to receive updates to the document. Some databases support
+this natively. In other databases, watching may be accomplished by polling.
+
+```dart
+final stream = await document.watch(
+  pollingInterval: Duration(seconds:2),
+  reach: Reach.server,
+);
+```
+
+## Searching
+Search products with descriptions containing 'milk' or 'vegetables':
+```dart
+final result = await database.collection('product').search(
+  query: Query.parse('description:(bread OR vegetables)'),
+  reach: Reach.server,
 );
 
 for (var snapshot in result.snapshots) {
@@ -139,43 +183,78 @@ for (var snapshot in result.snapshots) {
 }
 ```
 
+## Available filters
+The following logical operations are supported:
+  * `AndFilter([ValueFilter('f0'), ValueFilter('f1')])`
+  * `OrFilter([ValueFilter('f0'), ValueFilter('f1')])`
+  * `NotFilter(ValueFilter('example'))`
 
-### Introduction to filters
-  * Logical
-    * `AndFilter([ValueFilter('f0'), ValueFilter('f1')])`
-    * `OrFilter([ValueFilter('f0'), ValueFilter('f1')])`
-    * `NotFilter(ValueFilter('example'))`
-  * Structural
+The following primitives supported:
+  * __List__
     * `ListFilter(items: ValueFilter('value'))`
+  * __Map__
     * `MapFilter({'key': ValueFilter('value')})`
-  * Primitive
+  * __Comparisons__
     * `ValueFilter(3.14)`
     * `RangeFilter(min:3, max:4)`
     * `RangeFilter(min:3, max:4, isExclusiveMin:true, isExclusiveMax:true)`
     * `RangeFilter(min:3, max:4, isExclusiveMin:true, isExclusiveMax:true)`
-    * `GeoPointFilter(near:GeoPoint(1.23, 3.45)`
-  * SQL filters
-    * `SqlFilter('SELECT * FROM table WHERE x ', 3.14)`
-  * Natural language filters
-    * `KeywordFilter('example')`
-      * Keyword queries (`KeyFilter`) are very expensive unless you have configured a search engine such
-        as ElasticSearch/Lucene. The default implementation visits every document in the collection
-        and does a substring search.
-      * To prevent unintentional visit to every document, remote databases should throw
-        `UnsuportedError` unless they support keyword search.
+  * __Geospatial__
+    * [GeoPointFilter]
+      * Example: `GeoPointFilter(near:GeoPoint(1.23, 3.45), maxDistance:1000)`
 
-### Parsing filters
-The package supports parsing query strings. The syntax is inspired by Lucene and Google Search.
+The following special filter types are also supported:
+  * __SQL query__
+    * Example: `SqlFilter('SELECT * FROM hotels WHERE breakfast = ?, price < ?', [true, 100])`
+    * Should be only in the root level of the query.
+  * __Natural language search query__
+    * Examples:`KeywordFilter('example')`
+    * Keyword queries (`KeyFilter`) do not usually work unless you have configured a search
+      engine for your application.
+
+# Using SQL client
+```dart
+import 'package:database/sql.dart';
+import 'package:database_adapter_postgre/database_adapter_postgre.dart';
+
+Future main() async {
+    // In this example, we use PostgreSQL adapter
+    final database = Postgre(
+      host:         'localhost',
+      user:         'database user',
+      password:     'database password',
+      databaseName: 'example',
+    ).database();
+
+    // Construct SQL client.
+    final sqlClient = database.sqlClient;
+
+    // Select all pizza products with price less than 10.
+    final pizzas = await sqlClient.query(
+      'SELECT * FROM product WHERE type = ?, price < ?',
+      ['pizza', 10],
+    ).toMaps();
+
+    for (var pizza in pizzas) {
+      print(pizza['name']);
+    }
+}
+```
+
+
+# Advanced usage
+## Parsing search query strings
+You can parse search queries from strings. The supported syntax is very similar to other major
+search engines such as Lucene.
 
 ```dart
 final query = Query.parse('New York Times date:>=2020-01-01');
 ```
 
 Examples of supported queries:
-  * `New York Times`
-    * Matches keywords "New", "York", and "Times". The underlying search engine may decide to focus
-      on the three words separately, sequence "New York", or sequence "New York Times".
-  * `"New York Times"`
+  * `Norwegian Forest cat`
+    * Matches keywords "Norwegian", "Forest", and "cat".
+  * `"Norwegian Forest cat"`
     * A quoted keyword ensures that the words must appear as a sequence.
   * `cat AND dog`
     * Matches keywords "cat" and "dog" (in any order).
@@ -196,18 +275,8 @@ Examples of supported queries:
   * `(cat OR dog) AND weight:>=10`
     * An example of grouping filters.
 
-
-## Supported primitives
-  * `null`
-  * `bool`
-  * `int`
-  * [Int64](https://pub.dev/documentation/fixnum/latest/fixnum/Int64-class.html)
-  * `double`
-  * [Date](https://pub.dev/documentation/database/latest/database/Date-class.html)
-  * `DateTime`
-  * [Timestamp](https://pub.dev/documentation/database/latest/database/Timestamp-class.html)
-  * [GeoPoint](https://pub.dev/documentation/database/latest/database/GeoPoint-class.html)
-  * `String`
-  * `Uint8List`
-  * `List`
-  * `Map<String,Object>`
+In equality/range expressions, the parser recognizes patterns such as:
+  * null, false, true, 3, 3.14
+  * 2020-12-31 (Date)
+  * 2020-12-31T00:00:00Z (DateTime)
+  * Other values are interpreted as strings

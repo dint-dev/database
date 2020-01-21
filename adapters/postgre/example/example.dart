@@ -7,10 +7,15 @@ Future main() async {
     user: 'your username',
     password: 'your password',
     databaseName: 'example',
-  );
+  ).database();
 
-  final result = await database.querySql('SELECT (name) FROM employee');
-  for (var row in result.rows) {
+  final iterator = await database.sqlClient
+      .query(
+        'SELECT (name) FROM employee',
+      )
+      .getIterator();
+
+  for (var row in await iterator.toRows()) {
     print('Name: ${row[0]}');
   }
 }

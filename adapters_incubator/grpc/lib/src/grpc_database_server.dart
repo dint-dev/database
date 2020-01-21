@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,14 +59,14 @@ typedef GrpcSearchServerServiceErrorHandler = void Function(
 /// }
 /// ```
 class GrpcSearchServerService extends pb.DatabaseServerServiceBase {
-  final Database database;
+  final DatabaseAdapter adapter;
   final GrpcSearchServerServiceErrorHandler onError;
 
   GrpcSearchServerService({
-    @required this.database,
+    @required this.adapter,
     this.onError,
   }) {
-    ArgumentError.checkNotNull(database, 'database');
+    ArgumentError.checkNotNull(adapter, 'database');
   }
 
   @override
@@ -78,12 +78,15 @@ class GrpcSearchServerService extends pb.DatabaseServerServiceBase {
       //
       // Request
       //
-      final document = grpcDocumentToDart(database, grpcRequest.document);
+      final document = grpcDocumentToDart(
+        adapter.database(),
+        grpcRequest.document,
+      );
 
       //
       // Dispatch
       //
-      final snapshotStream = document.getIncrementalStream();
+      final snapshotStream = document.getIncrementally();
 
       //
       // Response
@@ -112,18 +115,19 @@ class GrpcSearchServerService extends pb.DatabaseServerServiceBase {
       //
       // Request
       //
-      final request = SearchRequest(
+      final request = DocumentSearchRequest(
         collection: grpcCollectionToDart(
-          database,
+          adapter.database(),
           grpcRequest.collection,
         ),
         query: grpcQueryToDart(grpcRequest.query),
+        reach: Reach.server,
       );
 
       //
       // Dispatch
       //
-      final responseStream = request.delegateTo(database);
+      final responseStream = request.delegateTo(adapter);
 
       //
       // Response
@@ -154,18 +158,7 @@ class GrpcSearchServerService extends pb.DatabaseServerServiceBase {
     grpc.ServiceCall call,
     pb.WriteInput grpcRequest,
   ) async* {
-    try {
-      final request = WriteRequest(
-        document: grpcDocumentToDart(database, grpcRequest.document),
-        type: grpcWriteTypeToDart(grpcRequest.type),
-        data: grpcValueToDart(grpcRequest.value),
-      );
-      await request.delegateTo(database);
-      yield (pb.WriteOutput());
-    } catch (error, stackTrace) {
-      _reportError(call, grpcRequest, error, stackTrace);
-      yield (pb.WriteOutput()..error = grpcErrorFromDart(error));
-    }
+    throw UnimplementedError();
   }
 
   /// Calls [onError] if it's non-null.

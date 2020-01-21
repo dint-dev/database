@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,45 +12,68 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// An unified database API.
+/// Enables access to databases.
 ///
-/// The API aims to be usable with:
-///   * Relational (SQL) databases
+/// The API is designed to support:
+///   * SQL databases
 ///   * Document databases
-///   * Search engines.
+///   * Search engines
 ///
-/// An example:
+/// ## Examples
+/// ### Hello world
 /// ```
 /// import 'package:database/database.dart';
 ///
-/// void main() {
-///   final memoryDatabase = MemoryDatabase();
-///   memoryDatabase.collection('employee').insert({
-///     'name': 'John Doe',
-///   });
-/// }
+/// Future main() async {
+///   // Configure an in-memory database
+///   final database = MemoryDatabaseAdapter().database();
 ///
+///   // Insert a greeting
+///   await database.collection('greetings').insert({
+///     'text': 'Hello world!',
+///   });
+///
+///   // Print greetings
+///   await for (var snapshot in database.collection('greetings').search()) {
+///     print(snapshot.data['text']);
+///   }
+/// }
+/// ```
+///
+/// ### Direct SQL access
+///
+/// ```
+/// import 'package:database/database.dart';
+/// import 'package:database/sql.dart';
+/// import 'package:database_adapter_postgre/database_adapter_postgre.dart';
+///
+/// Future main() async {
+///   // Configure a PostgreSQL database connection
+///   final database = PostgreAdapter(
+///     // ...
+///   ).database();
+///
+///   // Insert rows
+///   await database.sqlClient.execute(
+///     'INSERT INTO employee(name) VALUES (?)',
+///     ['John Doe'],
+///   );
+/// }
 /// ```
 library database;
 
 export 'package:fixnum/fixnum.dart' show Int64;
 
-export 'src/database/adapters/caching_database.dart';
-export 'src/database/adapters/memory_database.dart';
-export 'src/database/adapters/schema_using_database.dart';
-export 'src/database/adapters/search_forwarding_database.dart';
+export 'src/database/adapters/caching.dart';
+export 'src/database/adapters/memory.dart';
+export 'src/database/adapters/schema_enforcing.dart';
+export 'src/database/adapters/search_engine_promoting.dart';
 export 'src/database/collection.dart';
-export 'src/database/column_description.dart';
+export 'src/database/column.dart';
 export 'src/database/database.dart';
 export 'src/database/document.dart';
 export 'src/database/exceptions.dart';
 export 'src/database/extensions.dart';
-export 'src/database/filters/basic_filters.dart';
-export 'src/database/filters/filter.dart';
-export 'src/database/filters/filter_visitor.dart';
-export 'src/database/filters/keyword_filter.dart';
-export 'src/database/filters/logical_filters.dart';
-export 'src/database/filters/sql_filter.dart';
 export 'src/database/primitives/blob.dart';
 export 'src/database/primitives/date.dart';
 export 'src/database/primitives/geo_point.dart';
@@ -58,9 +81,7 @@ export 'src/database/primitives/timestamp.dart';
 export 'src/database/query.dart';
 export 'src/database/query_result.dart';
 export 'src/database/query_result_item.dart';
-export 'src/database/schemas/schema.dart';
-export 'src/database/schemas/schema_visitor.dart';
+export 'src/database/reach.dart';
 export 'src/database/snapshot.dart';
 export 'src/database/sorter.dart';
-export 'src/database/sql_response.dart';
 export 'src/database/transaction.dart';

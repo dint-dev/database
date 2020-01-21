@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ import 'dart:convert';
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/schema.dart';
 import 'package:database_adapter_elasticsearch/database_adapter_elasticsearch.dart';
 import 'package:meta/meta.dart';
 import 'package:universal_io/io.dart';
@@ -36,7 +37,7 @@ import 'package:universal_io/io.dart';
 ///   // ...
 /// }
 /// ```
-class ElasticSearch extends DatabaseAdapter {
+class ElasticSearch extends DocumentDatabaseAdapter {
   static final _idRegExp = RegExp(r'[^\/*?"<>| ,#]{1,64}');
   final Uri uri;
   final HttpClient httpClient;
@@ -77,7 +78,7 @@ class ElasticSearch extends DatabaseAdapter {
   }
 
   @override
-  Future<void> checkHealth({Duration timeout}) async {
+  Future<void> performCheckConnection({Duration timeout}) async {
     await _httpRequest(
       'GET',
       '/',
@@ -86,11 +87,108 @@ class ElasticSearch extends DatabaseAdapter {
   }
 
   @override
-  Stream<Snapshot> performRead(ReadRequest request) async* {
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) async {
     final document = request.document;
     final collection = document.parent;
-    final database = collection.database;
-    final schema = request.schema ?? const ArbitraryTreeSchema();
+
+    //
+    // Validate IDs
+    //
+    final documentId = _validateDocumentId(document.documentId);
+    final collectionId = _validateCollectionId(collection.collectionId);
+
+    //
+    // Send HTTP request
+    //
+    final response = await _httpRequest(
+      'DELETE',
+      '/$collectionId/_doc/$documentId',
+    );
+
+    switch (response.status) {
+      case HttpStatus.found:
+        return;
+      case HttpStatus.notFound:
+        if (request.mustExist) {
+          throw DatabaseException.notFound(request.document);
+        }
+        return;
+      default:
+        throw response.error;
+    }
+  }
+
+  @override
+  Future<void> performDocumentInsert(
+    DocumentInsertRequest request, {
+    bool autoCreateIndex = true,
+  }) async {
+    final document = request.document;
+    final collection = document.parent;
+    final schema = request.inputSchema ?? const ArbitraryTreeSchema();
+
+    //
+    // Validate IDs
+    //
+    final documentId = _validateDocumentId(document.documentId);
+    final collectionId = _validateCollectionId(collection.collectionId);
+
+    //
+    // Send HTTP request
+    //
+    final json = schema.encodeWith(JsonEncoder(), request.data);
+    final response = await _httpRequest(
+      'PUT',
+      '/$collectionId/_create/$documentId',
+      queryParameters: {
+        'op_type': 'create',
+      },
+      json: json,
+    );
+
+    final error = response.error;
+    if (error != null) {
+      switch (error.type) {
+        case 'index_not_found_exception':
+          if (autoCreateIndex) {
+            //
+            // Create index
+            //
+            final response = await _httpRequest('PUT', '/$collectionId');
+            final responseError = response.error;
+            if (responseError != null) {
+              throw responseError;
+            }
+
+            //
+            // Try again
+            //
+            return performDocumentInsert(request, autoCreateIndex: false);
+          }
+
+          //
+          // We are not allowed to create an index
+          //
+          throw DatabaseException.internal(
+            document: request.document,
+            message: 'ElasticSearch index was not found',
+          );
+      }
+    }
+
+    switch (response.status) {
+      case HttpStatus.created:
+        return;
+      default:
+        throw response.error;
+    }
+  }
+
+  @override
+  Stream<Snapshot> performDocumentRead(DocumentReadRequest request) async* {
+    final document = request.document;
+    final collection = document.parent;
+    final schema = request.outputSchema ?? const ArbitraryTreeSchema();
 
     //
     // Validate IDs
@@ -137,22 +235,19 @@ class ElasticSearch extends DatabaseAdapter {
     // Return snapshot
     //
     final data = response.body['_source'];
+    final decoder = JsonDecoder(database: collection.database);
     yield (Snapshot(
       document: request.document,
       versionId: response.body['_seq_no']?.toString(),
-      data: schema.decodeLessTyped(data,
-          context: LessTypedDecodingContext(
-            database: database,
-          )),
+      data: schema.decodeWith(decoder, data),
     ));
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request,
+  Stream<QueryResult> performDocumentSearch(DocumentSearchRequest request,
       {bool autoCreateIndex}) async* {
     final collection = request.collection;
-    final database = collection.database;
-    final schema = request.schema ?? const ArbitraryTreeSchema();
+    final schema = request.outputSchema ?? const ArbitraryTreeSchema();
 
     //
     // Validate collection ID
@@ -268,14 +363,12 @@ class ElasticSearch extends DatabaseAdapter {
         final documentId = h['_id'] as String;
         final score = h['_score'] as double;
         final data = h['_source'] as Map<String, Object>;
+        final decoder = JsonDecoder(database: collection.database);
         return QueryResultItem(
           snapshot: Snapshot(
             document: collection.document(documentId),
             versionId: h['_seq_no']?.toString(),
-            data: schema.decodeLessTyped(
-              data,
-              context: LessTypedDecodingContext(database: database),
-            ),
+            data: schema.decodeWith(decoder, data),
           ),
           score: score,
         );
@@ -290,14 +383,15 @@ class ElasticSearch extends DatabaseAdapter {
   }
 
   @override
-  Future<void> performWrite(
-    WriteRequest request, {
-    bool autoCreateIndex,
-  }) async {
+  Future<void> performDocumentTransaction(DocumentTransactionRequest request) {
+    throw DatabaseException.transactionUnsupported();
+  }
+
+  @override
+  Future<void> performDocumentUpdate(DocumentUpdateRequest request) async {
     final document = request.document;
     final collection = document.parent;
-    final schema = request.schema ?? const ArbitraryTreeSchema();
-    autoCreateIndex ??= this.autoCreateIndex;
+    final schema = request.inputSchema ?? const ArbitraryTreeSchema();
 
     //
     // Validate IDs
@@ -306,84 +400,71 @@ class ElasticSearch extends DatabaseAdapter {
     final collectionId = _validateCollectionId(collection.collectionId);
 
     //
-    // Determine method and body
+    // Check existence
     //
-    var method = 'PUT';
-    var path = '/$collectionId/_doc/$documentId';
-    final queryParameters = {
-      'refresh': 'true',
-    };
-    Map<String, Object> json;
-    switch (request.type) {
-      case WriteType.delete:
-        method = 'DELETE';
-        break;
-
-      case WriteType.deleteIfExists:
-        method = 'DELETE';
-        break;
-
-      case WriteType.insert:
-        method = 'PUT';
-        path = '/$collectionId/_create/$documentId';
-        queryParameters['op_type'] = 'create';
-        json = schema.encodeLessTyped(request.data);
-        break;
-
-      case WriteType.update:
-        final response = await _httpRequest(
-          'GET',
-          '/$collectionId/_doc/$documentId',
-        );
-        if (response.status != HttpStatus.ok) {
-          throw DatabaseException.notFound(
-            document,
-            message: "can't update non-existing document",
-            error: response.error,
-          );
-        }
-        queryParameters['if_primary_term'] =
-            response.body['_primary_term'].toString();
-        queryParameters['if_seq_no'] = response.body['_seq_no'].toString();
-        method = 'POST';
-        path = '/$collectionId/_update/$documentId';
-        json = <String, Object>{
-          'doc': schema.encodeLessTyped(request.data),
-        };
-        break;
-
-      case WriteType.upsert:
-        method = 'PUT';
-        json = schema.encodeLessTyped(request.data);
-        break;
-
-      default:
-        throw UnimplementedError();
+    final existsResponse = await _httpRequest(
+      'HEAD',
+      '/$collectionId/_doc/$documentId',
+    );
+    if (existsResponse.status != HttpStatus.ok) {
+      throw DatabaseException.notFound(
+        document,
+        message: "can't update non-existing document",
+        error: existsResponse.error,
+      );
     }
 
     //
     // Send HTTP request
     //
+    final json = schema.encodeWith(JsonEncoder(), request.data);
     final response = await _httpRequest(
-      method,
-      path,
-      queryParameters: queryParameters,
+      'PUT',
+      '/$collectionId/_update/$documentId',
+      queryParameters: {
+        'if_primary_term': existsResponse.body['_primary_term'].toString(),
+        'if_seq_no': existsResponse.body['_seq_no'].toString(),
+      },
       json: json,
     );
 
+    switch (response.status) {
+      case HttpStatus.ok:
+        return;
+      default:
+        throw response.error;
+    }
+  }
+
+  @override
+  Future<void> performDocumentUpsert(
+    DocumentUpsertRequest request, {
+    bool autoCreateIndex = true,
+  }) async {
+    final document = request.document;
+    final collection = document.parent;
+    final schema = request.inputSchema ?? const ArbitraryTreeSchema();
+
     //
-    // Handle error
+    // Validate IDs
     //
+    final documentId = _validateDocumentId(document.documentId);
+    final collectionId = _validateCollectionId(collection.collectionId);
+
+    //
+    // Send HTTP request
+    //
+    final json = schema.encodeWith(JsonEncoder(), request.data);
+    final response = await _httpRequest(
+      'PUT',
+      '/$collectionId/_doc/$documentId',
+      json: json,
+    );
+
     final error = response.error;
     if (error != null) {
       switch (error.type) {
         case 'index_not_found_exception':
-          if (request.type == WriteType.deleteIfExists) {
-            return;
-          }
-          if (request.type == WriteType.delete) {
-            throw DatabaseException.notFound(request.document);
-          }
           if (autoCreateIndex) {
             //
             // Create index
@@ -397,7 +478,10 @@ class ElasticSearch extends DatabaseAdapter {
             //
             // Try again
             //
-            return performWrite(request, autoCreateIndex: false);
+            return performDocumentUpsert(
+              request,
+              autoCreateIndex: false,
+            );
           }
 
           //
@@ -409,68 +493,14 @@ class ElasticSearch extends DatabaseAdapter {
           );
       }
     }
+
     switch (response.status) {
-      case HttpStatus.ok:
-        if (request.type == WriteType.delete) {
-          final result = response.body['result'];
-          if (result != 'deleted') {
-            throw DatabaseException.notFound(
-              document,
-              error: ElasticSearchError.fromJson(response.body),
-            );
-          }
-        }
-        break;
-
-      case HttpStatus.conflict:
-        if (request.type == WriteType.delete) {
-          throw DatabaseException.notFound(
-            document,
-            error: ElasticSearchError.fromJson(response.body),
-          );
-        }
-        break;
-
       case HttpStatus.created:
-        break;
-
-      case HttpStatus.found:
-        if (request.type == WriteType.delete) {
-          throw DatabaseException.found(
-            document,
-            error: ElasticSearchError.fromJson(response.body),
-          );
-        }
-        if (request.type == WriteType.insert) {
-          throw DatabaseException.found(
-            request.document,
-            error: ElasticSearchError.fromJson(response.body),
-          );
-        }
-        break;
-
-      case HttpStatus.notFound:
-        if (request.type == WriteType.deleteIfExists) {
-          return;
-        }
-        throw DatabaseException.notFound(
-          request.document,
-          error: ElasticSearchError.fromJson(response.body),
-        );
-
+        return;
+      case HttpStatus.ok:
+        return;
       default:
-        throw DatabaseException.internal(
-          message:
-              'ElasticSearch URI $path, got HTTP status: ${response.status}',
-          error: ElasticSearchError.fromJson(response.body),
-        );
-    }
-    if (request.type == WriteType.insert &&
-        response.status != HttpStatus.created) {
-      throw DatabaseException.found(
-        request.document,
-        error: ElasticSearchError.fromJson(response.body),
-      );
+        throw response.error;
     }
   }
 

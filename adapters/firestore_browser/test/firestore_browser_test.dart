@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,22 +18,23 @@ import 'package:test_io/test_io.dart';
 import 'copy_of_database_adapter_tester.dart';
 
 Future<void> main() async {
-  final env = await getEnvironmentalVariables();
-  const idEnv = 'TEST_GOOGLE_FIREBASE_ID';
-  const secretEnv = 'TEST_GOOGLE_FIREBASE_SECRET';
-  final id = env[idEnv] ?? '';
-  final secret = env[secretEnv] ?? '';
-  if (id == '' || secret == '') {
-    print(
-      'SKIPPING: Firebase: environmental variables $idEnv / $secretEnv are undefined.\nDefines: ${env.keys.join(', ')}',
-    );
-    return null;
-  }
-  final database = FirestoreBrowser(
-    apiKey: secret,
-    appId: id,
-  );
-
-  final tester = DatabaseAdapterTester(() => database);
+  final tester = DatabaseAdapterTester(() async {
+    final env = await getEnvironmentalVariables();
+    const idEnv = 'TEST_GOOGLE_FIREBASE_ID';
+    const secretEnv = 'TEST_GOOGLE_FIREBASE_SECRET';
+    final id = env[idEnv] ?? '';
+    final secret = env[secretEnv] ?? '';
+    if (id == '' || secret == '') {
+      print(
+        'SKIPPING: Firebase: environmental variables $idEnv / $secretEnv are undefined.',
+      );
+      return null;
+    }
+    return FirestoreBrowser.initialize(
+      appId: id,
+      apiKey: secret,
+      projectId: id,
+    ).database();
+  });
   tester.run();
 }

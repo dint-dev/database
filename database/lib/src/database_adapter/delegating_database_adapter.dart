@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,72 +14,123 @@
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
-import 'package:database/mapper.dart';
+import 'package:database/schema.dart';
+import 'package:database/sql.dart';
+import 'package:database/src/database_adapter/requests/schema_read_request.dart';
 
 /// Superclass for delegating database adapters.
-class DelegatingDatabaseAdapter extends Database implements DatabaseAdapter {
-  final DatabaseAdapter _database;
+class DelegatingDatabaseAdapter implements DatabaseAdapter {
+  final DatabaseAdapter _adapter;
 
-  const DelegatingDatabaseAdapter(this._database) : assert(_database != null);
-
-  @override
-  DatabaseAdapter get adapter => this;
-
-  @override
-  Future<void> checkHealth({Duration timeout}) {
-    return _database.checkHealth(timeout: timeout);
-  }
+  const DelegatingDatabaseAdapter(this._adapter) : assert(_adapter != null);
 
   @override
   Future<void> close() async {
-    await _database.close();
+    await _adapter.close();
   }
 
   @override
-  Future<Document> collectionInsert(Collection collection,
-      {Map<String, Object> data}) {
-    return _database.collectionInsert(collection, data: data);
+  Database database() {
+    return Database.withAdapter(this);
   }
 
   @override
-  Schema getSchema({String collectionId, FullType fullType}) {
-    return adapter.getSchema(collectionId: collectionId, fullType: fullType);
+  Future<void> performCheckConnection({Duration timeout}) {
+    return _adapter.performCheckConnection(timeout: timeout);
+  }
+
+  @override
+  Future<void> performDocumentBatch(DocumentBatchRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Future<void> performDocumentDeleteBySearch(
+      DocumentDeleteBySearchRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Future<void> performDocumentInsert(DocumentInsertRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Stream<Snapshot> performDocumentRead(DocumentReadRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Stream<Snapshot> performDocumentReadWatch(DocumentReadWatchRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Stream<QueryResult> performDocumentSearch(DocumentSearchRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Stream<QueryResult> performDocumentSearchChunked(
+      DocumentSearchChunkedRequest request) {
+    return _adapter.performDocumentSearchChunked(request);
+  }
+
+  @override
+  Stream<QueryResult> performDocumentSearchWatch(
+      DocumentSearchWatchRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Future<void> performDocumentTransaction(DocumentTransactionRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Future<void> performDocumentUpdate(DocumentUpdateRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Future<void> performDocumentUpdateBySearch(
+      DocumentUpdateBySearchRequest request) {
+    return request.delegateTo(_adapter);
+  }
+
+  @override
+  Future<void> performDocumentUpsert(DocumentUpsertRequest request) {
+    return request.delegateTo(_adapter);
   }
 
   @override
   Stream<DatabaseExtensionResponse> performExtension(
       DatabaseExtensionRequest request) {
-    return request.delegateTo(_database);
+    return request.delegateTo(_adapter);
   }
 
   @override
-  Stream<Snapshot> performRead(ReadRequest request) {
-    return request.delegateTo(_database);
+  Stream<DatabaseSchema> performSchemaRead(SchemaReadRequest request) {
+    return request.delegateTo(_adapter);
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) {
-    return request.delegateTo(_database);
+  Future<SqlIterator> performSqlQuery(SqlQueryRequest request) {
+    return request.delegateTo(_adapter);
   }
 
   @override
-  Future<SqlResponse> performSql(SqlRequest request) {
-    return request.delegateTo(_database);
+  Future<SqlStatementResult> performSqlStatement(SqlStatementRequest request) {
+    return request.delegateTo(_adapter);
   }
 
   @override
-  Future<void> performWrite(WriteRequest request) {
-    return request.delegateTo(_database);
-  }
-
-  @override
-  Future<void> runInTransaction({
-    Duration timeout,
-    Future<void> Function(Transaction transaction) callback,
-  }) {
-    return _database.runInTransaction(
-      timeout: timeout,
-      callback: callback,
-    );
+  Future<void> performSqlTransaction(SqlTransactionRequest request) {
+    return _adapter.performSqlTransaction(request);
   }
 }

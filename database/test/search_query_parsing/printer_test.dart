@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'package:database/database.dart';
+import 'package:database/filter.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -37,9 +38,8 @@ void main() {
 
     test('GeoPointFilter', () {
       expect(
-        GeoPointFilter.withDistance(GeoPoint.zero, RangeFilter(max: 2))
-            .toString(),
-        '(near 0.00000,0.00000 <=2)',
+        GeoPointFilter.withMaxDistance(GeoPoint.zero, 2.0).toString(),
+        '(near 0.00000,0.00000 2.0)',
       );
     });
 

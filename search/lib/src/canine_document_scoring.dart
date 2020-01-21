@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/filter.dart';
 import 'package:search/search.dart';
 
 /// A slightly more complex [DocumentScoring] implementation than the normal

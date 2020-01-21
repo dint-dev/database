@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import 'grpc_database_helpers.dart';
 ///   // ...
 /// }
 /// ```
-class GrpcDatabase extends DatabaseAdapter {
+class GrpcDatabase extends DocumentDatabaseAdapter {
   final pb.DatabaseServerClient client;
 
   /// Constructs an instance using [host] parameter.
@@ -70,13 +70,12 @@ class GrpcDatabase extends DatabaseAdapter {
         );
 
   @override
-  Stream<DatabaseExtensionResponse> performExtension(
-      DatabaseExtensionRequest request) {
-    return super.performExtension(request);
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) {
+    throw UnimplementedError();
   }
 
   @override
-  Stream<Snapshot> performRead(ReadRequest request) async* {
+  Stream<Snapshot> performDocumentRead(DocumentReadRequest request) async* {
     //
     // Request
     //
@@ -106,7 +105,8 @@ class GrpcDatabase extends DatabaseAdapter {
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) async* {
+  Stream<QueryResult> performDocumentSearch(
+      DocumentSearchRequest request) async* {
     //
     // Request
     //
@@ -152,22 +152,13 @@ class GrpcDatabase extends DatabaseAdapter {
   }
 
   @override
-  Future<void> performWrite(WriteRequest request) async {
-    //
-    // Request
-    //
-    final grpcRequest = pb.WriteInput()
-      ..document = grpcDocumentFromDart(request.document)
-      ..type = grpcWriteTypeFromDart(request.type)
-      ..value = grpcValueFromDart(request.data);
+  Future<void> performDocumentUpsert(DocumentUpsertRequest request) {
+    throw UnimplementedError();
+  }
 
-    //
-    // Dispatch
-    //
-    final grpcResponse = await client.write(grpcRequest).last;
-    final grpcError = grpcResponse.error;
-    if (grpcError != null) {
-      throw grpcErrorToDart(grpcError);
-    }
+  @override
+  Stream<DatabaseExtensionResponse> performExtension(
+      DatabaseExtensionRequest request) {
+    return super.performExtension(request);
   }
 }

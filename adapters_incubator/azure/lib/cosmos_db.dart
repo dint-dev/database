@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 /// An adapter for using [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction),
 /// a commercial cloud service by Microsoft.
-library cosmos_db;
+library azure.cosmos_db;
 
 import 'dart:convert';
 
@@ -28,21 +28,18 @@ import 'package:universal_io/io.dart';
 ///
 /// An example:
 /// ```dart
-/// import 'package:database/adapters.dart';
 /// import 'package:database/database.dart';
 ///
 /// void main() {
-///   Database.freezeDefaultInstance(
-///     AzureCosmosDB(
-///       credentials: AzureCosmosDBCredentials(
-///         apiKey: 'API KEY',
-///       ),
+///   final database = AzureCosmosDB(
+///     credentials: AzureCosmosDBCredentials(
+///       apiKey: 'API KEY',
 ///     ),
 ///   );
 ///
 ///   // ...
 /// }
-class AzureCosmosDB extends DatabaseAdapter {
+class AzureCosmosDB extends DocumentDatabaseAdapter {
   final AzureCosmosDBCredentials _credentials;
   final HttpClient httpClient;
 
@@ -56,7 +53,17 @@ class AzureCosmosDB extends DatabaseAdapter {
   }
 
   @override
-  Stream<Snapshot> performRead(ReadRequest request) async* {
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> performDocumentInsert(DocumentInsertRequest request) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<Snapshot> performDocumentRead(DocumentReadRequest request) async* {
     final document = request.document;
     final collection = document.parent;
     final collectionId = collection.collectionId;
@@ -72,7 +79,8 @@ class AzureCosmosDB extends DatabaseAdapter {
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) async* {
+  Stream<QueryResult> performDocumentSearch(
+      DocumentSearchRequest request) async* {
     final query = request.query;
     final collection = request.collection;
     final collectionId = collection.collectionId;
@@ -146,7 +154,12 @@ class AzureCosmosDB extends DatabaseAdapter {
   }
 
   @override
-  Future<void> performWrite(WriteRequest request) async {
+  Future<void> performDocumentUpdate(DocumentUpdateRequest request) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> performDocumentUpsert(DocumentUpsertRequest request) async {
     final document = request.document;
     final collection = document.parent;
     final collectionId = collection.collectionId;
@@ -157,7 +170,7 @@ class AzureCosmosDB extends DatabaseAdapter {
     json['_id'] = documentId;
     await _apiRequest(
       method: 'POST',
-      path: '/indexes/$collectionId/docs/index',
+      path: '/indexes/$collectionId/docs/$documentId',
       json: json,
     );
   }

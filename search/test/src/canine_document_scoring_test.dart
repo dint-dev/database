@@ -1,5 +1,5 @@
-import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/filter.dart';
 import 'package:search/search.dart';
 import 'package:test/test.dart';
 

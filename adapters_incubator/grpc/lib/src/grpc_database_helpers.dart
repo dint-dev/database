@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 import 'dart:typed_data';
 
 import 'package:database/database.dart';
-import 'package:database/database_adapter.dart';
 import 'package:fixnum/fixnum.dart';
 
 import 'generated/generated.pbgrpc.dart' as pb;
@@ -215,38 +214,4 @@ Object grpcValueToDart(pb.Value argument) {
     return result;
   }
   throw ArgumentError.value(argument);
-}
-
-pb.WriteType grpcWriteTypeFromDart(WriteType argument) {
-  switch (argument) {
-    case WriteType.delete:
-      return pb.WriteType.delete;
-    case WriteType.deleteIfExists:
-      return pb.WriteType.deleteIfExists;
-    case WriteType.insert:
-      return pb.WriteType.insert;
-    case WriteType.update:
-      return pb.WriteType.update;
-    case WriteType.upsert:
-      return pb.WriteType.upsert;
-    default:
-      throw ArgumentError.value(argument);
-  }
-}
-
-WriteType grpcWriteTypeToDart(pb.WriteType argument) {
-  switch (argument) {
-    case pb.WriteType.delete:
-      return WriteType.delete;
-    case pb.WriteType.deleteIfExists:
-      return WriteType.deleteIfExists;
-    case pb.WriteType.insert:
-      return WriteType.insert;
-    case pb.WriteType.update:
-      return WriteType.update;
-    case pb.WriteType.upsert:
-      return WriteType.upsert;
-    default:
-      throw ArgumentError.value(argument);
-  }
 }

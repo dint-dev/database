@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ import 'dart:async';
 import 'package:database_adapter_firestore_flutter/database_adapter_firestore_flutter.dart';
 import 'package:flutter_driver/driver_extension.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'copy_of_database_adapter_tester.dart';
 
 void main() {
@@ -30,6 +31,6 @@ void main() {
     completer.complete(null);
   });
 
-  final tester = DatabaseAdapterTester(() => FirestoreFlutter());
+  final tester = DatabaseAdapterTester(() => FirestoreFlutter().database());
   tester.run();
 }

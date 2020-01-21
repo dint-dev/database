@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,15 +15,70 @@
 import 'dart:async';
 
 import 'package:database/database.dart';
+import 'package:database/database_adapter.dart';
 import 'package:meta/meta.dart';
 
 abstract class Transaction {
-  Future<void> delete(Document document);
-  Future<void> deleteIfExists(Document document);
-  Future<Snapshot> get(Document document);
-  Future<void> insert(Document document, {@required Map<String, Object> data});
-  Future<void> update(Document document, {@required Map<String, Object> data});
-  Future<void> upsert(Document document, {@required Map<String, Object> data});
+  final Reach reach;
+
+  Future<bool> isSuccess;
+
+  Transaction({@required this.isSuccess, @required this.reach});
+
+  Future<void> delete(Document document) {
+    return DocumentDeleteRequest(
+      transaction: this,
+      document: document,
+      mustExist: false,
+      reach: reach,
+    ).delegateTo(document.database.adapter);
+  }
+
+  Future<void> deleteIfExists(Document document) {
+    return DocumentDeleteRequest(
+      transaction: this,
+      document: document,
+      mustExist: true,
+      reach: reach,
+    ).delegateTo(document.database.adapter);
+  }
+
+  Future<Snapshot> get(Document document) {
+    return DocumentReadRequest(
+      transaction: this,
+      document: document,
+      reach: reach,
+    ).delegateTo(document.database.adapter).last;
+  }
+
+  Future<void> insert(Document document, {@required Map<String, Object> data}) {
+    return DocumentInsertRequest(
+      transaction: this,
+      collection: document.parent,
+      document: document,
+      data: data,
+      reach: reach,
+    ).delegateTo(document.database.adapter);
+  }
+
+  Future<void> update(Document document, {@required Map<String, Object> data}) {
+    return DocumentUpdateRequest(
+      transaction: this,
+      document: document,
+      data: data,
+      isPatch: false,
+      reach: reach,
+    ).delegateTo(document.database.adapter);
+  }
+
+  Future<void> upsert(Document document, {@required Map<String, Object> data}) {
+    return DocumentUpsertRequest(
+      transaction: this,
+      document: document,
+      data: data,
+      reach: reach,
+    ).delegateTo(document.database.adapter);
+  }
 }
 
 abstract class WriteBatch {
@@ -62,7 +117,7 @@ class _WriteBatch extends WriteBatch {
   @override
   void deleteIfExists(Document document) {
     _list.add(() {
-      return document.deleteIfExists();
+      return document.delete();
     });
   }
 

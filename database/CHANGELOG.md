@@ -1,3 +1,7 @@
+## [0.3.0] - January 16, 2020
+
+* Improves the API. Many breaking changes.
+
 ## [0.2.7] - January 16, 2020
 
 * Improves documentation.

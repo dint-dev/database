@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +29,16 @@ class DatabaseException implements Exception {
     this.message,
     this.error,
   });
+
+  const DatabaseException.databaseReadOnly({
+    String message,
+    Object error,
+  }) : this.custom(
+          code: DatabaseExceptionCodes.databaseReadOnly,
+          name: 'database_is_read_only',
+          message: message,
+          error: error,
+        );
 
   const DatabaseException.found(
     Document document, {
@@ -65,6 +75,18 @@ class DatabaseException implements Exception {
           message: message,
           error: error,
         );
+
+  factory DatabaseException.sqlColumnValue({
+    @required String database,
+    @required String table,
+    @required String column,
+    @required Object value,
+  }) {
+    return DatabaseException.internal(
+      message:
+          'Table "$database.$table" column "$column" has invalid value: $value',
+    );
+  }
 
   const DatabaseException.transactionUnsupported({
     Document document,
@@ -122,4 +144,5 @@ class DatabaseExceptionCodes {
   static const notFound = 3;
   static const transactionUnsupported = 4;
   static const internal = 5;
+  static const databaseReadOnly = 6;
 }

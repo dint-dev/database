@@ -1,0 +1,15 @@
+name: example
+version: 0.0.1
+description:
+  The purpose is testing that our dependency version constraints don't conflict
+  with popular packages.
+
+publish_to: none
+
+dependencies:
+  database: any
+  database_adapter_algolia: any
+  database_adapter_elasticsearch: any
+  database_adapter_postgre: any
+
+  angular: any

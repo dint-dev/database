@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,61 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:io';
+
 import 'package:database_adapter_postgre/database_adapter_postgre.dart';
+import 'package:test/test.dart';
 
 import 'copy_of_database_adapter_tester.dart';
 
 void main() {
   // To start PostgreSQL in a Docker container, run:
   //   ./tool/docker_run.sh
+
+  Process process;
+
+  setUpAll(() async {
+    Process.runSync('docker', ['docker', 'stop', 'some-postgres']);
+    Process.runSync('docker', ['docker', 'rm', 'some-postgres']);
+
+    // Wait 500 ms
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    process = await Process.start('docker', [
+      'run',
+      '--name',
+      'some-postgres',
+      '-p',
+      '5432:5432',
+      '-e',
+      'POSTGRES_USER=database_test_user',
+      '-e',
+      'POSTGRES_PASSWORD=database_test_password',
+      '-e',
+      'POSTGRES_DB=test',
+      '-d',
+      'postgres'
+    ]);
+    addTearDown(() {
+      process.kill();
+    });
+    // ignore: unawaited_futures
+    process.stderr.listen((data) {
+      stdout.add(data);
+    });
+    // ignore: unawaited_futures
+    process.stdout.listen((data) {
+      stdout.add(data);
+    });
+
+    // Wait 500 ms
+    await Future.delayed(const Duration(milliseconds: 500));
+  });
+
+  tearDownAll(() {
+    Process.runSync('docker', ['docker', 'stop', 'some-postgres']);
+    Process.runSync('docker', ['docker', 'rm', 'some-postgres']);
+  });
 
   final tester = SqlDatabaseAdapterTester(() {
     return Postgre(
@@ -27,7 +75,7 @@ void main() {
       user: 'database_test_user',
       password: 'database_test_password',
       databaseName: 'test',
-    );
+    ).database();
   });
 
   tester.run();

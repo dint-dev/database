@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import 'dart:async';
 
 import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
+import 'package:database/filter.dart';
+import 'package:database/schema.dart';
 import 'package:firebase/firebase.dart' as firebase;
 import 'package:firebase/firestore.dart' as firestore;
 import 'package:meta/meta.dart';
@@ -99,7 +101,7 @@ Object _valueToFirestore(firestore.Firestore impl, Object argument) {
 }
 
 /// A database adapter for [Google Cloud Firestore](https://cloud.google.com/firestore/).
-class FirestoreBrowser extends DatabaseAdapter {
+class FirestoreBrowser extends DocumentDatabaseAdapter {
   final firestore.Firestore _impl;
 
   /// Constructs a new adapter configuration.
@@ -107,21 +109,56 @@ class FirestoreBrowser extends DatabaseAdapter {
   /// Parameters [appId] and [apiKey] can be null, but usually you need
   /// non-null values.
   factory FirestoreBrowser({
-    @required String apiKey,
     @required String appId,
   }) {
     return FirestoreBrowser.withImpl(firebase.app(appId).firestore());
   }
 
+  /// Initializes a new adapter configuration.
+  factory FirestoreBrowser.initialize({
+    @required String appId,
+    @required String apiKey,
+    String projectId,
+  }) {
+    final app = firebase.initializeApp(
+      appId: appId,
+      apiKey: apiKey,
+      projectId: projectId,
+    );
+    return FirestoreBrowser.withImpl(app.firestore());
+  }
+
   FirestoreBrowser.withImpl(this._impl);
 
   @override
-  WriteBatch newWriteBatch() {
-    return _WriteBatch(_impl, _impl.batch());
+  Future<void> performDocumentDelete(DocumentDeleteRequest request) async {
+    final document = request.document;
+    final collection = document.parent;
+    final implCollection = _impl.collection(collection.collectionId);
+    final implDocument = implCollection.doc(document.documentId);
+
+    if (request.mustExist) {
+      bool didFail;
+      await _impl.runTransaction((transaction) async {
+        final implSnapshot = await transaction.get(implDocument);
+        if (!implSnapshot.exists) {
+          didFail = true;
+          return null;
+        }
+        await transaction.delete(implDocument);
+        didFail = false;
+        return null;
+      });
+      if (didFail) {
+        throw DatabaseException.notFound(document);
+      }
+    } else {
+      await implDocument.delete();
+    }
   }
 
   @override
-  Stream<Snapshot> performRead(ReadRequest request) async* {
+  Stream<Snapshot> performDocumentRead(DocumentReadRequest request) async* {
     final document = request.document;
     final collection = document.parent;
     final implCollection = _impl.collection(collection.collectionId);
@@ -135,13 +172,11 @@ class FirestoreBrowser extends DatabaseAdapter {
       request.document.database,
       implSnapshot.data,
     );
-    final schema = request.schema;
+    final schema = request.outputSchema;
     if (schema != null) {
-      value = schema.decodeLessTyped(
+      value = schema.decodeWith(
+        JsonDecoder(database: collection.database),
         value,
-        context: LessTypedDecodingContext(
-          database: collection.database,
-        ),
       );
     }
     yield (Snapshot(
@@ -151,9 +186,10 @@ class FirestoreBrowser extends DatabaseAdapter {
   }
 
   @override
-  Stream<QueryResult> performSearch(SearchRequest request) async* {
+  Stream<QueryResult> performDocumentSearch(
+      DocumentSearchRequest request) async* {
     final collection = request.collection;
-    final query = request.query;
+    final query = request.query ?? Query();
     final implCollection = _impl.collection(collection.collectionId);
     firestore.Query implQuery = implCollection;
 
@@ -211,12 +247,11 @@ class FirestoreBrowser extends DatabaseAdapter {
 
     // TODO: Watching, incremental results
 
-    final implSnapshot = await implQuery.get();
-    final snapshots = implSnapshot.docs
-        .skip(
+    final implQuerySnapshot = await implQuery.get();
+    final implDocumentSnapshots = implQuerySnapshot.docs.skip(
       query.skip ?? 0,
-    )
-        .map((implSnapshot) {
+    );
+    final snapshots = implDocumentSnapshots.map((implSnapshot) {
       final document = collection.document(
         implSnapshot.id,
       );
@@ -224,14 +259,10 @@ class FirestoreBrowser extends DatabaseAdapter {
         request.collection.database,
         implSnapshot.data,
       );
-      final schema = request.schema;
+      final schema = request.outputSchema;
       if (schema != null) {
-        value = schema.decodeLessTyped(
-          value,
-          context: LessTypedDecodingContext(
-            database: request.collection.database,
-          ),
-        );
+        final decoder = JsonDecoder(database: collection.database);
+        value = schema.decodeWith(decoder, value);
       }
       return Snapshot(
         document: document,
@@ -247,72 +278,14 @@ class FirestoreBrowser extends DatabaseAdapter {
   }
 
   @override
-  Future<void> performWrite(WriteRequest request) async {
+  Future<void> performDocumentUpsert(DocumentUpsertRequest request) async {
     final document = request.document;
     final collection = document.parent;
     final implCollection = _impl.collection(collection.collectionId);
     final implDocument = implCollection.doc(document.documentId);
+    final implData = _valueToFirestore(_impl, request.data);
 
-    final implDataOrNull = _valueToFirestore(_impl, request.data);
-    Map<String, Object> implData;
-    if (implDataOrNull is Map<String, Object>) {
-      implData = implDataOrNull;
-    }
-
-    switch (request.type) {
-      case WriteType.delete:
-        bool didFail;
-        await _impl.runTransaction((transaction) async {
-          final implSnapshot = await transaction.get(implDocument);
-          if (!implSnapshot.exists) {
-            didFail = true;
-            return null;
-          }
-          await transaction.delete(implDocument);
-          didFail = false;
-          return null;
-        });
-        if (didFail) {
-          throw DatabaseException.notFound(document);
-        }
-        return;
-
-      case WriteType.deleteIfExists:
-        await implDocument.delete();
-        break;
-
-      case WriteType.insert:
-        bool didFail;
-        await _impl.runTransaction((transaction) async {
-          final implSnapshot = await transaction.get(implDocument);
-          if (implSnapshot.exists) {
-            didFail = true;
-            return null;
-          }
-          await transaction.set(implDocument, implData);
-          didFail = false;
-          return null;
-        });
-        if (didFail) {
-          throw DatabaseException.found(document);
-        }
-        return;
-
-      case WriteType.update:
-        try {
-          await implDocument.update(data: implData);
-        } catch (e) {
-          throw DatabaseException.notFound(document);
-        }
-        return;
-
-      case WriteType.upsert:
-        await implDocument.set(implData);
-        return;
-
-      default:
-        throw UnimplementedError();
-    }
+    await implDocument.set(implData);
   }
 
   firestore.Query _handleFilter(
@@ -373,46 +346,5 @@ class FirestoreBrowser extends DatabaseAdapter {
     } else {
       throw UnsupportedError('${filter.runtimeType}');
     }
-  }
-}
-
-class _WriteBatch implements WriteBatch {
-  final firestore.Firestore _impl;
-  final firestore.WriteBatch _writeBatch;
-
-  final _completer = Completer();
-
-  _WriteBatch(this._impl, this._writeBatch);
-
-  @override
-  Future get done => _completer.future;
-
-  @override
-  Future<void> commit() async {
-    await _writeBatch.commit();
-    _completer.complete();
-  }
-
-  @override
-  Future<void> deleteIfExists(Document document) async {
-    final implDocument =
-        _valueToFirestore(_impl, document) as firestore.DocumentReference;
-    await _writeBatch.delete(implDocument);
-  }
-
-  @override
-  Future<void> update(Document document, {Map<String, Object> data}) async {
-    final implDocument =
-        _valueToFirestore(_impl, document) as firestore.DocumentReference;
-    final implValue = _valueToFirestore(_impl, data);
-    await _writeBatch.update(implDocument, data: implValue);
-  }
-
-  @override
-  Future<void> upsert(Document document, {Map<String, Object> data}) async {
-    final implDocument =
-        _valueToFirestore(_impl, document) as firestore.DocumentReference;
-    final implValue = _valueToFirestore(_impl, data);
-    await _writeBatch.set(implDocument, implValue);
   }
 }

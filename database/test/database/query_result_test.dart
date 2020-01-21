@@ -1,4 +1,4 @@
-// Copyright 2019 terrier989@gmail.com.
+// Copyright 2019 Gohilla Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import 'package:test/test.dart';
 void main() {
   group('QueryResult:', () {
     test('"==" / hashCode', () async {
-      final database = MemoryDatabase();
+      final database = MemoryDatabaseAdapter().database();
       final collection = database.collection('a');
       final value = QueryResult(
         collection: collection,
