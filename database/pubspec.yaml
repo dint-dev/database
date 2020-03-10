@@ -1,8 +1,8 @@
 name: database
-version: 0.3.0
+version: 0.3.1
 description:
-  Enables Flutter/Dart developers use many databases. For example, SQLite, Web Storage API, Google
-  Cloud Firestore, PostgreSQL, ElasticSearch, Algolia.
+  A vendor-agnostic database access API. Supports many technologies/products such as browser APIs,
+  SQLite, Google Cloud Firestore, PostgreSQL, ElasticSearch, and Algolia.
 homepage: https://github.com/dint-dev/database
 
 environment:
@@ -13,12 +13,11 @@ dependencies:
   built_value: '>=5.0.0 <8.0.0'
   charcode: ^1.1.0
   collection: ^1.14.0
-  cryptography: ^0.1.2
   fixnum: ^0.10.0
   meta: ^1.1.0
   protobuf: '>=0.13.0 <2.0.0'
   universal_html: ^1.1.0
-  universal_io: ^0.8.5
+  universal_io: '>=0.8.6 <2.0.0'
 
 dev_dependencies:
   pedantic: ^1.8.0

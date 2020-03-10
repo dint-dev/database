@@ -1,11 +1,17 @@
 [![Pub Package](https://img.shields.io/pub/v/database.svg)](https://pub.dartlang.org/packages/database)
 [![Github Actions CI](https://github.com/dint-dev/database/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/database/actions?query=workflow%3A%22Dart+CI%22)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/dint-dev/database)
 
 # Introduction
-This is __database.dart__, a vendor-agnostic database API for [Flutter](https://flutter.io) and
-other [Dart](https://dart.dev) projects.
+This is __database.dart__, a vendor-agnostic database access API for [Flutter](https://flutter.io)
+and other [Dart](https://dart.dev) projects.
 
-## Features
+__This version is just an early preview__. Major changes are possible during the early development.
+Anyone is welcome to contribute to the development of this package.
+
+Licensed under [the Apache License 2.0](LICENSE).
+
+## Why this package?
   * 👫 __Document & SQL database support__. The API has been designed to support both SQL databases
     and document databases. You - or your customers - can always choose the best database without
     rewriting any code.
@@ -13,16 +19,16 @@ other [Dart](https://dart.dev) projects.
     engines that can, for example, handle natural language queries better than transaction databases.
     There are already several search engines already supported (Algolia, ElasticSearch, and a simple
     search engine written in Dart).
-  * 🚚 __Used in commercial products__. The authors use the package in enterprise applications. The
-    package is also used by open-source projects such as [Dint](https://dint.dev).
 
 ## Links
-  * [Issue tracker](https://github.com/dint-dev/database/issues).
-  * [Github project](https://github.com/dint-dev/database/tree/master/database)
+  * [Github project](https://github.com/dint-dev/database)
   * [API reference](https://pub.dev/documentation/database/latest/)
+  * [Pub package](https://pub.dev/packages/database)
 
-## Contributing
-  * Just create a pull request [in Github](https://github.com/dint-dev/database).
+## Issues?
+  * Report issues at the [issue tracker](https://github.com/dint-dev/database/issues).
+  * Contributing a fix? Fork the repository, do your changes, and just create a pull request in
+    Github. Key contributors will be invited to become project administrators in Github.
 
 ## Supported products and APIs
 ### Document databases
@@ -91,8 +97,26 @@ import 'package:database/database.dart';
 final Database database = MemoryDatabaseAdapter().database();
 ```
 
-# Reading/writing documents
-## Supported primitives
+# Document-style API
+## Overview
+If you have used some other document-oriented API (such as Google Firestore), this API will feel
+familiar to you. A database is made of document collection. A document is an arbitrary tree of
+values that may contain references to other documents.
+
+For example, this is how you would store a recipe:
+```dart
+var food = {
+  'name': 'Spaghetti Bolognese',
+  'rating': 4.5,
+  'ingredients': ['pasta', 'minced meat'],
+  'similar': [
+    database.collection('foods').document('spaghetti_carbonara'),
+  ],
+};
+database.collection('foods').document('spaghetti_bolognese').upsert(food);
+```
+
+The following data types are currently supported by document database API:
   * `null`
   * `bool`
   * `int`
@@ -106,9 +130,9 @@ final Database database = MemoryDatabaseAdapter().database();
   * `Uint8List`
   * `List`
   * `Map<String,Object>`
+  * [Document](https://pub.dev/documentation/database/latest/database/Document-class.html) (a reference to another document)
 
-## Writing
-### Upsert, delete
+## Writing documents
 ```dart
 // Allocate a document with a random 128-bit identifier
 final document = database.collection('example').newDocument();
@@ -123,28 +147,26 @@ await document.delete();
 ```
 
 
-### Insert, update, delete
+If you want to write only if the document doesn't exist, use `insert`:
 ```dart
 // Insert
 final product = database.collection('product').insert({
   'name: 'Coffee mug',
   'price': 8,
-})s;
+});
+```
 
-// Update
+If you want to write only if the document already exists, use `update`:
+```dart
 await product.update(
   {
     'name': 'Coffee mug',
     'price': 12,
   },
 );
-
-// Delete
-await document.delete(mustExist:true);
 ```
 
-
-## Reading data
+## Reading documents
 ### get()
 
 ```dart
@@ -213,6 +235,9 @@ The following special filter types are also supported:
       engine for your application.
 
 # Using SQL client
+By using [SqlClient](https://pub.dev/documentation/database/latest/database.sql/SqlClient-class.html),
+you can interact with the database using SQL:
+
 ```dart
 import 'package:database/sql.dart';
 import 'package:database_adapter_postgre/database_adapter_postgre.dart';
@@ -230,6 +255,9 @@ Future main() async {
     final sqlClient = database.sqlClient;
 
     // Select all pizza products with price less than 10.
+    //
+    // This will return a value of type:
+    //   Iterable<Map<String,Object>>
     final pizzas = await sqlClient.query(
       'SELECT * FROM product WHERE type = ?, price < ?',
       ['pizza', 10],
