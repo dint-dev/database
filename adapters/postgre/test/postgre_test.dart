@@ -23,20 +23,23 @@ void main() {
   // To start PostgreSQL in a Docker container, run:
   //   ./tool/docker_run.sh
 
+  var dockerCommandExists = false;
+  const dockerId = 'some-postgres';
   Process dockerProcess;
 
   setUpAll(() async {
-    Process.runSync('docker', ['docker', 'stop', 'some-postgres']);
-    Process.runSync('docker', ['docker', 'rm', 'some-postgres']);
-
-    // Wait 500 ms
-    await Future.delayed(const Duration(milliseconds: 500));
-
     try {
+      // Remove possible previous instance
+      Process.runSync('docker', ['docker', 'stop', dockerId]);
+      Process.runSync('docker', ['docker', 'rm', dockerId]);
+
+      // Wait 500 ms
+      await Future.delayed(const Duration(milliseconds: 500));
+
       dockerProcess = await Process.start('docker', [
         'run',
         '--name',
-        'some-postgres',
+        dockerId,
         '-p',
         '5432:5432',
         '-e',
@@ -52,6 +55,7 @@ void main() {
       print('Starting Docker failed: $error');
       return;
     }
+    dockerCommandExists = true;
 
     // ignore: unawaited_futures
     dockerProcess.exitCode.whenComplete(() {
@@ -75,8 +79,10 @@ void main() {
   });
 
   tearDownAll(() {
-    Process.runSync('docker', ['docker', 'stop', 'some-postgres']);
-    Process.runSync('docker', ['docker', 'rm', 'some-postgres']);
+    if (dockerCommandExists) {
+      Process.runSync('docker', ['docker', 'stop', dockerId]);
+      Process.runSync('docker', ['docker', 'rm', dockerId]);
+    }
   });
 
   final tester = SqlDatabaseAdapterTester(() {
