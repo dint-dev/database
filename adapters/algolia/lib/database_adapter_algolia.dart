@@ -173,6 +173,7 @@ class Algolia extends DocumentDatabaseAdapter {
 
     // Yield
     yield (Snapshot(
+      vendorData: apiResponse.json,
       document: document,
       data: data,
     ));
@@ -287,6 +288,7 @@ class Algolia extends DocumentDatabaseAdapter {
         // Return snapshot
         //
         return QueryResultItem(
+          vendorData: jsonHit,
           snapshot: Snapshot(
             document: collection.document(documentId),
             data: data,
@@ -299,6 +301,7 @@ class Algolia extends DocumentDatabaseAdapter {
     }));
 
     yield (QueryResult.withDetails(
+      vendorData: apiResponse.json,
       collection: collection,
       query: query,
       items: items,

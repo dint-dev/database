@@ -20,7 +20,41 @@ import 'package:database/database_adapter.dart';
 import 'package:database/schema.dart';
 import 'package:database/search_query_parsing.dart';
 
-/// A reference to a collection of documents.
+/// A set of documents in a database ([Database]).
+///
+/// In relational databases, "collection" means a table.
+///
+/// An example:
+///
+///     Future<void> main() async {
+///       // Use an in-memory database
+///       final database = MemoryDatabaseAdapter().database();
+///
+///       // Our collection
+///       final collection = database.collection('pizzas');
+///
+///       // Our document
+///       final document = collection.newDocument();
+///
+///       await document.insert({
+///         'name': 'Pizza Margherita',
+///         'rating': 3.5,
+///         'ingredients': ['dough', 'tomatoes'],
+///         'similar': [
+///           database.collection('recipes').document('pizza_funghi'),
+///         ],
+///       });
+///       print('Successfully inserted pizza.');
+///
+///       await document.patch({
+///         'rating': 4.5,
+///       });
+///       print('Successfully patched pizza.');
+///
+///       await document.delete();
+///       print('Successfully deleted pizza.');
+///     }
+///
 class Collection {
   /// Returns database where the document is.
   final Database database;
@@ -74,13 +108,14 @@ class Collection {
   /// Returns a document.
   ///
   /// Example:
-  /// ```dart
-  /// ds.collection('exampleCollection').document('exampleDocument').get();
-  /// ```
+  ///
+  ///     ds.collection('exampleCollection').document('exampleDocument').get();
+  ///
   Document document(String documentId) {
     return Document(this, documentId);
   }
 
+  /// Inserts a new value.
   Future<Document> insert({
     Map<String, Object> data,
     Reach reach,
@@ -98,12 +133,16 @@ class Collection {
     return result;
   }
 
-  /// Returns a new document with a random 128-bit lowercase hexadecimal ID.
+  /// Returns a new document with a random identifier.
+  ///
+  /// The current implementations generates a random 128-bit lowercase
+  /// hexadecimal ID, but this is an implementation detail and could be changed
+  /// in future.
   ///
   /// Example:
-  /// ```dart
-  /// database.collection('example').newDocument().insert({'key':'value'});
-  /// ```
+  ///
+  ///     database.collection('example').newDocument().insert({'key':'value'});
+  ///
   // TODO: Use a more descriptive method name like documentWithRandomId()?
   Document newDocument() {
     final random = Random.secure();
@@ -114,6 +153,7 @@ class Collection {
     return document(sb.toString());
   }
 
+  /// Reads schema of this collection, which may be null.
   Future<Schema> schema() async {
     final schemaResponse = await SchemaReadRequest.forCollection(this)
         .delegateTo(database.adapter)
@@ -177,15 +217,15 @@ class Collection {
   /// maximum number of snapshots in the results.
   ///
   /// An example:
-  /// ```dart
-  /// final stream = database.searchIncrementally(
-  ///   query: Query.parse(
-  ///     'cat OR dog',
-  ///     skip: 0,
-  ///     take: 1,
-  ///   ),
-  /// );
-  /// ```
+  ///
+  ///     final stream = database.searchChunked(
+  ///       query: Query.parse(
+  ///         'cat OR dog',
+  ///         skip: 0,
+  ///         take: 1,
+  ///       ),
+  ///     );
+  ///
   Stream<QueryResult> searchChunked({
     Query query,
     Reach reach = Reach.server,
@@ -218,15 +258,15 @@ class Collection {
   /// maximum number of snapshots in the results.
   ///
   /// An example:
-  /// ```dart
-  /// final stream = database.searchIncrementally(
-  ///   query: Query.parse(
-  ///     'cat OR dog',
-  ///     skip: 0,
-  ///     take: 1,
-  ///   ),
-  /// );
-  /// ```
+  ///
+  ///     final stream = database.searchIncrementally(
+  ///       query: Query.parse(
+  ///         'cat OR dog',
+  ///         skip: 0,
+  ///         take: 1,
+  ///       ),
+  ///     );
+  ///
   Stream<QueryResult> searchIncrementally({
     Query query,
     Reach reach = Reach.server,

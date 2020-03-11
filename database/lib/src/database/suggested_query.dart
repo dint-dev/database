@@ -11,3 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+import 'package:meta/meta.dart';
+
+/// Describes a suggested query in [SearchResponseDetails].
+class SuggestedQuery {
+  final String queryString;
+
+  SuggestedQuery({@required this.queryString});
+
+  @override
+  int get hashCode => queryString.hashCode;
+
+  @override
+  bool operator ==(other) =>
+      other is SuggestedQuery && queryString == other.queryString;
+}

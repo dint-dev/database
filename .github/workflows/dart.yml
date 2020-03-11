@@ -17,4 +17,4 @@ jobs:
       run: ./tool/pub_get.sh
 
     - name: Test
-      run: ./tool/test.sh --platform=vm
+      run: ./tool/test_in_vm.sh

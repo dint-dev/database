@@ -82,7 +82,7 @@ class ElasticSearch extends DocumentDatabaseAdapter {
     await _httpRequest(
       'GET',
       '/',
-      timeout: timeout,
+      timeout: timeout ?? const Duration(seconds: 1),
     );
   }
 

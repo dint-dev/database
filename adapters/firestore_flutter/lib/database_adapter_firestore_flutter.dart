@@ -127,7 +127,7 @@ class FirestoreFlutter extends DocumentDatabaseAdapter {
     final implDocument = implCollection.document(document.documentId);
 
     if (request.mustExist) {
-      bool didFail = false;
+      var didFail = false;
       await _impl.runTransaction((transaction) async {
         final implSnapshot = await transaction.get(implDocument);
         if (!implSnapshot.exists) {

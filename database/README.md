@@ -100,20 +100,41 @@ final Database database = MemoryDatabaseAdapter().database();
 # Document-style API
 ## Overview
 If you have used some other document-oriented API (such as Google Firestore), this API will feel
-familiar to you. A database is made of document collection. A document is an arbitrary tree of
+familiar to you. A database is made of document collections. A document is an arbitrary tree of
 values that may contain references to other documents.
 
-For example, this is how you would store a recipe:
+See the classes:
+  * [Database](https://pub.dev/documentation/database/latest/database/Database-class.html)
+  * [Collection](https://pub.dev/documentation/database/latest/database/Collection-class.html)
+  * [Document](https://pub.dev/documentation/database/latest/database/Document-class.html)
+
+For example, this is how you would store a recipe using
+[MemoryDatabaseAdapter](https://pub.dev/documentation/database/latest/database/MemoryDatabaseAdapter-class.html)
+(our in-memory database):
+
 ```dart
-var food = {
-  'name': 'Spaghetti Bolognese',
-  'rating': 4.5,
-  'ingredients': ['pasta', 'minced meat'],
-  'similar': [
-    database.collection('foods').document('spaghetti_carbonara'),
-  ],
-};
-database.collection('foods').document('spaghetti_bolognese').upsert(food);
+Future<void> main() async {
+  // Use an in-memory database
+  final database = MemoryDatabase();
+
+  // Our collection
+  final collection = database.collection('pizzas');
+
+  // Our document
+  final document = collection.newDocument();
+
+  // Insert a pizza
+  await document.insert({
+    'name': 'Pizza Margherita',
+    'rating': 3.5,
+     'ingredients': ['dough', 'tomatoes'],
+    'similar': [
+      database.collection('recipes').document('pizza_funghi'),
+    ],
+  });
+
+  // ...
+}
 ```
 
 The following data types are currently supported by document database API:
@@ -166,12 +187,11 @@ await product.update(
 );
 ```
 
-## Reading documents
-### get()
+## Reading a document
+In this example, we read a snapshot from a regional master database. If it's acceptable to have a
+locally cached version, use `Reach.local`.
 
 ```dart
-// Read a snapshot from a regional master database.
-// If it's acceptable to have a locally cached version, use Reach.local.
 final snapshot = await document.get(reach: Reach.regional);
 
 // Use 'exists' to check whether the document exists
@@ -181,9 +201,9 @@ if (snapshot.exists) {
 }
 ```
 
-### watch()
+## Watching changes in a document
 By using `watch` function, you continue to receive updates to the document. Some databases support
-this natively. In other databases, watching may be accomplished by polling.
+this natively. In other databases, the implementation may use polling.
 
 ```dart
 final stream = await document.watch(
@@ -201,7 +221,8 @@ final result = await database.collection('product').search(
 );
 
 for (var snapshot in result.snapshots) {
-  // ...
+  final price = snapshot.data['price'] as double;
+  print('price: $price');
 }
 ```
 

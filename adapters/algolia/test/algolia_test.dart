@@ -40,10 +40,12 @@ void main() {
     final id = env[idEnv] ?? '';
     final secret = env[secretEnv] ?? '';
     if (id == '' || secret == '') {
+      print('  "algolia" tests are skipped.');
       print(
-        'SKIPPING: Algolia: environmental variables $idEnv / $secretEnv are undefined.',
-      );
-      return;
+          '  If you want to run the tests, define the environmental variables:');
+      print('    * $idEnv');
+      print('    * $secretEnv');
+      return null;
     }
     final database = Algolia(
       appId: id,

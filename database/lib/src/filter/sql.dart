@@ -15,8 +15,20 @@
 import 'package:collection/collection.dart';
 import 'package:database/filter.dart';
 
+/// An SQL expression.
+///
+/// An example:
+///     final filter = SqlFilter('price BETWEEN 0 AND ?', [maxPrice]);
+///     final resulst = await database.collection('product').query(
+///       query: Query(
+///         filter: filter,
+///       )
+///     );
 class SqlFilter extends Filter {
+  /// SQL expression. Arguments should be replaced with '?'.
   final String source;
+
+  /// Arguments for [source].
   final List arguments;
 
   const SqlFilter(this.source, this.arguments)

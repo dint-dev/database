@@ -1,3 +1,8 @@
+## [0.2.2] - March 10, 2020
+
+* Updates dependencies.
+* Uses `vendorData` fields for exposing raw JSON responses from Elasticsearch.
+
 ## [0.2.1] - January 21, 2020
 
 * Improved documentation

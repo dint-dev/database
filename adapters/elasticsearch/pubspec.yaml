@@ -1,5 +1,5 @@
 name: database_adapter_elasticsearch
-version: 0.2.1
+version: 0.2.2
 description:
   Adapter between 'package:database' and Elasticsearch, a full-featured text search engine based on
   Apache Lucene.
@@ -11,9 +11,9 @@ environment:
 dependencies:
   built_value: '>=5.0.0 <8.0.0'
   collection: ^1.14.0
-  database: ^0.3.0
+  database: ^0.3.2
   meta: ^1.1.0
-  universal_io: ^0.8.5
+  universal_io: '>=0.8.5 <2.0.0'
 
 dev_dependencies:
   pedantic: ^1.9.0

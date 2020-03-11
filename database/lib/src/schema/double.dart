@@ -15,7 +15,7 @@
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// Schema for [double] values.
+/// A schema for [double] values.
 @sealed
 class DoubleSchema extends PrimitiveSchema<double> {
   static const String nameForJson = 'double';

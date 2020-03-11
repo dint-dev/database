@@ -19,7 +19,7 @@ import 'package:database/database.dart';
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// Schema for [GeoPoint] values.
+/// A schema for [GeoPoint] values.
 @sealed
 class GeoPointSchema extends PrimitiveSchema<GeoPoint> {
   static const String nameForJson = 'geopoint';

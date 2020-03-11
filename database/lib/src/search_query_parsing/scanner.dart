@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import 'package:charcode/ascii.dart';
+import 'package:database/search_query_parsing.dart';
 
 const int _eof = -1;
 
-/// Scanner for the search query syntax supported by 'package:database'.
+/// Source scanner used by [SearchQueryParser].
 class Scanner {
   static final _propertyNameRegExp = RegExp(r'^[a-zA-Z_$@][a-zA-Z_$@-]*');
 

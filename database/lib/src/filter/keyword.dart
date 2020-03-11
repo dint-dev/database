@@ -14,8 +14,9 @@
 
 import 'package:database/filter.dart';
 
-/// A [Filter] which requires that the context contains the natural language
-/// keyword in some form or another. The exact semantics are unspecified.
+/// A natural language search query.
+///
+/// The exact semantics are unspecified.
 class KeywordFilter extends Filter {
   final String value;
 

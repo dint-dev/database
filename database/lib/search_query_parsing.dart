@@ -20,30 +20,14 @@
 ///     * Matches keywords "Norwegian", "Forest", and "cat".
 ///   * `"Norwegian Forest cat"`
 ///     * A quoted keyword ensures that the words must appear as a sequence.
-///   * `cat AND dog`
-///     * Matches keywords "cat" and "dog" (in any order).
-///   * `cat OR dog`
-///     * Matches keyword "cat", "dog", or both.
-///     * `pet -cat`
-///     * Matches keyword "pet", but excludes documents that match keyword "cat".
 ///   * `color:brown`
 ///     * Color matches keyword "brown".
-///   * `color:="brown"`
-///     * Color is equal to "brown".
-///   * `weight:>=10`
-///     * Weight is greater than or equal to 10.
-///   * `weight:[10 TO 20]`
-///     * Weight is between 10 and 20, inclusive.
-///   * `weight:{10 TO 20}`
-///     * Weight is between 10 and 20, exclusive.
-///   * `(cat OR dog) AND weight:>=10`
-///     * An example of grouping filters.
 ///
-/// Import:
-/// ```
-/// import 'package:database/search_query_parsing.dart';
-/// ```
+/// For more details, see [SearchQueryParser].
+///
 library database.search_query_parsing;
+
+import 'src/search_query_parsing/parser.dart';
 
 export 'src/search_query_parsing/parser.dart';
 export 'src/search_query_parsing/printer.dart';

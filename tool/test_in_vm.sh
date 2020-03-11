@@ -7,7 +7,7 @@ cd `dirname $0`/..
 # Example:
 #   ./tool/test.sh --platform=vm
 #
-ARGS=${@:1}
+ARGS="--platform=vm ${@:1}"
 
 if [ -f SECRETS.env ]; then
   echo "-------------------------------------------------"
@@ -34,22 +34,9 @@ visit() {
   cd $OLD_PATH
 }
 
-visit_flutter() {
-  if ! hash flutter; then
-    return
-  fi
-  NAME=$1
-  echo "-------------------------------------------------"
-  echo "Skipping tests for '$NAME'"
-  echo "-------------------------------------------------"
-}
+visit database
+visit search
 
-visit         database
-visit         search
-
-visit         adapters/algolia
-visit         adapters/elasticsearch
-visit         adapters/firestore_browser
-visit_flutter adapters/firestore_flutter/example
-visit         adapters/postgre
-visit_flutter adapters/sqlite/example
+visit adapters/algolia
+visit adapters/elasticsearch
+visit adapters/postgre

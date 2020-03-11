@@ -20,7 +20,7 @@ import 'package:database/schema.dart';
 import 'package:fixnum/fixnum.dart' show Int64;
 import 'package:meta/meta.dart';
 
-/// Schema for [Int64] values.
+/// A schema for [Int64] values.
 @sealed
 class Int64Schema extends PrimitiveSchema<Int64> {
   static const String nameForJson = 'int64';
@@ -42,7 +42,7 @@ class Int64Schema extends PrimitiveSchema<Int64> {
   }
 }
 
-/// Schema for [int] values.
+/// A schema for [int] values.
 @sealed
 class IntSchema extends PrimitiveSchema<int> {
   static const String nameForJson = 'int';

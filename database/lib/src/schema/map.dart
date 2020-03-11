@@ -16,7 +16,22 @@ import 'package:collection/collection.dart';
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// Schema for [Map] values. Keys must be strings.
+/// A schema for maps.
+///
+/// ## Example
+/// ```
+/// const recipeSchema = MapSchema(
+///   properties: {
+///     'title': StringSchema(),
+///     'rating': DoubleSchema(),
+///     'similar': ListSchema(
+///       items: DocumentSchema(
+///         collection:'recipes'
+///       ),
+///     ),
+///   },
+/// );
+/// ```
 @sealed
 class MapSchema extends Schema<Map<String, Object>> {
   static const String nameForJson = 'map';

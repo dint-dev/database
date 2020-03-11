@@ -540,6 +540,10 @@ void runCollectionAndDocumentTests() {
         });
 
         test('double: nan', () async {
+          if (database == null) {
+            return;
+          }
+
           await expectLater(
             insert(data: <String, Object>{
               'double-0': double.nan,
@@ -549,6 +553,10 @@ void runCollectionAndDocumentTests() {
         });
 
         test('double: negative infinity', () async {
+          if (database == null) {
+            return;
+          }
+
           await expectLater(
             insert(data: <String, Object>{
               'double-0': double.negativeInfinity,
@@ -558,6 +566,10 @@ void runCollectionAndDocumentTests() {
         });
 
         test('double: positive infinity', () async {
+          if (database == null) {
+            return;
+          }
+
           await expectLater(
             insert(data: <String, Object>{
               'double-0': double.infinity,
@@ -952,33 +964,36 @@ void runCollectionAndDocumentTests() {
           final document1 = collection.newDocument();
           final document2 = collection.newDocument();
 
-          await database.runInTransaction(callback: (transaction) async {
-            // Read
-            {
-              final snapshot = await transaction.get(document0);
-              expect(snapshot.exists, isFalse);
-            }
+          await database.runInTransaction(
+              reach: Reach.global,
+              timeout: Duration(seconds: 1),
+              callback: (transaction) async {
+                // Read
+                {
+                  final snapshot = await transaction.get(document0);
+                  expect(snapshot.exists, isFalse);
+                }
 
-            // Write
-            await transaction.insert(document0, data: {
-              'k0-string': 'old value',
-            });
-            await transaction.upsert(document1, data: {
-              'k0-string': 'new value',
-            });
-            await transaction.deleteIfExists(document2);
-            await _waitAfterWrite();
+                // Write
+                await transaction.insert(document0, data: {
+                  'k0-string': 'old value',
+                });
+                await transaction.upsert(document1, data: {
+                  'k0-string': 'new value',
+                });
+                await transaction.deleteIfExists(document2);
+                await _waitAfterWrite();
 
-            // May be visible to the transaction
-            {
-              final snapshot = await transaction.get(document0);
-              expect(snapshot.exists, anyOf(isFalse, isTrue));
-            }
+                // May be visible to the transaction
+                {
+                  final snapshot = await transaction.get(document0);
+                  expect(snapshot.exists, anyOf(isFalse, isTrue));
+                }
 
-            // Check that the writes are not committed
-            expect((await document0.get()).exists, isFalse);
-            expect((await document1.get()).exists, isFalse);
-          });
+                // Check that the writes are not committed
+                expect((await document0.get()).exists, isFalse);
+                expect((await document1.get()).exists, isFalse);
+              });
 
           // Check that the commit succeeded
           expect((await document0.get()).exists, isTrue);
@@ -1002,6 +1017,10 @@ void runSqlTests() {
   });
 
   test('a simple example', () async {
+    if (database == null) {
+      return;
+    }
+
     final sqlClient = await database.sqlClient;
 
     //

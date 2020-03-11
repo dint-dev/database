@@ -14,6 +14,7 @@
 
 import 'package:database/filter.dart';
 
+/// A filter for lists.
 class ListFilter extends Filter {
   final Filter items;
 

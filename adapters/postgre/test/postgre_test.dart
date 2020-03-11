@@ -23,7 +23,7 @@ void main() {
   // To start PostgreSQL in a Docker container, run:
   //   ./tool/docker_run.sh
 
-  Process process;
+  Process dockerProcess;
 
   setUpAll(() async {
     Process.runSync('docker', ['docker', 'stop', 'some-postgres']);
@@ -32,31 +32,42 @@ void main() {
     // Wait 500 ms
     await Future.delayed(const Duration(milliseconds: 500));
 
-    process = await Process.start('docker', [
-      'run',
-      '--name',
-      'some-postgres',
-      '-p',
-      '5432:5432',
-      '-e',
-      'POSTGRES_USER=database_test_user',
-      '-e',
-      'POSTGRES_PASSWORD=database_test_password',
-      '-e',
-      'POSTGRES_DB=test',
-      '-d',
-      'postgres'
-    ]);
+    try {
+      dockerProcess = await Process.start('docker', [
+        'run',
+        '--name',
+        'some-postgres',
+        '-p',
+        '5432:5432',
+        '-e',
+        'POSTGRES_USER=database_test_user',
+        '-e',
+        'POSTGRES_PASSWORD=database_test_password',
+        '-e',
+        'POSTGRES_DB=test',
+        '-d',
+        'postgres'
+      ]);
+    } catch (error) {
+      print('Starting Docker failed: $error');
+      return;
+    }
+
+    // ignore: unawaited_futures
+    dockerProcess.exitCode.whenComplete(() {
+      dockerProcess = null;
+    });
     addTearDown(() {
-      process.kill();
+      dockerProcess?.kill();
     });
+
     // ignore: unawaited_futures
-    process.stderr.listen((data) {
+    dockerProcess.stderr.listen((data) {
       stdout.add(data);
     });
     // ignore: unawaited_futures
-    process.stdout.listen((data) {
-      stdout.add(data);
+    dockerProcess.stdout.listen((data) {
+      stderr.add(data);
     });
 
     // Wait 500 ms
@@ -69,6 +80,10 @@ void main() {
   });
 
   final tester = SqlDatabaseAdapterTester(() {
+    if (dockerProcess == null) {
+      print('  Skipping tests because of a Docker failure.');
+      return null;
+    }
     return Postgre(
       host: 'localhost',
       port: 5432,

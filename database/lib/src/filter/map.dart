@@ -15,8 +15,12 @@
 import 'package:collection/collection.dart';
 import 'package:database/filter.dart';
 
-/// A [Filter] which requires that the context has a specific property and
-/// value of the property matches a filter.
+/// A filter for maps.
+///
+/// An example:
+///     MapFilter({
+///       'price': RangeFilter(max:50.0),
+///     });
 class MapFilter extends Filter {
   final Map<String, Filter> properties;
 

@@ -25,27 +25,29 @@ import 'package:database/search_query_parsing.dart';
 ///   * [sorter] - "Sort documents"
 ///   * [schema] - "Use a specific subgraph"
 ///   * [skip] - "Skip N documents"
-///   * [skip] - "Take N documents"
+///   * [take] - "Take N documents"
 ///
 /// You can use [QueryBuilder] for building instances of this class.
 class Query {
-  /// Optional filter.
+  /// An optional filter.
   ///
   /// The default is null, which means that all documents will be returned.
   final Filter filter;
 
-  /// Optional sorter.
+  /// An optional sorter.
   ///
   /// The default value is null, which means that an arbitrary order is used.
   final Sorter sorter;
 
-  /// Optional schema.
+  /// An optional schema.
   ///
   /// The default value is null, which means that the whole document will be
   /// returned.
   final Schema schema;
 
   /// The number of items to skip.
+  ///
+  /// The default is 0.
   final int skip;
 
   /// The number of items to take.
@@ -275,6 +277,14 @@ class Query {
     }
   }
 
+  /// Parses a search query.
+  ///
+  /// Optional parameter [sorter] is used for sorting the matches.
+  ///
+  /// Optional parameter [skip] defines how many matches are skipped. The
+  /// default is 0 (no documents are skipped).
+  ///
+  /// Optional parameter [take] defines how many matches are taken.
   static Query parse(String source, {Sorter sorter, int skip = 0, int take}) {
     final filter = SearchQueryParser().parseFilterFromString(source);
     return Query(

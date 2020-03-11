@@ -18,7 +18,43 @@ import 'package:database/database.dart';
 import 'package:database/filter.dart';
 import 'package:database/search_query_parsing.dart';
 
-/// Parser for the search query syntax supported by 'package:database'.
+/// Parses a search query language which is very similar to
+/// [Lucene query language](https://lucene.apache.org/core/6_6_2/queryparser/org/apache/lucene/queryparser/classic/package-summary.html).
+///
+/// Examples of supported queries:
+///   * `Norwegian Forest cat`
+///     * Matches keywords "Norwegian", "Forest", and "cat".
+///   * `"Norwegian Forest cat"`
+///     * A quoted keyword ensures that the words must appear as a sequence.
+///   * `cat AND dog`
+///     * Matches keywords "cat" and "dog" (in any order).
+///   * `cat OR dog`
+///     * Matches keyword "cat", "dog", or both.
+///   * `pet -cat`
+///     * Matches keyword "pet", but excludes documents that match keyword "cat".
+///   * `color:brown`
+///     * Color matches keyword "brown".
+///   * `color:="brown"`
+///     * Color is equal to "brown".
+///   * `weight:>=10`
+///     * Weight is greater than or equal to 10.
+///   * `weight:[10 TO 20]`
+///     * Weight is between 10 and 20, inclusive.
+///   * `weight:{10 TO 20}`
+///     * Weight is between 10 and 20, exclusive.
+///   * `(cat OR dog) AND weight:>=10`
+///     * An example of grouping filters.
+///
+/// In equality/range expressions, the parser recognizes:
+///   * "null"
+///   * "false"
+///   * "true"
+///   * "3"
+///   * "3.14"
+///   * "2020-12-31" ([Date])
+///   * "2020-12-31T00:00:00Z" ([DateTime])
+///
+/// Other values are interpreted as strings.
 class SearchQueryParser {
   const SearchQueryParser();
 

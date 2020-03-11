@@ -18,7 +18,7 @@ import 'package:database/database.dart';
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// Schema for arbitrary trees.
+/// A schema for arbitrary trees.
 @sealed
 class ArbitraryTreeSchema extends Schema<Object> {
   static const String nameForJson = '*';

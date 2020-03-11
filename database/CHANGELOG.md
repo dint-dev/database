@@ -1,3 +1,9 @@
+## [0.3.2] - March 10, 2020
+
+* Various bug fixes (patching, transactions, etc.).
+* Adds `vendorData` fields.
+* Improves documentation.
+
 ## [0.3.1] - January 16, 2020
 
 * Improves documentation. Fixes some dependencies and deletes unnecessary files.

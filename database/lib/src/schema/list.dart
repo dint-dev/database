@@ -12,13 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Enables describing graph schema. The main use cases are validation and
-/// GraphQL-like subgraph selections.
 import 'package:collection/collection.dart';
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// Schema for [List] values.
+/// A schema for lists.
+///
+/// ## Example
+/// ```
+/// const recipeSchema = MapSchema(
+///   properties: {
+///     'title': StringSchema(),
+///     'rating': DoubleSchema(),
+///     'similar': ListSchema(
+///       items: DocumentSchema(
+///         collection:'recipes'
+///       ),
+///     ),
+///   },
+/// );
+/// ```
 @sealed
 class ListSchema extends Schema {
   static const String nameForJson = 'list';

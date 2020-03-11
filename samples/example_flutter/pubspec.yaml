@@ -7,14 +7,29 @@ description:
 publish_to: none
 
 dependencies:
-  database: ^0.3.0
-  database_adapter_algolia: any
-  database_adapter_elasticsearch: any
-  database_adapter_firestore_flutter: any
-  database_adapter_postgre: any
-  database_adapter_sqlite: any
-  search: any
+  database:
+  database_adapter_algolia:
+  database_adapter_elasticsearch:
+  database_adapter_firestore_flutter:
+  database_adapter_postgre:
+  database_adapter_sqlite:
+  search:
 
-  # We want to avoid dependency conflicts with the following packages:
   flutter:
     sdk: flutter
+
+dependency_overrides:
+  database:
+    path: '../../database'
+  database_adapter_algolia:
+    path: '../../adapters/algolia'
+  database_adapter_elasticsearch:
+    path: '../../adapters/elasticsearch'
+  database_adapter_firestore_flutter:
+    path: '../../adapters/firestore_flutter'
+  database_adapter_postgre:
+    path: '../../adapters/postgre'
+  database_adapter_sqlite:
+    path: '../../adapters/sqlite'
+  search:
+    path: '../../search'

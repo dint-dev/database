@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Enables describing graph schema. The main use cases are validation and
-/// GraphQL-like subgraph selections.
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// Schema for [DateTime] values.
+/// A schema for [DateTime] values.
 @sealed
 class DateTimeSchema extends PrimitiveSchema<DateTime> {
   static const String nameForJson = 'datetime';

@@ -15,7 +15,22 @@
 import 'package:collection/collection.dart';
 import 'package:database/filter.dart';
 
-/// A [Filter] which requires that the context matches all of the subfilters.
+/// Logical AND.
+///
+/// An example:
+///     // Distance to both San Francisco and Oakland must be less than 50 miles.
+///     final locationFilter = MapFilter(
+///       'location': AndFilter([
+///         GeoPointFilter(
+///           near: sanFrancisco,
+///           maxDistance: 50,
+///         ),
+///         GeoPointFilter(
+///           near: oakland,
+///           maxDistance: 50,
+///         ),
+///       ]),
+///     );
 class AndFilter extends Filter {
   final List<Filter> filters;
   final bool isImplicit;
@@ -81,7 +96,7 @@ class AndFilter extends Filter {
   }
 }
 
-/// A [Filter] which requires that the context doesn't match the subfilter.
+/// Logical NOT.
 class NotFilter extends Filter {
   final Filter filter;
 
@@ -114,7 +129,22 @@ class NotFilter extends Filter {
   }
 }
 
-/// A [Filter] which requires that the context matches one of the subfilters.
+/// Logical OR.
+///
+/// An example:
+///     // Must be near San Francisco or London
+///     final locationFilter = MapFilter(
+///       'location': OrFilter([
+///         GeoPointFilter(
+///           near: sanFrancisco,
+///           maxDistance: 50,
+///         ),
+///         GeoPointFilter(
+///           near: london,
+///           maxDistance: 50,
+///         ),
+///       ]),
+///     );
 class OrFilter extends Filter {
   final List<Filter> filters;
 

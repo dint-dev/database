@@ -24,14 +24,13 @@ void main() async {
     ).database();
     try {
       await database.checkHealth();
+      print('No problem');
     } catch (error) {
-      print(
-        'ElasticSearch is not running at port 9200.\nTo run it with Docker, use script: ./tool/elasticsearch/docker_run.sh',
-      );
+      print('  "elasticsearch" tests are skipped.');
+      print('  This happens because you haven\'t started the Docker instance.');
       return null;
     }
     return database;
   };
-
   DatabaseAdapterTester(newDatabase).run();
 }

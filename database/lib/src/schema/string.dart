@@ -14,7 +14,7 @@
 
 import 'package:database/schema.dart';
 
-/// Schema for [String] values.
+/// A schema for [String] values.
 class StringSchema extends PrimitiveSchema<String> {
   static const String nameForJson = 'string';
 

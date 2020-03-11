@@ -16,7 +16,7 @@ import 'package:collection/collection.dart';
 import 'package:database/database.dart';
 import 'package:meta/meta.dart';
 
-/// The result of querying documents in a collection.
+/// The result of sending a [Query] to a [Collection].
 class QueryResult {
   /// Collection.
   final Collection collection;
@@ -34,11 +34,17 @@ class QueryResult {
   /// Estimate of the total number of matches. Null if count was not requested.
   final int count;
 
+  /// Optional vendor-specific data received from the database.
+  /// For example, a database adapter for Elasticsearch could expose JSON
+  /// response received from the REST API of Elasticsearch.
+  final Object vendorData;
+
   QueryResult({
     @required this.collection,
     @required this.query,
     @required List<Snapshot> snapshots,
     this.count,
+    this.vendorData,
   })  : assert(collection != null),
         assert(query != null),
         assert(snapshots != null),
@@ -52,6 +58,7 @@ class QueryResult {
     @required List<QueryResultItem> items,
     this.count,
     this.suggestedQueries,
+    this.vendorData,
   })  : assert(collection != null),
         assert(query != null),
         assert(items != null),
@@ -64,7 +71,8 @@ class QueryResult {
       query.hashCode ^
       count.hashCode ^
       const ListEquality<Snapshot>().hash(snapshots) ^
-      const ListEquality().hash(suggestedQueries);
+      const ListEquality().hash(suggestedQueries) ^
+      const DeepCollectionEquality().hash(vendorData);
 
   /// Return items. Unlike [snapshots], this contains for additional data such
   /// as snippets.
@@ -88,5 +96,6 @@ class QueryResult {
       query == other.query &&
       count == other.count &&
       const ListEquality<QueryResultItem>().equals(items, other.items) &&
-      const ListEquality().equals(suggestedQueries, other.suggestedQueries);
+      const ListEquality().equals(suggestedQueries, other.suggestedQueries) &&
+      const DeepCollectionEquality().equals(vendorData, other.vendorData);
 }

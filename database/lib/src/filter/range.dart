@@ -15,6 +15,9 @@
 import 'package:database/filter.dart';
 
 /// Defines minimum and maximum value.
+///
+/// An example:
+///     RangeFilter(min:0.0, max:1.0, isExclusiveMax:true);
 class RangeFilter extends Filter {
   final Object min;
   final Object max;

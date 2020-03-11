@@ -88,13 +88,24 @@ abstract class DocumentDatabaseAdapter extends DatabaseAdapter {
   Future<void> performDocumentUpdate(DocumentUpdateRequest request) {
     return performDocumentTransaction(DocumentTransactionRequest(
       callback: (transaction) async {
+        // Get a snapshot of the existing document
         final snapshot = await transaction.get(request.document);
         if (!snapshot.exists) {
           throw DatabaseException.notFound(request.document);
         }
+
+        // Is this a patch?
+        var data = request.data;
+        if (request.isPatch) {
+          final patchedData = Map<String, Object>.from(snapshot.data);
+          patchedData.addAll(data);
+          data = patchedData;
+        }
+
+        // Upsert
         await transaction.upsert(
           request.document,
-          data: request.data,
+          data: data,
         );
       },
       reach: request.reach,

@@ -18,6 +18,13 @@ import 'dart:math';
 ///
 /// Both latitude and longitude should be between -180.0 (inclusive) and 180.0
 /// (inclusive).
+///
+/// Examples:
+/// ```
+/// final sanFrancisco = GeoPoint(37.7749, -122.4194);
+/// final london = GeoPoint(51.5074, -0.1278);
+/// final distance = sanFrancisco.distanceTo(london);
+/// ```
 class GeoPoint implements Comparable<GeoPoint> {
   /// GeoPoint(0.0, 0.0).
   static const GeoPoint zero = GeoPoint(0.0, 0.0);

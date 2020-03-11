@@ -1,5 +1,5 @@
 name: database_adapter_algolia
-version: 0.2.0
+version: 0.2.1
 description: An adapter for connecting 'package:database' to Algolia. Works in all platforms.
 homepage: https://github.com/dint-dev/database
 
@@ -7,9 +7,9 @@ environment:
   sdk: '>=2.6.0 <3.0.0'
 
 dependencies:
-  database: ^0.3.0
+  database: ^0.3.2
   meta: ^1.1.0
-  universal_io: ^0.8.5
+  universal_io: '>=0.8.5 <2.0.0'
 
 dev_dependencies:
   pedantic: ^1.8.0

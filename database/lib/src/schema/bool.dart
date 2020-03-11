@@ -17,7 +17,7 @@
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// Schema for [bool] values.
+/// A schema for [bool] values.
 @sealed
 class BoolSchema extends PrimitiveSchema<bool> {
   static const String nameForJson = 'bool';

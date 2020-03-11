@@ -15,6 +15,7 @@
 import 'package:database/database.dart';
 import 'package:database/filter.dart';
 
+/// Matches [GeoPoint] values that are near a specified location.
 class GeoPointFilter extends Filter {
   final GeoPoint near;
   final double maxDistance;

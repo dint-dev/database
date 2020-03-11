@@ -17,7 +17,19 @@ import 'package:database/database.dart';
 import 'package:database/database_adapter.dart';
 import 'package:meta/meta.dart';
 
-/// Sorts values according to multiple criteria.
+/// Sorts values based on many criteria. Used by [Query].
+///
+/// An example:
+/// ```
+/// database.collection('movies').query(
+///   query: Query(
+///     sorter: MultiSorter([
+///       PropertySorter('year'),
+///       PropertySorter('rating'),
+///     ]),
+///   ),
+/// )
+/// ```
 @sealed
 class MultiSorter extends Sorter {
   final List<Sorter> sorters;
@@ -86,6 +98,15 @@ class MultiSorter extends Sorter {
 }
 
 /// Sorts values according to value of a map property.
+///
+/// An example:
+/// ```
+/// database.collection('movies').query(
+///   query: Query(
+///     sorter: PropertySorter.descending('year'),
+///   ),
+/// );
+/// ```
 @sealed
 class PropertySorter extends Sorter {
   final String name;
@@ -122,6 +143,8 @@ class PropertySorter extends Sorter {
 }
 
 /// Sorts values.
+///
+/// The main subclasses are [PropertySoter] and [MultiSorter].
 abstract class Sorter {
   const Sorter();
 

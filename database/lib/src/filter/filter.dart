@@ -15,7 +15,7 @@
 import 'package:database/filter.dart';
 import 'package:database/search_query_parsing.dart';
 
-/// Describes how to score possible matches.
+/// Describes how to score possible matches. Used by [Query].
 abstract class Filter {
   const Filter();
 

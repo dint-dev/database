@@ -19,7 +19,7 @@ import 'package:database/database.dart';
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// Schema for [Document] values.
+/// A schema for [Document] values.
 @sealed
 class DocumentSchema extends PrimitiveSchema<Document> {
   static const String nameForJson = 'document';

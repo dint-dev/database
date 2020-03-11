@@ -13,8 +13,17 @@
 // limitations under the License.
 
 import 'package:database/database.dart';
+import 'package:database/sql.dart';
 import 'package:meta/meta.dart';
 
+/// An exception that may be thrown by [Database], [Collection], [Document],
+/// [SqlClient], and other database classes.
+///
+///     try {
+///       doSomeOperation();
+///     } on DatabaseException catch (e) {
+///       // ...
+///     }
 class DatabaseException implements Exception {
   final Document document;
   final int code;

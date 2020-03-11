@@ -13,11 +13,6 @@
 // limitations under the License.
 
 /// Classes used by database adapters.
-///
-/// Import:
-/// ```
-/// import 'package:database/database_adapter.dart';
-/// ```
 library database.adapter;
 
 export 'src/database_adapter/database_adapter.dart';

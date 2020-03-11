@@ -1,8 +1,8 @@
 name: database
-version: 0.3.1
+version: 0.3.2
 description:
-  A vendor-agnostic database access API. Supports many technologies/products such as browser APIs,
-  SQLite, Google Cloud Firestore, PostgreSQL, ElasticSearch, and Algolia.
+  A database access API that's vendor-agnostic. Adapters exist for browser APIs, SQLite, Google
+  Cloud Firestore, PostgreSQL, ElasticSearch, Algolia, and others.
 homepage: https://github.com/dint-dev/database
 
 environment:

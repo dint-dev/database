@@ -17,7 +17,41 @@ import 'package:database/database_adapter.dart';
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// A reference to a tree of Dart objects.
+/// A document in a [Collection].
+///
+/// In relational databases, "document" means a row.
+///
+/// An example:
+///
+///     Future<void> main() async {
+///       // Use an in-memory database
+///       final database = MemoryDatabaseAdapter().database();
+///
+///       // Our collection
+///       final collection = database.collection('pizzas');
+///
+///       // Our document
+///       final document = collection.newDocument();
+///
+///       await document.insert({
+///         'name': 'Pizza Margherita',
+///         'rating': 3.5,
+///         'ingredients': ['dough', 'tomatoes'],
+///         'similar': [
+///           database.collection('recipes').document('pizza_funghi'),
+///         ],
+///       });
+///       print('Successfully inserted pizza.');
+///
+///       await document.patch({
+///         'rating': 4.5,
+///       });
+///       print('Successfully patched pizza.');
+///
+///       await document.delete();
+///       print('Successfully deleted pizza.');
+///     }
+///
 class Document<T> {
   /// Collection where the document is.
   final Collection parent;
@@ -58,6 +92,11 @@ class Document<T> {
       parent == other.parent;
 
   /// Deletes the document.
+  ///
+  /// An example:
+  ///
+  ///     final document = database.collection('recipe').document('tiramisu');
+  ///     await document.delete(mustExist:true);
   Future<void> delete({
     Reach reach,
     bool mustExist = false,
@@ -70,6 +109,11 @@ class Document<T> {
   }
 
   /// Tells whether the document exists.
+  ///
+  /// An example:
+  ///
+  ///     final document = database.collection('recipe').document('tiramisu');
+  ///     final exists = await document.exists(reach:Reach.regional);
   Future<bool> exists({
     Reach reach = Reach.regional,
   }) async {
@@ -87,6 +131,14 @@ class Document<T> {
   ///   * [Reach.local] tells that a locally cached snapshot is sufficient.
   ///   * [Reach.global] tells that the snapshot must be from the global
   ///     transactional database, reflecting the latest state.
+  ///
+  /// An example:
+  ///
+  ///     final document = database.collection('recipe').document('tiramisu');
+  ///     final snapshot = await document.get(
+  ///       schema: recipeSchema,
+  ///       reach: Reach.regional,
+  ///     );
   Future<Snapshot> get({
     Schema schema,
     Reach reach,
@@ -112,10 +164,15 @@ class Document<T> {
 
   /// Inserts the document.
   ///
-  /// If it doesn't matter whether the document exists, use method
-  /// [upsert].
+  /// If the document exists already, the method will throw
+  /// [DatabaseException.found].
   ///
-  /// TODO: Specify what happens when the document already exists
+  /// Optional parameter [reach] can be used to specify the minimum level of
+  /// authority needed. For example:
+  ///   * [Reach.local] tells that the write only needs to reach the local
+  ///     database (which may synchronized with the global database later).
+  ///   * [Reach.global] tells that the write should reach the global master
+  ///     database.
   Future<void> insert({
     @required Map<String, Object> data,
     Reach reach = Reach.regional,
@@ -129,30 +186,23 @@ class Document<T> {
   }
 
   /// Patches the document.
+  ///
+  /// Optional parameter [reach] can be used to specify the minimum level of
+  /// authority needed. For example:
+  ///   * [Reach.local] tells that the write only needs to reach the local
+  ///     database (which may synchronized with the global database later).
+  ///   * [Reach.global] tells that the write should reach the global master
+  ///     database.
   Future<void> patch({
     @required Map<String, Object> data,
     Reach reach,
   }) {
-    // TODO: Patching supporting without transactions
-    return parentDatabase.runInTransaction(
+    return DocumentUpdateRequest(
+      document: this,
+      data: data,
+      isPatch: true,
       reach: reach,
-      callback: (transaction) async {
-        final snapshot = await transaction.get(this);
-        if (!snapshot.exists) {
-          throw DatabaseException.notFound(this);
-        }
-        final newData = Map<String, Object>.from(
-          snapshot.data,
-        );
-        for (var entry in data.entries) {
-          newData[entry.key] = entry.value;
-        }
-        await transaction.update(
-          this,
-          data: Map<String, Object>.unmodifiable(newData),
-        );
-      },
-    );
+    ).delegateTo(parentDatabase.adapter);
   }
 
   @override
@@ -160,10 +210,15 @@ class Document<T> {
 
   /// Updates the document.
   ///
-  /// If it doesn't matter whether the document exists, use method
-  /// [upsert].
+  /// If the document does not exist, the method will throw
+  /// [DatabaseException.notFound].
   ///
-  /// TODO: Specify what happens when the document does NOT exist
+  /// Optional parameter [reach] can be used to specify the minimum level of
+  /// authority needed. For example:
+  ///   * [Reach.local] tells that the write only needs to reach the local
+  ///     database (which may synchronized with the global database later).
+  ///   * [Reach.global] tells that the write should reach the global master
+  ///     database.
   Future<void> update({
     Map<String, Object> data,
     Reach reach = Reach.regional,
@@ -176,7 +231,14 @@ class Document<T> {
     ).delegateTo(parentDatabase.adapter);
   }
 
-  /// Inserts or deletes the document.
+  /// Upserts ("inserts or updates") the document.
+  ///
+  /// Optional parameter [reach] can be used to specify the minimum level of
+  /// authority needed. For example:
+  ///   * [Reach.local] tells that the write only needs to reach the local
+  ///     database (which may synchronized with the global database later).
+  ///   * [Reach.global] tells that the write should reach the global master
+  ///     database.
   Future<void> upsert({
     @required Map<String, Object> data,
     Reach reach,
@@ -189,19 +251,29 @@ class Document<T> {
   }
 
   /// Returns am infinite stream of snapshots.
+  ///
+  /// Some databases such as Firebase or Firestore support this operation
+  /// natively. In other databases, the operation may be implemented with
+  /// polling.
   Stream<Snapshot> watch({
     Schema schema,
     Duration interval,
     Reach reach,
   }) async* {
+    // As long as the stream is not closed.
     while (true) {
+      // Construct a stream.
       final stream = DocumentReadWatchRequest(
         document: this,
         outputSchema: schema,
         pollingInterval: interval,
         reach: reach,
       ).delegateTo(parentDatabase.adapter);
+
+      // Yield the stream.
       yield* (stream);
+
+      // Wait a bit before watching again.
       await Future.delayed(interval ?? const Duration(seconds: 1));
     }
   }

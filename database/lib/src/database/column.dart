@@ -1,5 +1,11 @@
 import 'package:database/database.dart';
 
+/// A database column.
+///
+/// An example:
+///
+///     final ratingColumn = database.collection('recipes').column('rating');
+///
 abstract class Column<T> implements ColumnQueryHelper<T> {
   Column();
 
@@ -9,6 +15,15 @@ abstract class Column<T> implements ColumnQueryHelper<T> {
   Collection get collection;
 }
 
+/// A helper for building columnar queries.
+///
+/// An example:
+///
+///     final column = database.collection('recipes').column('rating');
+///
+///     // Use ColumnQueryHelper
+///     final top10Ratings = column.descending().take(10).toList();
+///
 abstract class ColumnQueryHelper<T> {
   Future<int> get length => toStream().length;
 

@@ -7,11 +7,22 @@ description:
 publish_to: none
 
 dependencies:
-  database: ^0.3.0
-  database_adapter_algolia: any
-  database_adapter_elasticsearch: any
-  database_adapter_postgre: any
-  search: any
+  database:
+  database_adapter_algolia:
+  database_adapter_elasticsearch:
+  database_adapter_postgre:
+  search:
 
-  # We want to avoid dependency conflicts with the following packages:
   angular: any
+
+dependency_overrides:
+  database:
+    path: '../../database'
+  database_adapter_algolia:
+    path: '../../adapters/algolia'
+  database_adapter_elasticsearch:
+    path: '../../adapters/elasticsearch'
+  database_adapter_postgre:
+    path: '../../adapters/postgre'
+  search:
+    path: '../../search'

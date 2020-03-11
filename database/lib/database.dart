@@ -19,46 +19,56 @@
 ///   * Document databases
 ///   * Search engines
 ///
-/// ## Examples
-/// ### Hello world
-/// ```
-/// import 'package:database/database.dart';
+/// ## Example
+///     import 'package:database/database.dart';
 ///
-/// Future main() async {
-///   // Configure an in-memory database
-///   final database = MemoryDatabaseAdapter().database();
+///     Future<void> main() async {
+///       // Use an in-memory database
+///       final database = MemoryDatabaseAdapter().database();
 ///
-///   // Insert a greeting
-///   await database.collection('greetings').insert({
-///     'text': 'Hello world!',
-///   });
+///       // Our collection
+///       final collection = database.collection('pizzas');
 ///
-///   // Print greetings
-///   await for (var snapshot in database.collection('greetings').search()) {
-///     print(snapshot.data['text']);
-///   }
-/// }
-/// ```
+///       // Our document
+///       final document = collection.newDocument();
 ///
-/// ### Direct SQL access
+///       await document.insert({
+///         'name': 'Pizza Margherita',
+///         'rating': 3.5,
+///         'ingredients': ['dough', 'tomatoes'],
+///         'similar': [
+///           database.collection('recipes').document('pizza_funghi'),
+///         ],
+///       });
+///       print('Successfully inserted pizza.');
 ///
-/// ```
-/// import 'package:database/database.dart';
-/// import 'package:database/sql.dart';
-/// import 'package:database_adapter_postgre/database_adapter_postgre.dart';
+///       await document.patch({
+///         'rating': 4.5,
+///       });
+///       print('Successfully patched pizza.');
 ///
-/// Future main() async {
-///   // Configure a PostgreSQL database connection
-///   final database = PostgreAdapter(
-///     // ...
-///   ).database();
+///       await document.delete();
+///       print('Successfully deleted pizza.');
+///     }
 ///
-///   // Insert rows
-///   await database.sqlClient.execute(
-///     'INSERT INTO employee(name) VALUES (?)',
-///     ['John Doe'],
-///   );
-/// }
+/// ### Raw SQL access
+///
+///     import 'package:database/database.dart';
+///     import 'package:database/sql.dart';
+///     import 'package:database_adapter_postgre/database_adapter_postgre.dart';
+///
+///     Future main() async {
+///       // Configure a PostgreSQL database connection
+///       final database = PostgreAdapter(
+///         // ...
+///       ).database();
+///
+///       // Insert rows
+///       await database.sqlClient.execute(
+///         'INSERT INTO employee(name) VALUES (?)',
+///         ['John Doe'],
+///       );
+///     }
 /// ```
 library database;
 
@@ -73,7 +83,6 @@ export 'src/database/column.dart';
 export 'src/database/database.dart';
 export 'src/database/document.dart';
 export 'src/database/exceptions.dart';
-export 'src/database/extensions.dart';
 export 'src/database/primitives/blob.dart';
 export 'src/database/primitives/date.dart';
 export 'src/database/primitives/geo_point.dart';
@@ -83,5 +92,8 @@ export 'src/database/query_result.dart';
 export 'src/database/query_result_item.dart';
 export 'src/database/reach.dart';
 export 'src/database/snapshot.dart';
+export 'src/database/snippet.dart';
 export 'src/database/sorter.dart';
+export 'src/database/suggested_query.dart';
 export 'src/database/transaction.dart';
+export 'src/database/write_batch.dart';

@@ -141,9 +141,20 @@ class MemoryDatabaseAdapter extends DocumentDatabaseAdapter {
     await _wait();
     const ArbitraryTreeSchema().checkTreeIsValid(request.data);
     final key = _keyFromDocument(request.document);
-    if (!_values.containsKey(key)) {
+    final oldValue = _values[key];
+    if (oldValue == null) {
       throw DatabaseException.notFound(request.document);
     }
+
+    // Is this a patch?
+    var data = request.data;
+    if (request.isPatch) {
+      final patchedData = Map<String, Object>.from(oldValue.data);
+      patchedData.addAll(data);
+      data = patchedData;
+    }
+
+    // Update
     _values[key] = _Value(request.data);
   }
 

@@ -25,9 +25,11 @@ Future<void> main() async {
     final id = env[idEnv] ?? '';
     final secret = env[secretEnv] ?? '';
     if (id == '' || secret == '') {
+      print('  "firebase_browser" tests are skipped.');
       print(
-        'SKIPPING: Firebase: environmental variables $idEnv / $secretEnv are undefined.',
-      );
+          '  If you want to run the tests, define the environmental variables:');
+      print('    * $idEnv');
+      print('    * $secretEnv');
       return null;
     }
     return FirestoreBrowser.initialize(

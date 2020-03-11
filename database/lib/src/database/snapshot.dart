@@ -17,7 +17,7 @@ import 'package:database/database.dart';
 import 'package:meta/meta.dart';
 
 /// Builds a [Snapshot].
-class SnaphotBuilder<T> {
+class SnaphotBuilder {
   /// Document that produced this snapshot.
   Document document;
 
@@ -27,6 +27,8 @@ class SnaphotBuilder<T> {
 
   /// Optional data of the snapshot.
   Map<String, Object> data;
+
+  Object vendorData;
 
   @override
   int get hashCode => build().hashCode;
@@ -40,13 +42,18 @@ class SnaphotBuilder<T> {
       document: document,
       exists: exists ?? true,
       data: data,
+      vendorData: vendorData,
     );
   }
 }
 
 /// A snapshot of a [Document] version.
 ///
-/// You can build a snapshot with [SnaphotBuilder].
+/// An example of getting a snapshot:
+///     final document = database.collection('recipes').document('tiramisu');
+///     final snapshot = await document.get();
+///
+/// You can also build a snapshot with [SnaphotBuilder].
 class Snapshot {
   static const _deepEquality = DeepCollectionEquality();
 
@@ -62,22 +69,32 @@ class Snapshot {
   /// Optional data of the snapshot.
   final Map<String, Object> data;
 
+  /// Optional vendor-specific data received from the database.
+  /// For example, a database adapter for Elasticsearch could expose JSON
+  /// response received from the REST API of Elasticsearch.
+  final Object vendorData;
+
   Snapshot({
     @required this.document,
     @required this.data,
     this.exists = true,
     this.versionId,
+    this.vendorData,
   })  : assert(document != null),
         assert(exists != null);
 
-  Snapshot.notFound(this.document)
+  Snapshot.notFound(this.document, {Object vendorData})
       : exists = false,
         data = null,
-        versionId = null;
+        versionId = null,
+        vendorData = vendorData;
 
   @override
   int get hashCode =>
-      document.hashCode ^ exists.hashCode ^ _deepEquality.hash(data);
+      document.hashCode ^
+      exists.hashCode ^
+      _deepEquality.hash(data) ^
+      const DeepCollectionEquality().hash(vendorData);
 
   @override
   bool operator ==(other) =>
@@ -85,14 +102,16 @@ class Snapshot {
       document == other.document &&
       exists == other.exists &&
       versionId == other.versionId &&
-      _deepEquality.equals(data, other.data);
+      _deepEquality.equals(data, other.data) &&
+      const DeepCollectionEquality().equals(vendorData, other.vendorData);
 
   SnaphotBuilder toBuilder() {
     return SnaphotBuilder()
       ..document = document
       ..exists = exists
       ..versionId = versionId
-      ..data = data;
+      ..data = data
+      ..vendorData = vendorData;
   }
 
   @override

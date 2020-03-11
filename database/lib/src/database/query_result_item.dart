@@ -16,7 +16,7 @@ import 'package:collection/collection.dart';
 import 'package:database/database.dart';
 import 'package:meta/meta.dart';
 
-/// Additional information retrieval details attached to a [Snapshot].
+/// Item in a [QueryResult].
 class QueryResultItem<T> {
   /// Snapshot of the document.
   final Snapshot snapshot;
@@ -28,10 +28,16 @@ class QueryResultItem<T> {
   /// Snippets of the document.
   final List<Snippet> snippets;
 
+  /// Optional vendor-specific data received from the database.
+  /// For example, a database adapter for Elasticsearch could expose JSON
+  /// response received from the REST API of Elasticsearch.
+  final Object vendorData;
+
   const QueryResultItem({
     @required this.snapshot,
     this.score,
     this.snippets = const <Snippet>[],
+    this.vendorData,
   });
 
   /// Data of the document.
@@ -45,74 +51,15 @@ class QueryResultItem<T> {
   Document get document => snapshot.document;
 
   @override
-  int get hashCode => score.hashCode ^ const ListEquality().hash(snippets);
+  int get hashCode =>
+      score.hashCode ^
+      const ListEquality<Snippet>().hash(snippets) ^
+      const DeepCollectionEquality().hash(vendorData);
 
   @override
   bool operator ==(other) =>
       other is QueryResultItem &&
       score == other.score &&
-      const ListEquality().equals(snippets, other.snippets);
-}
-
-/// Describes a snippet of the document in [QueryResultItem].
-class Snippet {
-  /// Text of the snippet.
-  final String text;
-
-  /// Optional highlighted spans.
-  final List<SnippetSpan> highlightedSpans;
-
-  /// Optional line number. The first line has index 1.
-  final int line;
-
-  Snippet(
-    this.text, {
-    this.highlightedSpans = const <SnippetSpan>[],
-    this.line,
-  });
-
-  @override
-  int get hashCode => text.hashCode;
-
-  @override
-  bool operator ==(other) =>
-      other is Snippet &&
-      text == other.text &&
-      const ListEquality().equals(highlightedSpans, other.highlightedSpans) &&
-      line == other.line;
-}
-
-/// Describes a span in a [Snippet].
-class SnippetSpan {
-  /// Start of the span.
-  final int start;
-
-  /// Length of the span.
-  final int length;
-
-  SnippetSpan({
-    @required this.start,
-    @required this.length,
-  });
-
-  @override
-  int get hashCode => start.hashCode ^ length.hashCode;
-
-  @override
-  bool operator ==(other) =>
-      other is SnippetSpan && start == other.start && length == other.length;
-}
-
-/// Describes a suggested query in [SearchResponseDetails].
-class SuggestedQuery {
-  final String queryString;
-
-  SuggestedQuery({@required this.queryString});
-
-  @override
-  int get hashCode => queryString.hashCode;
-
-  @override
-  bool operator ==(other) =>
-      other is SuggestedQuery && queryString == other.queryString;
+      const ListEquality<Snippet>().equals(snippets, other.snippets) &&
+      const DeepCollectionEquality().equals(vendorData, other.vendorData);
 }

@@ -19,6 +19,7 @@ import 'package:database/database.dart';
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
+/// A schema for [Blob] values.
 @sealed
 class BlobSchema extends PrimitiveSchema<Blob> {
   static const String nameForJson = 'blob';

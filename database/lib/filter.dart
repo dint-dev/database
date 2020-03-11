@@ -12,7 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Filter classes for specifying wanted objects.
+/// Filter classes for complex database queries.
+///
+/// An example:
+///     import 'package:database/database.dart';
+///     import 'package:database/filter.dart';
+///
+///     Future<List<Recipe>> findGoodItalianRecipes(Collection<Recipe> recipes) {
+///       return recipes.query(
+///         query: Query(
+///           filter: MapFilter({
+///             'rating': RangeFilter(min: 3.0),
+///             'cuisine': ValueFilter('Italian'),
+///           }),
+///           take: 10,
+///         ),
+///       ).toList();
+///     }
 library database.filter;
 
 export 'src/filter/filter.dart';

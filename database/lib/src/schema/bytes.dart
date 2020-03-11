@@ -19,7 +19,7 @@ import 'dart:typed_data';
 import 'package:database/schema.dart';
 import 'package:meta/meta.dart';
 
-/// Schema for [Uint8List] values.
+/// A schema for [Uint8List] values.
 @sealed
 class BytesSchema extends PrimitiveSchema<Uint8List> {
   static const String nameForJson = 'bytes';

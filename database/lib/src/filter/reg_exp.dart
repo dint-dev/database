@@ -14,7 +14,7 @@
 
 import 'package:database/filter.dart';
 
-/// Defines a regular expression.
+/// A regular expression matching filter.
 class RegExpFilter extends Filter {
   final RegExp regExp;
 

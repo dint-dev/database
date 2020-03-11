@@ -9,7 +9,7 @@ environment:
 dependencies:
   database: ^0.3.0
   fixnum: ^0.10.0
-  universal_io: ^0.8.5
+  universal_io: '>=0.8.5 <2.0.0'
 
 dev_dependencies:
   pedantic: ^1.8.0

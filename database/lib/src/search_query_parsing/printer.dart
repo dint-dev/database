@@ -13,8 +13,13 @@
 // limitations under the License.
 
 import 'package:database/filter.dart';
+import 'package:database/search_query_parsing.dart';
 import 'package:meta/meta.dart';
 
+/// Prints [Filter] trees in our search query language.
+///
+/// The language is very similar to [Lucene query language](https://lucene.apache.org/core/6_6_2/queryparser/org/apache/lucene/queryparser/classic/package-summary.html).
+/// For a description of the language, see [SearchQueryParser].
 class SearchQueryPrinter extends FilterVisitor<void, Null> {
   static const _specialSubstrings = [
     '+',
