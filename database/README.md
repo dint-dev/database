@@ -6,29 +6,28 @@
 This is __database.dart__, a vendor-agnostic database access API for [Flutter](https://flutter.io)
 and other [Dart](https://dart.dev) projects.
 
-__This version is just an early preview__. Major changes are possible during the early development.
-Anyone is welcome to contribute to the development of this package.
+The package gives you:
+  * __Document database API__.
+    * Our document database API works with a wide range of products, including document databases,
+      SQL databases, and search engines.
+  * __SQL database API__
+    * You can use raw SQL when you need to.
+  * __Search engine support__
+    * The API supports forwarding specific queries to search engines that can, for example, handle
+      natural language queries better than transaction databases.
+    * There are already several search engines already supported: Algolia, ElasticSearch, and a
+      simple search engine written in Dart.
 
-Licensed under [the Apache License 2.0](LICENSE).
-
-## Why this package?
-  * 👫 __Document & SQL database support__. The API has been designed to support both SQL databases
-    and document databases. You - or your customers - can always choose the best database without
-    rewriting any code.
-  * 🔭 __Full-text search engine support__. The API supports forwarding specific queries to search
-    engines that can, for example, handle natural language queries better than transaction databases.
-    There are already several search engines already supported (Algolia, ElasticSearch, and a simple
-    search engine written in Dart).
+Copyright 2020 Gohilla Ltd. Licensed under [the Apache License 2.0](LICENSE).
 
 ## Links
   * [Github project](https://github.com/dint-dev/database)
-  * [API reference](https://pub.dev/documentation/database/latest/)
+  * [Issue tracker](https://github.com/dint-dev/database/issues)
   * [Pub package](https://pub.dev/packages/database)
+  * [API reference](https://pub.dev/documentation/database/latest/)
 
-## Issues?
-  * Report issues at the [issue tracker](https://github.com/dint-dev/database/issues).
-  * Contributing a fix? Fork the repository, do your changes, and just create a pull request in
-    Github. Key contributors will be invited to become project administrators in Github.
+## Contributing
+  * Just create a pull request in Github. :)
 
 ## Supported products and APIs
 ### Document databases
@@ -98,7 +97,7 @@ final database = MemoryDatabaseAdapter().database();
 ```
 
 
-# Document-style API
+# Main API
 ## Overview
 If you have used some other document-oriented API (such as Google Firestore), this API will feel
 familiar to you. A database is made of document collections. A document is an arbitrary tree of
@@ -195,7 +194,7 @@ If you want to update all properties, use [document.update()](https://pub.dev/do
 If you want to update the document even when it doesn't exist, use [document.upsert()](https://pub.dev/documentation/database/latest/database/Document/upsert.html).
 
 
-### Deleting documents
+## Deleting documents
 Use [document.delete()](https://pub.dev/documentation/database/latest/database/Document/delete.html):
 ```dart
 await document.delete();
@@ -347,6 +346,7 @@ Future main() async {
 
 
 ## Selecting rows
+Use [SQL selection helper](https://pub.dev/documentation/database/latest/database.sql/SqlClientTableSelectionHelper-class.html):
 ```dart
 final pizzas = await sqlClient
   .table('Product')
@@ -356,7 +356,7 @@ final pizzas = await sqlClient
   .toMaps();
 ```
 
-...is just another way to execute:
+The above is just another way to execute:
 
 ```dart
 final pizzas = await sqlClient.query(
@@ -367,6 +367,7 @@ final pizzas = await sqlClient.query(
 
 
 ## Inserting rows
+Use [SQL table helper](https://pub.dev/documentation/database/latest/database.sql/SqlClientTableHelper/insert.html):
 ```dart
 await sqlClient.table('Product').insert({
   'name': 'Pizza Hawaii',
@@ -375,7 +376,7 @@ await sqlClient.table('Product').insert({
 });
 ```
 
-...is just another way to execute:
+The above is just another way to execute:
 
 ```dart
 await sqlClient.execute(
@@ -386,11 +387,13 @@ await sqlClient.execute(
 
 
 ## Deleting rows
+Use [SQL selection helper](https://pub.dev/documentation/database/latest/database.sql/SqlClientTableSelectionHelper/deleteAll.html):
+
 ```dart
 await sqlClient.table('Product').where('price < ?', [5.0]).deleteAll();
 ```
 
-...is just another way to execute:
+The above is just another way to execute:
 
 ```dart
 await sqlClient.execute('DELETE FROM Product WHERE price < ?', [5.0]);
@@ -398,6 +401,7 @@ await sqlClient.execute('DELETE FROM Product WHERE price < ?', [5.0]);
 
 
 ## Transactions
+Use [sqlClient.runInTransaction()](https://pub.dev/documentation/database/latest/database.sql/SqlClient/runInTransaction.html):
 ```dart
 await sqlClient.runInTransaction((transaction) async {
   final values = await transaction.query('...').toMaps();
@@ -410,7 +414,7 @@ await sqlClient.runInTransaction((transaction) async {
 ```
 
 
-## Structural statements
+## Migrations
 ```dart
 await sqlClient.createTable('TableName');
 await sqlClient.dropTable('TableName');
