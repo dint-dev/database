@@ -38,7 +38,8 @@ void main() {
 
     test('GeoPointFilter', () {
       expect(
-        GeoPointFilter.withMaxDistance(GeoPoint.zero, 2.0).toString(),
+        GeoPointFilter(near: GeoPoint.zero, maxDistanceInMeters: 2.0)
+            .toString(),
         '(near 0.00000,0.00000 2.0)',
       );
     });

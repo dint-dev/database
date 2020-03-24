@@ -14,6 +14,14 @@
 
 part of database.sql;
 
+/// A transaction obtained from [SqlClient].
+///
+/// An example:
+/// ```
+/// await sqlClient.runInTransaction((transaction) {
+///   // ...
+/// });
+/// ```
 abstract class SqlTransaction extends SqlClientBase {
   final DatabaseAdapter _databaseAdapter;
   final Future<bool> isSuccess;

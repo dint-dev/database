@@ -14,15 +14,30 @@
 
 part of database.sql;
 
-/// Iterates rows in the database.
+/// A row iterator obtained from [SqlClient].
 ///
-/// This is the result of making an SQL query with [SqlClient].
+/// An example:
+/// ```
+/// import 'package:database/database.dart';
+///
+/// Future<void> example(SqlClient sqlClient) async {
+///   final iterator = await sqlClient.query('SELECT * FROM Product').getIterator();
+///
+///   // While we have more rows
+///   while (await iterator.next()) {
+///     // Read the current row
+///     final map = iterator.rowAsMap();
+///   }
+/// }
+/// ```
 abstract class SqlIterator {
   List _currentRow;
 
   bool _isClosed = false;
   SqlIterator.constructor();
 
+  /// Constructs a database iterator from column descriptions and a
+  /// batch-returning function.
   factory SqlIterator.fromFunction({
     @required List<SqlColumnDescription> columnDescriptions,
     @required Future<List<List>> Function({int length}) onNextRowBatch,
@@ -53,6 +68,7 @@ abstract class SqlIterator {
     );
   }
 
+  /// Constructs a database iterator from in-memory [Iterable].
   factory SqlIterator.fromMaps(
     Iterable<Map<String, Object>> maps, {
     List<SqlColumnDescription> columnDescriptions,
@@ -61,7 +77,10 @@ abstract class SqlIterator {
       final columnDescriptionsSet = <SqlColumnDescription>{};
       for (var map in maps) {
         for (var key in map.keys) {
-          columnDescriptionsSet.add(SqlColumnDescription(columnName: key));
+          columnDescriptionsSet.add(SqlColumnDescription(
+            tableName: null,
+            columnName: key,
+          ));
         }
       }
       columnDescriptions = columnDescriptionsSet.toList(growable: false);
@@ -84,13 +103,13 @@ abstract class SqlIterator {
   List<SqlColumnDescription> get columnDescriptions;
 
   /// Reads the next row as a map. If there are no more rows, returns null.
-  Future<Map<String, Object>> get currentMap async {
+  Map<String, Object> asMap() {
     final result = <String, Object>{};
     final row = currentRow;
     for (var i = 0; i < row.length; i++) {
       result[columnDescriptions[i]?.columnName ?? '$i'] = row[i];
     }
-    return Map<String, Object>.unmodifiable(result);
+    return result;
   }
 
   List get currentRow => _currentRow;

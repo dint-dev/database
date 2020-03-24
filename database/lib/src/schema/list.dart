@@ -26,7 +26,7 @@ import 'package:meta/meta.dart';
 ///     'rating': DoubleSchema(),
 ///     'similar': ListSchema(
 ///       items: DocumentSchema(
-///         collection:'recipes'
+///         collection:'recipes',
 ///       ),
 ///     ),
 ///   },

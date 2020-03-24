@@ -15,6 +15,12 @@
 import 'package:database/filter.dart';
 
 /// A regular expression matching filter.
+///
+/// ```
+/// import 'package:database/filters.dart';
+///
+/// final filter = RegExpFilter(RegExp('[a-z]+'));
+/// ```
 class RegExpFilter extends Filter {
   final RegExp regExp;
 

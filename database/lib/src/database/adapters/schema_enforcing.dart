@@ -18,9 +18,9 @@ import 'package:database/schema.dart';
 import 'package:database/src/database_adapter/requests/schema_read_request.dart';
 import 'package:meta/meta.dart';
 
-/// Enforces schemas on documents before data is written to the database. This
-/// class can be useful for detecting programming errors.
+/// Enforces schema validation on writes.
 ///
+/// This class can be useful for detecting programming errors.
 /// The schema is loaded from the database adapter tree with
 /// `document.schema()`. If you use a schemaless database, you can define
 /// schema in the constructor of this adapter.

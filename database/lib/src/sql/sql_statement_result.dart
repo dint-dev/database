@@ -14,7 +14,12 @@
 
 part of database.sql;
 
-/// Result of making an SQL statements with [SqlClient].
+/// A non-query statement result obtained from [SqlClient].
+///
+/// An example:
+/// ```
+/// final result = await sqlClient.execute('SELECT * FROM Product');
+/// ```
 class SqlStatementResult {
   /// How many rows were affected.
   final int affectedRows;

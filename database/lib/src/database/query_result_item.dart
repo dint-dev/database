@@ -17,6 +17,13 @@ import 'package:database/database.dart';
 import 'package:meta/meta.dart';
 
 /// Item in a [QueryResult].
+///
+/// ````
+/// final queryResult = await database.collection('Product').search();
+/// for (var item in queryResult.items) {
+///   // ...
+/// }
+/// ```
 class QueryResultItem<T> {
   /// Snapshot of the document.
   final Snapshot snapshot;

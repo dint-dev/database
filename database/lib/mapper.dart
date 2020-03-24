@@ -19,15 +19,14 @@
 ///   * [protobuf](https://pub.dev/packages/protobuf) serialization.
 ///
 /// ## Example
+/// ```
+/// import 'package:database/database.dart';
+/// import 'package:database/mapper.dart';
 ///
-///     import 'package:database/database.dart';
-///     import 'package:database/mapper.dart';
-///
-///     void main() {
-///       final database = MemoryDatabaseAdapter().database();
-///
-///       // TODO: document configuration
-///     }
+/// void main() {
+///   final database = MemoryDatabaseAdapter().database();
+///   // ...
+/// }
 library database.mapper;
 
 export 'src/mapper/built_value_mapper.dart';

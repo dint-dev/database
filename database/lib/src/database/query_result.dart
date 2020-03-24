@@ -17,6 +17,10 @@ import 'package:database/database.dart';
 import 'package:meta/meta.dart';
 
 /// The result of sending a [Query] to a [Collection].
+///
+/// ````
+/// final queryResult = await database.collection('Product').search();
+/// ```
 class QueryResult {
   /// Collection.
   final Collection collection;

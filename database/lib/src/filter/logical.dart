@@ -17,20 +17,23 @@ import 'package:database/filter.dart';
 
 /// Logical AND.
 ///
-/// An example:
-///     // Distance to both San Francisco and Oakland must be less than 50 miles.
-///     final locationFilter = MapFilter(
-///       'location': AndFilter([
-///         GeoPointFilter(
-///           near: sanFrancisco,
-///           maxDistance: 50,
-///         ),
-///         GeoPointFilter(
-///           near: oakland,
-///           maxDistance: 50,
-///         ),
-///       ]),
-///     );
+/// ```
+/// import 'package:database/filters.dart';
+///
+/// // Distance to both San Francisco and Oakland must be less than 50 kilometers.
+/// final locationFilter = MapFilter(
+///   'location': AndFilter([
+///     GeoPointFilter(
+///       near: sanFrancisco,
+///       maxDistance: 50,
+///     ),
+///     GeoPointFilter(
+///       near: oakland,
+///       maxDistance: 50,
+///     ),
+///   ]),
+/// );
+/// ```
 class AndFilter extends Filter {
   final List<Filter> filters;
   final bool isImplicit;
@@ -131,20 +134,23 @@ class NotFilter extends Filter {
 
 /// Logical OR.
 ///
-/// An example:
-///     // Must be near San Francisco or London
-///     final locationFilter = MapFilter(
-///       'location': OrFilter([
-///         GeoPointFilter(
-///           near: sanFrancisco,
-///           maxDistance: 50,
-///         ),
-///         GeoPointFilter(
-///           near: london,
-///           maxDistance: 50,
-///         ),
-///       ]),
-///     );
+/// ```
+/// import 'package:database/filters.dart';
+///
+/// // Distance to either San Francisco or Oakland must be less than 50 kilometers.
+/// final locationFilter = MapFilter(
+///   'location': OrFilter([
+///     GeoPointFilter(
+///       near: sanFrancisco,
+///       maxDistance: 50,
+///     ),
+///     GeoPointFilter(
+///       near: oakland,
+///       maxDistance: 50,
+///     ),
+///   ]),
+/// );
+/// ```
 class OrFilter extends Filter {
   final List<Filter> filters;
 

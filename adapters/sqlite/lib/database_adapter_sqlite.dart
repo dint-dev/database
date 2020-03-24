@@ -117,7 +117,7 @@ class SQLite extends SqlDatabaseAdapter {
 }
 
 class _SQLiteTransaction extends SqlTransaction {
-  impl.Transaction _impl;
+  final impl.Transaction _impl;
 
   _SQLiteTransaction(
       this._impl, DatabaseAdapter adapter, Future<bool> isSuccess)

@@ -16,9 +16,9 @@
 /// [Lucene query language](https://lucene.apache.org/core/6_6_2/queryparser/org/apache/lucene/queryparser/classic/package-summary.html).
 ///
 /// Examples of supported queries:
-///   * `Norwegian Forest cat`
-///     * Matches keywords "Norwegian", "Forest", and "cat".
-///   * `"Norwegian Forest cat"`
+///   * `norwegian forest cat`
+///     * Matches keywords "norwegian", "forest", and "cat".
+///   * `"norwegian forest cat"`
 ///     * A quoted keyword ensures that the words must appear as a sequence.
 ///   * `color:brown`
 ///     * Color matches keyword "brown".

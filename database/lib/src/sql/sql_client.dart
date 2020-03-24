@@ -17,10 +17,24 @@ part of database.sql;
 /// SQL client for accessing a [Database].
 ///
 /// ```
-/// final results = client.query('SELECT * FROM person').readMapStream();
+/// import 'package:database/database.dart';
+/// import 'package:database/sql.dart';
+/// import 'package:database_adapter_postgre/database_adapter_postgre.dart';
 ///
-/// await client.table('person').insert({'name': 'Alan Turing'});
-/// await client.table('person').deleteWhere{{'name': 'Alan Turing'});
+/// Future<void> main() {
+///   final sqlClient = Postgre(
+///     // ...
+///   ).database().sqlClient;
+///
+///   // Read rows
+///   final results = sqlClient.query('SELECT * FROM person').readMapStream();
+///
+///   // Insert rows
+///   await sqlClient.table('person').insert({'name': 'Alan Turing'});
+///
+///   // Delete rows
+///   await sqlClient.table('person').where{'NAME = ?', ['Alan Turing']).deleteAll();
+/// }
 /// ```
 class SqlClient extends SqlClientBase {
   /// Database.
@@ -85,6 +99,11 @@ class SqlClient extends SqlClientBase {
 
 /// Superclass of both [SqlClient] and [SqlTransaction].
 abstract class SqlClientBase {
+  /// Creates a SQL table.
+  ///
+  /// ```
+  /// sqlClient.createTable('example');
+  /// ```
   Future<void> createTable(String tableName) async {
     final b = SqlSourceBuilder();
     b.write('CREATE TABLE ');
@@ -93,6 +112,11 @@ abstract class SqlClientBase {
     await execute(sqlSource.value, sqlSource.arguments);
   }
 
+  /// Drops a SQL table.
+  ///
+  /// ```
+  /// sqlClient.dropTable('example');
+  /// ```
   Future<void> dropTable(String tableName) async {
     final b = SqlSourceBuilder();
     b.write('DROP TABLE ');
@@ -130,8 +154,10 @@ abstract class SqlClientBase {
     return SqlClientTableQueryHelper._(this, SqlStatement(sql, arguments));
   }
 
+  /// Sends SQL statement. Unlike [execute], takes [SqlStatement] as argument.
   Future<SqlStatementResult> rawExecute(SqlStatement source);
 
+  /// Sends SQL query. Unlike [query], takes [SqlStatement] as argument.
   Future<SqlIterator> rawQuery(SqlStatement source);
 
   /// Returns a helper for building SQL statements.

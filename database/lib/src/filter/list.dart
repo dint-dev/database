@@ -15,6 +15,16 @@
 import 'package:database/filter.dart';
 
 /// A filter for lists.
+///
+/// ```
+/// import 'package:database/filters.dart';
+///
+/// final filter = MapFilter({
+///   'ingredients': ListFilter(
+///     items: AndFilter([StringFilter('chicken'), StringFilter('rice')])
+///   ),
+/// });
+/// ```
 class ListFilter extends Filter {
   final Filter items;
 

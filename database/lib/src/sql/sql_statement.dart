@@ -14,7 +14,7 @@
 
 part of database.sql;
 
-/// SQL source and arguments.
+/// SQL source string and arguments.
 ///
 /// ```
 /// final statement = SqlStatement(

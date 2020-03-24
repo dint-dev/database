@@ -13,17 +13,35 @@
 // limitations under the License.
 
 /// A date in the Gregorian calendar. It doesn't have a timezone.
+///
+/// ```
+/// final date = Date(2020, 12, 31);
+/// ```
 class Date implements Comparable<Date> {
+  /// Year.
   final int year;
+
+  /// Month. January is 1.
   final int month;
+
+  /// Day. The first day of month is 1.
   final int day;
 
+  /// Constructs a date from year, month, and day.
+  ///
+  /// ```
+  /// final date = Date(2020, 12, 31);
+  /// ```
   const Date(this.year, this.month, this.day)
       : assert(year != null),
         assert(month != null),
         assert(day != null);
 
-  /// Constructs using year/month/day in a `DateTime`.
+  /// Constructs a date from [DateTime].
+  ///
+  /// ```
+  /// final date = Date.fromDateTime(DateTime.now());
+  /// ```
   factory Date.fromDateTime(DateTime dateTime) {
     return Date(dateTime.year, dateTime.month, dateTime.day);
   }
@@ -72,7 +90,7 @@ class Date implements Comparable<Date> {
     return '$year-$month-$day';
   }
 
-  /// Returns current date.
+  /// Returns the current date.
   static Date now({bool isUtc = false}) {
     var now = DateTime.now();
     if (isUtc) {

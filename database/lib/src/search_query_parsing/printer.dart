@@ -20,6 +20,12 @@ import 'package:meta/meta.dart';
 ///
 /// The language is very similar to [Lucene query language](https://lucene.apache.org/core/6_6_2/queryparser/org/apache/lucene/queryparser/classic/package-summary.html).
 /// For a description of the language, see [SearchQueryParser].
+///
+/// ```
+/// final printer = SearchQueryPrinter();
+/// filter.acceptVisitor(printer);
+/// final source = printer.toString();
+/// ```
 class SearchQueryPrinter extends FilterVisitor<void, Null> {
   static const _specialSubstrings = [
     '+',
@@ -74,7 +80,7 @@ class SearchQueryPrinter extends FilterVisitor<void, Null> {
     _sb.write(filter.near.latitude.toStringAsFixed(5));
     _sb.write(',');
     _sb.write(filter.near.longitude.toStringAsFixed(5));
-    final maxDistance = filter.maxDistance;
+    final maxDistance = filter.maxDistanceInMeters;
     if (maxDistance != null) {
       final s = maxDistance.toString();
       _sb.write(' ');

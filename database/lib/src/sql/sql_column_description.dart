@@ -14,12 +14,18 @@
 
 part of database.sql;
 
-/// Describes a SQL column in [SqlIterator].
+/// Identifies an SQL column.
 class SqlColumnDescription implements Comparable<SqlColumnDescription> {
+  /// SQL table name.
   final String tableName;
+
+  /// SQL column name.
   final String columnName;
 
-  SqlColumnDescription({this.tableName, this.columnName});
+  SqlColumnDescription({
+    @required this.tableName,
+    @required this.columnName,
+  }) : assert(columnName != null);
 
   @override
   int get hashCode => tableName.hashCode ^ columnName.hashCode;
@@ -56,12 +62,14 @@ class SqlColumnDescription implements Comparable<SqlColumnDescription> {
   }
 }
 
+/// Identifies an SQL type such as LONG INT or VARCHAR(160).
 class SqlType {
   final String typeName;
   final int length;
 
   const SqlType(this.typeName, {this.length});
 
+  /// Constructs a VARCHAR type.
   const SqlType.varChar(int length)
       : this(
           'VARCHAR',

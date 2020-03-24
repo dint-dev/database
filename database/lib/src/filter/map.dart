@@ -17,10 +17,15 @@ import 'package:database/filter.dart';
 
 /// A filter for maps.
 ///
-/// An example:
-///     MapFilter({
-///       'price': RangeFilter(max:50.0),
-///     });
+/// ```
+/// import 'package:database/filters.dart';
+///
+/// final filter = MapFilter({
+///   'ingredients': ListFilter(
+///     items: AndFilter([StringFilter('chicken'), StringFilter('rice')])
+///   ),
+/// });
+/// ```
 class MapFilter extends Filter {
   final Map<String, Filter> properties;
 

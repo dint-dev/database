@@ -14,9 +14,17 @@
 
 import 'package:database/filter.dart';
 
-/// A natural language search query.
+/// A natural language search query. The exact semantics are intentionally
+/// unspecified.
 ///
-/// The exact semantics are unspecified.
+/// ```
+/// import 'package:database/filters.dart';
+///
+/// final filter = AndFilter([
+///   KeywordFilter('term0'),
+///   KeywordFilter('term1'),
+/// ]);
+/// ```
 class KeywordFilter extends Filter {
   final String value;
 

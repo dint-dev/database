@@ -61,7 +61,7 @@ class DocumentScoringStateBase extends DocumentScoringState
   @override
   double visitGeoPointFilter(GeoPointFilter filter, Object input) {
     if (input is GeoPoint) {
-      final max = filter.maxDistance;
+      final max = filter.maxDistanceInMeters;
       if (max is num) {
         final distance = filter.near.distanceTo(input);
         if (distance < max.toDouble()) {

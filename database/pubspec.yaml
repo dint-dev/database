@@ -1,5 +1,5 @@
 name: database
-version: 0.3.2
+version: 0.3.3
 description:
   A database access API that's vendor-agnostic. Adapters exist for browser APIs, SQLite, Google
   Cloud Firestore, PostgreSQL, ElasticSearch, Algolia, and others.

@@ -21,7 +21,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'copy_of_database_adapter_tester.dart';
 
 void main() {
-  final Completer<String> completer = Completer<String>();
+  final completer = Completer<String>();
   enableFlutterDriverExtension(
     handler: (_) {
       return completer.future;

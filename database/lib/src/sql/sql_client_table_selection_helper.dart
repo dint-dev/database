@@ -15,6 +15,11 @@
 part of database.sql;
 
 /// A helper class used by [SqlClient] for building statements/queries.
+///
+/// An example:
+/// ```
+/// final selectionHelper = sqlClient.table('Product').where('price < ?', [10]);
+/// ```
 class SqlClientTableSelectionHelper {
   final SqlClient _client;
   final String _tableName;

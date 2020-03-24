@@ -12,25 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Describes distance to the global truth.
+/// Describes how far reads/writes should reach before they are good enough.
 ///
-/// For ordinary reads and writes, enforcing [Reach.server] is usually good
-/// enough.
+/// The possible values are:
+///   * [Reach.local] - The local cache. You get the best resiliency (and best
+///     reading/writing latency), but risk of inconsistent state is high.
+///   * [Reach.server] - The fastest (cloud) database or search engine. Often
+///     diverges from the regional master database. For example, it's usual for
+///     search engine clusters to take seconds or minutes before they have
+///     indexed changes in the regional master.
+///   * [Reach.regional] - The regional master. May diverge from the global
+///     master database during (extremely rare) network partitions.
+///   * [Reach.global] - The global master. You get the worst resiliency and
+///     best possible consistency.
 ///
-/// Enforce [Reach.global] when you want to eliminate inconsistent /
-/// out-of-date reads and writes completely.
+/// Example:
+/// ```
+/// final snapshot = await document.get(reach: Reach.local);
+/// ```
 enum Reach {
-  /// Truth in the local device.
+  /// Local cache.
   local,
 
-  /// A server that has access to all data, but the view may be many seconds
-  /// old, inconsistent, or lack some data.
+  /// The fastest cloud database or search engine.
   server,
 
-  /// The regional master truth. May diverge from the global truth during global
-  /// network partitions, but this is rare.
+  /// Regional master database.
   regional,
 
-  /// The global master truth.
+  /// Global master database.
   global,
 }

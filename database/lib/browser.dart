@@ -14,9 +14,13 @@
 
 /// Contains various database adapters that use browser APIs.
 ///
-/// Import:
-/// ```
+/// ```dart
 /// import 'package:database/browser.dart';
+///
+/// void main() {
+///   final database = BrowserDatabaseAdapter(),
+///   // ...
+/// }
 /// ```
 library database.browser;
 
@@ -40,7 +44,6 @@ String _jsonPointerUnescape(String s) {
 ///
 /// ```dart
 /// import 'package:database/browser.dart';
-/// import 'package:database/database.dart';
 ///
 /// void main() {
 ///   final database = BrowserDatabaseAdapter(),

@@ -106,21 +106,21 @@ void main() {
 
   group('GeoPointFilter', () {
     test('"hashCode" / "=="', () {
-      final filter = GeoPointFilter.withMaxDistance(
-        GeoPoint.zero,
-        3.0,
+      final filter = GeoPointFilter(
+        near: GeoPoint.zero,
+        maxDistanceInMeters: 3.0,
       );
-      final clone = GeoPointFilter.withMaxDistance(
-        GeoPoint.zero,
-        3.0,
+      final clone = GeoPointFilter(
+        near: GeoPoint.zero,
+        maxDistanceInMeters: 3.0,
       );
-      final other0 = GeoPointFilter.withMaxDistance(
-        GeoPoint.zero,
-        99.0,
+      final other0 = GeoPointFilter(
+        near: GeoPoint.zero,
+        maxDistanceInMeters: 99.0,
       );
-      final other1 = GeoPointFilter.withMaxDistance(
-        GeoPoint(99.0, 99.0),
-        3.0,
+      final other1 = GeoPointFilter(
+        near: GeoPoint(99.0, 99.0),
+        maxDistanceInMeters: 3.0,
       );
       expect(filter, clone);
       expect(filter, isNot(other0));

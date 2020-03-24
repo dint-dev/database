@@ -18,14 +18,34 @@ import 'package:database/filter.dart';
 import 'package:database/schema.dart';
 import 'package:database/search_query_parsing.dart';
 
-/// An immutable database query.
+/// A database query.
 ///
 /// The query algorithm has the following phases:
 ///   * [filter] - "Find matching documents"
 ///   * [sorter] - "Sort documents"
-///   * [schema] - "Use a specific subgraph"
 ///   * [skip] - "Skip N documents"
 ///   * [take] - "Take N documents"
+///   * [schema] - "Read a specific subgraph for each result"
+///
+/// ```
+/// import 'package:database/database.dart';
+/// import 'package:database/filter.dart';
+/// import 'package:database/schema.dart';
+///
+/// final query = Query(
+///   filter: MapFilter({
+///     'name': KeywordFilter('Coffee Mug'),
+///     'price': RangeFilter(max:10),
+///   }),
+///   sorter: PropertySorter.descending('price'),
+///   skip: 0,
+///   take: 10,
+///   schema: MapSchema({
+///     'name': StringSchema(),
+///     'price': IntSchema(),
+///   }),
+/// );
+/// ```
 ///
 /// You can use [QueryBuilder] for building instances of this class.
 class Query {
@@ -277,21 +297,35 @@ class Query {
     }
   }
 
-  /// Parses a search query.
+  /// Parses a search query using [SearchQueryParser].
   ///
-  /// Optional parameter [sorter] is used for sorting the matches.
+  /// The only required parameter is the search query. Other parameters are
+  /// optional. For a description of the other parameters, see [Query].
   ///
-  /// Optional parameter [skip] defines how many matches are skipped. The
-  /// default is 0 (no documents are skipped).
+  /// ```
+  /// import 'package:database/database.dart';
   ///
-  /// Optional parameter [take] defines how many matches are taken.
-  static Query parse(String source, {Sorter sorter, int skip = 0, int take}) {
+  /// final query = Query.parse(
+  ///   'Coffee Mug price:<=10',
+  ///   sorter: PropertySorter.descending('price'),
+  ///   skip: 0,
+  ///   take: 10,
+  /// );
+  /// ```
+  static Query parse(
+    String source, {
+    Sorter sorter,
+    int skip = 0,
+    int take,
+    Schema schema,
+  }) {
     final filter = SearchQueryParser().parseFilterFromString(source);
     return Query(
       filter: filter,
       sorter: sorter,
       skip: skip,
       take: take,
+      schema: schema,
     );
   }
 }

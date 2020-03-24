@@ -22,9 +22,9 @@ import 'package:database/search_query_parsing.dart';
 /// [Lucene query language](https://lucene.apache.org/core/6_6_2/queryparser/org/apache/lucene/queryparser/classic/package-summary.html).
 ///
 /// Examples of supported queries:
-///   * `Norwegian Forest cat`
-///     * Matches keywords "Norwegian", "Forest", and "cat".
-///   * `"Norwegian Forest cat"`
+///   * `norwegian forest cat`
+///     * Matches keywords "norwegian", "forest", and "cat".
+///   * `"norwegian forest cat"`
 ///     * A quoted keyword ensures that the words must appear as a sequence.
 ///   * `cat AND dog`
 ///     * Matches keywords "cat" and "dog" (in any order).
@@ -45,16 +45,19 @@ import 'package:database/search_query_parsing.dart';
 ///   * `(cat OR dog) AND weight:>=10`
 ///     * An example of grouping filters.
 ///
-/// In equality/range expressions, the parser recognizes:
-///   * "null"
-///   * "false"
-///   * "true"
-///   * "3"
-///   * "3.14"
-///   * "2020-12-31" ([Date])
-///   * "2020-12-31T00:00:00Z" ([DateTime])
+/// In equality and range expressions, the parser recognizes:
+///   * `null`
+///   * `false`, `true`
+///   * `3`
+///   * `3.14`
+///   * `2020-12-31` (Date)
+///   * `2020-12-31T00:00:00Z` (DateTime)
 ///
-/// Other values are interpreted as strings.
+/// For example:
+///   * `weight:=10` --> `MapFilter({'weight':ValueFilter(10)})`
+///   * `weight:="10"` --> `MapFilter({'weight':ValueFilter('10')})`
+///   * `weight:=10kg` --> `MapFilter({'weight':ValueFilter('10kg')})`
+///   * `weight:10` --> `MapFilter({'weight':KeywordFilter('10')})`
 class SearchQueryParser {
   const SearchQueryParser();
 
