@@ -217,7 +217,7 @@ class SqlClientTableSelectionHelper {
         }
         comma = true;
         b.identifier(item.name);
-        b.write(item.isDescending ? 'DESC ' : 'ASC ');
+        b.write(item.isDescending ? ' DESC ' : ' ASC ');
       }
     }
 
