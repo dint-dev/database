@@ -1,7 +1,7 @@
 import 'package:database_adapter_mysql/database_adapter_mysql.dart';
 
 Future main() async {
-  final database = Mysql(
+  final database = MysqlAdapter(
     user: 'root',
     password: '1234',
     databaseName: 'testdb',

@@ -86,7 +86,7 @@ void main() {
       print('  Skipping tests because of a Docker failure.');
       return null;
     }
-    return Mysql(
+    return MysqlAdapter(
       user: 'root',
       password: '1234',
       databaseName: 'testdb',

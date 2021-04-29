@@ -2,13 +2,16 @@ name: database_adapter_mysql
 version: 0.2.0
 description: An adapter for using 'package:database' API with a PostgreSQL database.
 homepage: https://github.com/dint-dev/database
+publish_to: none
 
 environment:
   sdk: '>=2.6.0 <3.0.0'
 
 dependencies:
   collection: ^1.14.0
-  database: ^0.3.0
+  # database: ^0.3.0
+  database:
+    path: ../../database
   meta: ^1.1.0
   mysql1: ^0.19.0
 

@@ -22,7 +22,7 @@ import 'package:meta/meta.dart';
 import 'package:mysql1/mysql1.dart' as impl;
 import 'package:mysql1/mysql1.dart';
 
-class Mysql extends SqlDatabaseAdapter {
+class MysqlAdapter extends SqlDatabaseAdapter {
   String host;
   int port;
   String user;
@@ -36,7 +36,7 @@ class Mysql extends SqlDatabaseAdapter {
 
   Future<impl.MySqlConnection> _connectionFuture;
 
-  Mysql({
+  MysqlAdapter({
     @required this.user,
     @required this.password,
     @required this.databaseName,
@@ -113,6 +113,7 @@ class Mysql extends SqlDatabaseAdapter {
     for (var row in results) {
       rows.add(row);
     }
+
     return SqlIterator.fromLists(
       columnDescriptions: columnDescriptions,
       rows: rows,

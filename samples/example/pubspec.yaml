@@ -6,6 +6,9 @@ description:
 
 publish_to: none
 
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
 dependencies:
   database:
   database_adapter_algolia:

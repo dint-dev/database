@@ -46,9 +46,9 @@ class SqlSourceBuilder {
     // For example, the following identifiers are banned in SQL Server:
     // https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver15
     if (_identifierRegExp.hasMatch(value)) {
-      write('"');
+      write('`');
       write(value);
-      write('"');
+      write('`');
     } else {
       throw ArgumentError.value(
         value,
