@@ -201,6 +201,7 @@ class MysqlAdapter extends SqlDatabaseAdapter {
     );
 
     final result = await MySqlConnection.connect(settings);
+    await Future.delayed(Duration(seconds: 1));
     return result;
   }
 }
